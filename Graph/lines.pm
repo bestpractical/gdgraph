@@ -5,7 +5,7 @@
 #	Name:
 #		GD::Graph::lines.pm
 #
-# $Id: lines.pm,v 1.6 2000/02/13 03:55:43 mgjv Exp $
+# $Id: lines.pm,v 1.7 2000/02/13 12:35:49 mgjv Exp $
 #
 #==========================================================================
 
@@ -22,48 +22,50 @@ use GD::Graph::axestype;
 
 sub draw_data_set # GD::Image, \@data
 {
-	my $s = shift;
-	my $d = shift;
+	my $self = shift;
 	my $ds = shift;
-	my $g = $s->{graph};
 
-	my $dsci = $s->set_clr($s->pick_data_clr($ds) );
-	my $type = $s->pick_line_type($ds);
-	my ($xb, $yb) = (defined $d->[0]) ?
-		$s->val_to_pixel( 1, $d->[0], $ds) :
+	my @values = $self->{_data}->y_values($ds) or
+		return $self->_set_error("Impossible illegal data set: $ds",
+			$self->{_data}->error);
+
+	my $dsci = $self->set_clr($self->pick_data_clr($ds) );
+	my $type = $self->pick_line_type($ds);
+	my ($xb, $yb) = (defined $values[0]) ?
+		$self->val_to_pixel( 1, $values[0], $ds) :
 		(undef, undef);
 
-	my $i;
-	for $i (1 .. $s->{_data}->num_points - 1) 
+	for (my $i = 0; $i < @values; $i++)
 	{
-		next unless (defined $d->[$i]);
+		next unless defined $values[$i];
 
-		my ($xe, $ye) = $s->val_to_pixel($i+1, $d->[$i], $ds);
+		my ($xe, $ye) = $self->val_to_pixel($i+1, $values[$i], $ds);
 
-		$s->draw_line($xb, $yb, $xe, $ye, $type, $dsci ) 
+		$self->draw_line($xb, $yb, $xe, $ye, $type, $dsci ) 
 			if defined $xb;
 		($xb, $yb) = ($xe, $ye);
    }
+
+   return $ds;
 }
 
 sub pick_line_type
 {
-	my $s = shift;
+	my $self = shift;
 	my $num = shift;
 
-	ref $s->{line_types} ?
-		$s->{line_types}[ $num % (1 + $#{$s->{line_types}}) - 1 ] :
+	ref $self->{line_types} ?
+		$self->{line_types}[ $num % (1 + $#{$self->{line_types}}) - 1 ] :
 		$num % 4 ? $num % 4 : 4
 }
 
 sub draw_line # ($xs, $ys, $xe, $ye, $type, $colour_index)
 {
-	my $s = shift;
+	my $self = shift;
 	my ($xs, $ys, $xe, $ye, $type, $clr) = @_;
-	my $g = $s->{graph};
 
-	my $lw = $s->{line_width};
-	my $lts = $s->{line_type_scale};
+	my $lw = $self->{line_width};
+	my $lts = $self->{line_type_scale};
 
 	my $style = gdStyled;
 	my @pattern = ();
@@ -73,10 +75,10 @@ sub draw_line # ($xs, $ys, $xe, $ye, $type, $colour_index)
 		($type == 2) && do {
 			# dashed
 
-			for (1 .. $lts) { push(@pattern, $clr) }
-			for (1 .. $lts) { push(@pattern, gdTransparent) }
+			for (1 .. $lts) { push @pattern, $clr }
+			for (1 .. $lts) { push @pattern, gdTransparent }
 
-			$g->setStyle(@pattern);
+			$self->{graph}->setStyle(@pattern);
 
 			last LINE;
 		};
@@ -84,10 +86,10 @@ sub draw_line # ($xs, $ys, $xe, $ye, $type, $colour_index)
 		($type == 3) && do {
 			# dotted,
 
-			for (1 .. 2) { push(@pattern, $clr) }
-			for (1 .. 2) { push(@pattern, gdTransparent) }
+			for (1 .. 2) { push @pattern, $clr }
+			for (1 .. 2) { push @pattern, gdTransparent }
 
-			$g->setStyle(@pattern);
+			$self->{graph}->setStyle(@pattern);
 
 			last LINE;
 		};
@@ -95,12 +97,12 @@ sub draw_line # ($xs, $ys, $xe, $ye, $type, $colour_index)
 		($type == 4) && do {
 			# dashed and dotted
 
-			for (1 .. $lts) { push(@pattern, $clr) }
-			for (1 .. 2) 	{ push(@pattern, gdTransparent) }
-			for (1 .. 2) 	{ push(@pattern, $clr) }
-			for (1 .. 2) 	{ push(@pattern, gdTransparent) }
+			for (1 .. $lts) { push @pattern, $clr }
+			for (1 .. 2) 	{ push @pattern, gdTransparent }
+			for (1 .. 2) 	{ push @pattern, $clr }
+			for (1 .. 2) 	{ push @pattern, gdTransparent }
 
-			$g->setStyle(@pattern);
+			$self->{graph}->setStyle(@pattern);
 
 			last LINE;
 		};
@@ -119,29 +121,27 @@ sub draw_line # ($xs, $ys, $xe, $ye, $type, $colour_index)
 		my $yelw = $ye + int($lw/2) - $i;
 
 		# Need the setstyle to reset 
-		$g->setStyle(@pattern) if (@pattern);
-		$g->line( $xs, $yslw, $xe, $yelw, $style );
+		$self->{graph}->setStyle(@pattern) if (@pattern);
+		$self->{graph}->line( $xs, $yslw, $xe, $yelw, $style );
 	}
 }
 
 sub draw_legend_marker # (data_set_number, x, y)
 {
-	my $s = shift;
-	my $n = shift;
-	my $x = shift;
-	my $y = shift;
+	my $self = shift;
+	my ($n, $x, $y) = @_;
 
-	my $ci = $s->set_clr($s->pick_data_clr($n));
-	my $type = $s->pick_line_type($n);
+	my $ci = $self->set_clr($self->pick_data_clr($n));
+	my $type = $self->pick_line_type($n);
 
-	$y += int($s->{lg_el_height}/2);
+	$y += int($self->{lg_el_height}/2);
 
 	#  Joe Smith <jms@tardis.Tymnet.COM>
-	local($s->{line_width}) = 2;    # Make these show up better
+	local($self->{line_width}) = 2;    # Make these show up better
 
-	$s->draw_line(
+	$self->draw_line(
 		$x, $y, 
-		$x + $s->{legend_marker_width}, $y,
+		$x + $self->{legend_marker_width}, $y,
 		$type, $ci
 	);
 }

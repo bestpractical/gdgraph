@@ -25,8 +25,8 @@ $my_graph->set(
 	bar_spacing => 4
 );
 
-#$my_graph->set_legend(qw(offset increment more));
+$my_graph->set_legend(qw(offset increment more));
 $my_graph->set_legend(undef, 'increment', 'more');
-$my_graph->plot(\@data);
+$my_graph->plot(\@data) or die $my_graph->error;
 save_chart($my_graph, 'sample17');
 

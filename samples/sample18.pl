@@ -55,7 +55,7 @@ push(@data,\@sld);
 );
 
 # get graph object
-$graph = GD::Graph::bars->new(640, 480);
+$graph = GD::Graph::bars->new(500, 400);
 
 # set graph legend
 $graph->set_legend(@legend);
@@ -89,7 +89,6 @@ $graph->set(
    'x_plot_values'    => 1,        # display tick values
    'x_labels_vertical'=> 1,        # display tick values vertically
    'zero_axis'        => 1,        # show line at y value =0
-   'lg_cols'          => 7         # num legend columns
 );
 
 $graph->plot(\@data);

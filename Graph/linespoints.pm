@@ -5,7 +5,7 @@
 #	Name:
 #		GD::Graph::linespoints.pm
 #
-# $Id: linespoints.pm,v 1.3 2000/01/07 13:44:42 mgjv Exp $
+# $Id: linespoints.pm,v 1.4 2000/02/13 12:35:49 mgjv Exp $
 #
 #==========================================================================
 
@@ -25,25 +25,20 @@ use GD::Graph::points;
 
 # PRIVATE
 
-sub draw_data_set # \@data, $ds
+sub draw_data_set
 {
-	my $s = shift;
-	my $d = shift;
-	my $ds = shift;
+	my $self = shift;
 
-	$s->GD::Graph::points::draw_data_set($d, $ds);
-	$s->GD::Graph::lines::draw_data_set($d, $ds);
+	$self->GD::Graph::points::draw_data_set(@_) or return;
+	$self->GD::Graph::lines::draw_data_set(@_);
 }
 
-sub draw_legend_marker # (data_set_number, x, y)
+sub draw_legend_marker
 {
-	my $s = shift;
-	my $n = shift;
-	my $x = shift;
-	my $y = shift;
+	my $self = shift;
 
-	$s->GD::Graph::points::draw_legend_marker($n, $x, $y);
-	$s->GD::Graph::lines::draw_legend_marker($n, $x, $y);
+	$self->GD::Graph::points::draw_legend_marker(@_);
+	$self->GD::Graph::lines::draw_legend_marker(@_);
 }
 
 1;

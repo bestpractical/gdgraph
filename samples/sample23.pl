@@ -73,8 +73,7 @@ $graph->set(
    'x_label_position' => '.5',     # centered x label
    'y_label_position' => '.5',     # centered y label
 
-#   This should have overwrite = 2
-#   'overwrite'        => 2,        # stacked x data
+   'overwrite'        => 2,        # stacked x data
 
    'bgclr'            => 'white',  # makes background transparent
    'transparent'      => 0,
@@ -84,7 +83,7 @@ $graph->set(
    'y_tick_number'    => 5,
    'y_number_format'  => '%d',     # integer y tick values
 								   # min & max adjusted to make tick
-   'y_max_value'      => 10,
+   'y_max_value'      => 25,
    'y_min_value'      => 0,
 
    'y_plot_values'    => 1,        # display tick values
@@ -93,7 +92,7 @@ $graph->set(
    'zero_axis'        => 1,        # show line at y value =0
    'lg_cols'          => 7,        # num legend columns
 
-   'accent_treshold'  => 55,
+   'accent_treshold'  => 100_000,
 );
 
 $graph->plot(\@data);

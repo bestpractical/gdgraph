@@ -34,9 +34,22 @@ die $data->error if $data->error;
 #print "@mm\n";
 
 $data->add_point('Foo', 12, 13, 9, 4);
+#$data->reverse;
 
 #my @mm = $data->get_min_max_y(1) or die $data->error;
 #print "@mm\n";
+
+for (my $foo = 1; $foo <= $data->num_sets; $foo++)
+{
+	print "$foo: ", $data->get_y($foo, 3), " -> ",
+		$data->get_y_cumulative($foo, 3), "\n";
+}
+
+print $data->error;
+
+__END__
+$data->reverse;
+$data->cumulate(apreserve_undef => 1);
 
 my $dd = Data::Dumper->new([$data], ['data']);
 $dd->Deepcopy(1);

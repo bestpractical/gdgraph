@@ -5,7 +5,7 @@
 #	Name:
 #		GD::Graph::Data.pm
 #
-# $Id: Data.pm,v 1.5 2000/02/13 03:55:43 mgjv Exp $
+# $Id: Data.pm,v 1.6 2000/02/13 12:35:49 mgjv Exp $
 #
 #==========================================================================
 
@@ -187,14 +187,71 @@ therefore returned).
 sub get_y
 {
 	my $self = shift;
-	my $nd   = shift;
-	my $np   = shift;
+	my ($nd, $np) = @_;
 	return $self->_set_error(ERR_ILL_DATASET)
 		unless defined $nd && $nd >= 1 && $nd <= $self->num_sets;
 	return $self->_set_error(ERR_ILL_POINT)
 		unless defined $np && $np >= 0;
 
 	$self->[$nd][$np];
+}
+
+=head2 $data->get_y_cumulative($nd, $np)
+
+Get the cumulative value of point I<$np> in data set<$nd>. The
+cumulative value is obtained by adding all the values of the points
+I<$np> in the data sets 1 to I<$nd>.
+
+=cut
+
+sub get_y_cumulative
+{
+	my $self = shift;
+	my ($nd, $np) = @_;
+	return $self->_set_error(ERR_ILL_DATASET)
+		unless defined $nd && $nd >= 1 && $nd <= $self->num_sets;
+	return $self->_set_error(ERR_ILL_POINT)
+		unless defined $np && $np >= 0;
+	
+	my $value;
+	for (my $i = 1; $i <= $nd; $i++)
+	{
+		$value += $self->[$i][$np] || 0;
+	}
+
+	return $value;
+}
+
+sub _get_min_max
+{
+	my $self = shift;
+	my $nd   = shift;
+	my ($min, $max);
+
+	for my $val (@{$self->[$nd]})
+	{
+		next unless defined $val;
+		$min = $val if !defined $min || $val < $min;
+		$max = $val if !defined $max || $val > $max;
+	}
+
+	return $self->_set_error('No (defined) values in dataset $nd')
+		unless defined $min && defined $max;
+	
+	return ($min, $max);
+}
+
+=head $data->get_min_max_x
+
+Returns a list of the minimum and maximum x value or the
+empty list on failure.
+
+=cut
+
+sub get_min_max_x
+{
+	my $self = shift;
+	$self->_get_min_max(0);
 }
 
 =head2 $data->get_min_max_y($nd)
@@ -208,22 +265,11 @@ sub get_min_max_y
 {
 	my $self = shift;
 	my $nd   = shift;
-	my ($min, $max);
 
 	return $self->_set_error(ERR_ILL_DATASET)
 		unless defined $nd && $nd >= 1 && $nd <= $self->num_sets;
-
-	for my $val (@{$self->[$nd]})
-	{
-		next unless defined $val;
-		$min = $val if !defined $min || $val < $min;
-		$max = $val if !defined $max || $val > $max;
-	}
-
-	return $self->_set_error('No (defined) values in dataset $nd')
-		unless defined $min && defined $max;
 	
-	return ($min, $max);
+	$self->_get_min_max($nd);
 }
 
 =head2 $data->get_min_max_y_all
@@ -413,24 +459,30 @@ sub make_strict
 	return $self;
 }
 
-=head2 $data->cumulate()
+=head2 $data->cumulate(preserver_undef => boolean)
 
 The B<cumulate> parameter will summarise the Y value sets as follows:
 the first Y value list will be unchanged, the second will contain a
 sum of the first and second, the third will contain the sum of first,
 second and third, and so on.  Returns undef on failure.
 
+if the argument I<preserve_undef> is set to a true value, then the sum
+of exclusively undefined values will be preserved as an undefined value.
+If it is not present or a false value, undef will be treated as zero.
+Note that this still will leave undefined values in the first data set
+alone.
+
 Note: Any non-numerical defined Y values will be treated as 0, but you
-really shouldn't be using this to store that sort of Y data. The sum of
-undefined values exclusively is the undefined value. An undefined value
-in a sum that contains something which isn't undefined, will count as a
-0.
+really shouldn't be using this to store that sort of Y data.
 
 =cut
 
 sub cumulate
 {
 	my $self = shift;
+
+	return $self->_set_error(ERR_ARGS_NO_HASH) if (@_ && @_ % 2);
+	my %args = @_;
 
 	# For all the sets, starting at the last one, ending just 
 	# before the first
@@ -446,10 +498,11 @@ sub cumulate
 				# undefinedness of this point. If we don't do this, then
 				# the mathematical operation will force undef to be a 0.
 				next if 
+					$args{preserve_undef} &&
 					! defined $self->[$ds][$point] &&
 					! defined $self->[$i][$point];
 
-				$self->[$ds][$point] += $self->[$i][$point];
+				$self->[$ds][$point] += $self->[$i][$point] || 0;
 			}
 		}
 	}
@@ -471,6 +524,7 @@ order:
 sub wanted
 {
 	my $self = shift;
+
 	for my $wanted (@_)
 	{
 		return $self->_set_error("Wanted index $wanted out of range 1-"
@@ -478,6 +532,19 @@ sub wanted
 			if $wanted < 1 || $wanted > $self->num_sets;
 	}
 	@{$self} = @{$self}[0, @_];
+	return $self;
+}
+
+=head2 $data->reverse
+
+Reverse the order of the data sets.
+
+=cut
+
+sub reverse
+{
+	my $self = shift;
+	@{$self} = ($self->[0], reverse @{$self}[1..$#{$self}]);
 	return $self;
 }
 

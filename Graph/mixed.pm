@@ -5,7 +5,7 @@
 #	Name:
 #		GD::Graph::mixed.pm
 #
-# $Id: mixed.pm,v 1.4 2000/01/07 13:44:42 mgjv Exp $
+# $Id: mixed.pm,v 1.5 2000/02/13 12:35:49 mgjv Exp $
 #
 #==========================================================================
 
@@ -34,43 +34,44 @@ use Carp;
 
 sub draw_data_set # GD::Image, \@data, $ds
 {
-	my $s = shift;
-	my $d = shift;
-	my $ds = shift;
+	my $self = shift;
+	my $ds   = $_[0];
 
-	my $type = $s->{types}->[$ds-1] || $s->{default_type};
+	my $rc;
+
+	my $type = $self->{types}->[$ds-1] || $self->{default_type};
 
 	# Try to execute the draw_data_set function in the package
 	# specified by type
-	eval '$s->GD::Graph::'.$type.'::draw_data_set($d, $ds)';
+	$rc = eval '$self->GD::Graph::'.$type.'::draw_data_set(@_)';
 
 	# If we fail, we try it in the package specified by the
 	# default_type, and warn the user
 	if ($@)
 	{
-		warn "Set $ds, unknown type $type, assuming $s->{default_type}\n";
+		warn "Set $ds, unknown type $type, assuming $self->{default_type}\n";
 
-		eval '$s->GD::Graph::'.
-			$s->{default_type}.'::draw_data_set($d, $ds)';
+		$rc = eval '$self->GD::Graph::'.
+			$self->{default_type}.'::draw_data_set(@_)';
 	}
 
 	# If even that fails, we bail out
-	croak "Set $ds: unknown default type $s->{default_type}\n" if $@;
+	croak "Set $ds: unknown default type $self->{default_type}\n" if $@;
+
+	return $rc;
 }
 
-sub draw_legend_marker # (GD::Image, data_set_number, x, y)
+sub draw_legend_marker
 {
-	my $s = shift;
-	my $ds = shift;
-	my $x = shift;
-	my $y = shift;
+	my $self = shift;
+	my $ds = $_[0];
 
-	my $type = $s->{types}->[$ds-1] || $s->{default_type};
+	my $type = $self->{types}->[$ds-1] || $self->{default_type};
 
-	eval '$s->GD::Graph::'.$type.'::draw_legend_marker($ds, $x, $y)';
+	eval '$self->GD::Graph::'.$type.'::draw_legend_marker(@_)';
 
-	eval '$s->GD::Graph::'.
-		$s->{default_type}.'::draw_legend_marker($ds, $x, $y)' if $@;
+	eval '$self->GD::Graph::'.
+		$self->{default_type}.'::draw_legend_marker(@_)' if $@;
 }
 
 1;

@@ -18,7 +18,7 @@
 #		GD::Graph::pie
 #		GD::Graph::mixed
 #
-# $Id: Graph.pm,v 1.15 2000/02/13 03:55:43 mgjv Exp $
+# $Id: Graph.pm,v 1.16 2000/02/13 12:35:49 mgjv Exp $
 #
 #==========================================================================
 
@@ -37,7 +37,7 @@ use GD::Text::Align;
 use GD::Graph::Data;
 use Carp;
 
-$GD::Graph::prog_rcs_rev = q{$Revision: 1.15 $};
+$GD::Graph::prog_rcs_rev = q{$Revision: 1.16 $};
 $GD::Graph::prog_version = 
 	($GD::Graph::prog_rcs_rev =~ /\s+(\d*\.\d*)/) ? $1 : "0.0";
 
@@ -200,28 +200,28 @@ sub set_title_TTF
 
 sub set_text_clr # (colour name)
 {
-	my $s = shift;
-	my $c = shift;
+	my $self = shift;
+	my $clr  = shift;
 
-	$s->set(
-		textclr       => $c,
-		labelclr      => $c,
-		axislabelclr  => $c,
+	$self->set(
+		textclr       => $clr,
+		labelclr      => $clr,
+		axislabelclr  => $clr,
 	);
 }
 
-sub plot # (\@data)
+sub plot
 {
 	# ABSTRACT
-	my $s = shift;
-	$s->die_abstract( "sub plot missing," );
+	my $self = shift;
+	$self->die_abstract( "sub plot missing," );
 }
 
 # Set defaults that apply to all graph/chart types. 
 # This is called by the default initialise methods 
 # from the objects further down the tree.
 
-sub initialise()
+sub initialise
 {
 	my $self = shift;
 
@@ -272,10 +272,9 @@ sub open_graph
 # index numbers for them) setting the graph to transparent, and 
 # interlaced, putting a logo (if defined) on there.
 
-sub init_graph # GD::Image
+sub init_graph
 {
 	my $self = shift;
-	my $g = $self->{graph};
 
 	$self->{bgci} = $self->set_clr(_rgb($self->{bgclr}));
 	$self->{fgci} = $self->set_clr(_rgb($self->{fgclr}));
@@ -286,9 +285,14 @@ sub init_graph # GD::Image
 	$self->{legendci} = $self->set_clr(_rgb($self->{legendclr}));
 	$self->{boxci} = $self->set_clr(_rgb($self->{boxclr})) 
 		if $self->{boxclr};
-	$g->transparent($self->{bgci}) if $self->{transparent};
-	$g->interlaced($self->{interlaced});
+
+	$self->{graph}->transparent($self->{bgci}) if $self->{transparent};
+	$self->{graph}->interlaced($self->{interlaced});
+
+	# XXX yuck. This doesn't belong here.. or does it?
 	$self->put_logo();
+
+	return $self;
 }
 
 sub _read_logo_file
@@ -296,6 +300,7 @@ sub _read_logo_file
 	my $self = shift;
 	my $gdimport = 'newFrom' . ucfirst($self->export_format);
 	my $glogo;
+	local (*LOGO);
 
 	open(LOGO, $self->{logo}) or return;
 	binmode(LOGO);
@@ -304,17 +309,15 @@ sub _read_logo_file
 		carp "Problems reading $self->{logo}"; 
 		return;
 	}
-	close(LOGO);
 
 	return $glogo;
 }
 
 # read in the logo, and paste it on the graph canvas
 
-sub put_logo # GD::Image
+sub put_logo
 {
 	my $self = shift;
-	local (*LOGO);
 	return unless defined $self->{logo};
 
 	my $glogo = $self->_read_logo_file() or return;
@@ -358,15 +361,14 @@ sub put_logo # GD::Image
 
 sub set_clr # GD::Image, r, g, b
 {
-	my $s = shift; 
-	my $g = $s->{graph}; 
+	my $self = shift; 
 	my $i;
 
 	# Check if this colour already exists on the canvas
-	if ( ( $i = $g->colorExact( @_ ) ) < 0 ) 
+	if (($i = $self->{graph}->colorExact(@_)) < 0) 
 	{
-		# if not, allocate a new one, and return it's index
-		return $g->colorAllocate( @_ );
+		# if not, allocate a new one, and return its index
+		$i = $self->{graph}->colorAllocate(@_);
 	} 
 	return $i;
 }
@@ -375,28 +377,26 @@ sub set_clr # GD::Image, r, g, b
 
 sub set_clr_uniq # GD::Image, r, g, b
 {
-	my $s=shift; 
-	my $g=$s->{graph}; 
-
-	$g->colorAllocate( @_ ); 
+	my $self = shift; 
+	$self->{graph}->colorAllocate(@_); 
 }
 
 # Return an array of rgb values for a colour number
 
 sub pick_data_clr # number
 {
-	my $s = shift;
-	_rgb($s->{dclrs}[$_[0] % @{$s->{dclrs}} - 1]);
+	my $self = shift;
+	_rgb($self->{dclrs}[$_[0] % @{$self->{dclrs}} - 1]);
 }
 
 # contrib "Bremford, Mike" <mike.bremford@gs.com>
 sub pick_border_clr # number
 {
-	my $s = shift;
+	my $self = shift;
 
-	ref $s->{borderclrs} ?
-		_rgb($s->{borderclrs}[$_[0] % @{$s->{borderclrs}} - 1]) :
-		_rgb($s->{accentclr});
+	ref $self->{borderclrs} ?
+		_rgb($self->{borderclrs}[$_[0] % @{$self->{borderclrs}} - 1]) :
+		_rgb($self->{accentclr});
 }
 
 # DEBUGGING
@@ -404,18 +404,16 @@ sub pick_border_clr # number
 
 sub die_abstract
 {
-	my $s = shift;
+	my $self = shift;
 	my $msg = shift;
 	# ABSTRACT
 	confess
 		"Subclass (" .
-		ref($s) . 
+		ref($self) . 
 		") not implemented correctly: " .
 		(defined($msg) ? $msg : "unknown error");
 }
 
-# XXX grumble. This really needs to be fixed up.
-# Simple error handler.
 sub _set_error {
   my $self = shift;
   my @caller = caller;
@@ -432,8 +430,8 @@ sub error
 
 sub gd 
 {
-	my $s = shift;
-	return $s->{graph};
+	my $self = shift;
+	return $self->{graph};
 }
 
 sub export_format

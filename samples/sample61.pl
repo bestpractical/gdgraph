@@ -44,6 +44,6 @@ $my_graph->set(
 );
 
 $my_graph->set_legend( qw( one two three four five six ) );
-$my_graph->plot(\@data);
+$my_graph->plot(\@data) or die $my_graph->error;
 save_chart($my_graph, 'sample61');
 

@@ -5,7 +5,7 @@
 #	Name:
 #		GD::Graph::area.pm
 #
-# $Id: area.pm,v 1.7 2000/02/13 03:55:43 mgjv Exp $
+# $Id: area.pm,v 1.8 2000/02/13 12:35:49 mgjv Exp $
 #
 #==========================================================================
 
@@ -18,57 +18,65 @@ use GD::Graph::axestype;
 @GD::Graph::area::ISA = qw( GD::Graph::axestype );
 
 # PRIVATE
-sub draw_data_set  # GD::Image, \@data, $ds
+sub draw_data_set
 {
-	my $s = shift;		# object reference
-	my $d = shift;		# reference to data set
-	my $ds = shift;		# number of the data set
-	my $g = $s->{graph};
+	my $self = shift;		# object reference
+	my $ds   = shift;		# number of the data set
 
-	my $num = 0;
+	my @values = $self->{_data}->y_values($ds) or
+		return $self->_set_error("Impossible illegal data set: $ds",
+			$self->{_data}->error);
 
 	# Select a data colour
-	my $dsci = $s->set_clr($s->pick_data_clr($ds));
-	my $brci = $s->set_clr($s->pick_border_clr($ds));
+	my $dsci = $self->set_clr($self->pick_data_clr($ds));
+	my $brci = $self->set_clr($self->pick_border_clr($ds));
 
 	# Create a new polygon
-	my $poly = new GD::Polygon();
+	my $poly = GD::Polygon->new();
 
-	# Add the first 'zero' point
-	my ($x, $y) = $s->val_to_pixel(1, 0, $ds);
-	$poly->addPt($x, $y);
+	my @bottom;
 
 	# Add the data points
-	my $i;
-	for $i (0 .. $s->{_data}->num_points - 1) 
+	for (my $i = 0; $i < @values; $i++)
 	{
-		next unless (defined $d->[$i]);
+		my $value = $values[$i];
+		next unless defined $value;
 
-		($x, $y) = $s->val_to_pixel($i + 1, $d->[$i], $ds);
+		my $bottom = $self->_get_bottom($ds, $i);
+		$value = $self->{_data}->get_y_cumulative($ds, $i)
+			if ($self->{overwrite} == 2);
+
+		my ($x, $y) = $self->val_to_pixel($i + 1, $value, $ds);
 		$poly->addPt($x, $y);
-
-		$num = $i;
+		push @bottom, [$x, $bottom];
 	}
 
-	# Add the last zero point
-	($x, $y) = $s->val_to_pixel($num + 1, 0, $ds);
-	$poly->addPt($x, $y);
+	foreach my $bottom (reverse @bottom)
+	{
+		$poly->addPt($bottom->[0], $bottom->[1]);
+	}
 
 	# Draw a filled and a line polygon
-	$g->filledPolygon($poly, $dsci);
-	$g->polygon($poly, $brci);
+	$self->{graph}->filledPolygon($poly, $dsci);
+	$self->{graph}->polygon($poly, $brci);
 
 	# Draw the accent lines
-	if (($s->{right} - $s->{left})/($s->{_data}->num_points) > 
-			$s->{accent_treshold})
+	if (($self->{right} - $self->{left})/@values > $self->{accent_treshold})
 	{
-		for $i (1 .. ($s->{_data}->num_points - 2)) 
+		for (my $i = 1; $i < @values - 1; $i++)
 		{
-			next unless (defined $d->[$i]);
-			($x, $y) = $s->val_to_pixel($i + 1, $d->[$i], $ds);
-			$g->dashedLine($x, $y, $x, $s->{zeropoint}, $brci);
+			my $value = $values[$i];
+			next unless defined $value;
+			#my ($x, $y) = $self->val_to_pixel($i + 1, $values[$i], $ds);
+
+			my ($x, $y) = $poly->getPt($i);
+			my $bottom = $bottom[$i]->[1];
+
+			$self->{graph}->dashedLine($x, $y, $x, $bottom, $brci);
 		}
 	}
+
+	return $ds
 }
  
 1;

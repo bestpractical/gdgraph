@@ -5,7 +5,7 @@
 #	Name:
 #		GD::Graph::axestype.pm
 #
-# $Id: axestype.pm,v 1.12 2000/02/13 03:55:43 mgjv Exp $
+# $Id: axestype.pm,v 1.13 2000/02/13 12:35:49 mgjv Exp $
 #
 #==========================================================================
 
@@ -180,15 +180,15 @@ sub plot # (\@data)
 	my $self = shift;
 	my $data = shift;
 
-	$self->init_graph();
-	$self->check_data($data) or return;
-	$self->setup_text();
+	$self->check_data($data) 			or return;
+	$self->init_graph()					or return;
+	$self->setup_text()					or return;
 	$self->setup_legend();
-	$self->setup_coords($data);
+	$self->setup_coords()				or return;
 	$self->draw_text();
-	$self->draw_axes($data);
-	$self->draw_ticks($data);
-	$self->draw_data($data);
+	$self->draw_axes();
+	$self->draw_ticks()					or return;
+	$self->draw_data()					or return;
 	$self->draw_legend();
 
 	return $self->{graph}
@@ -241,6 +241,8 @@ sub setup_text
 	$self->{gdta_legend}->set(colour => $self->{legendci});
 	$self->{gdta_legend}->set_align('top', 'left');
 	$self->{lgfh} = $self->{gdta_legend}->get('height');
+
+	return $self;
 }
 
 sub set_x_label_font # (fontname)
@@ -284,22 +286,20 @@ sub set_legend_font # (font name)
 sub setup_coords
 {
 	my $s = shift;
-	my $data = shift;
 
 	# Do some sanity checks
-	$s->{two_axes} = 0 if ( $s->{_data}->num_sets != 2 || $s->{two_axes} < 0 );
-	$s->{two_axes} = 1 if ( $s->{two_axes} > 1 );
+	$s->{two_axes} = 0 if $s->{_data}->num_sets != 2 || $s->{two_axes} < 0;
+	$s->{two_axes} = 1 if $s->{two_axes} > 1;
 
-	delete $s->{y_label2} unless ($s->{two_axes});
+	delete $s->{y_label2} unless $s->{two_axes};
 
 	# Set some heights for text
-	$s->{tfh} = 0 unless $s->{title};
+	$s->{tfh}  = 0 unless $s->{title};
 	$s->{xlfh} = 0 unless $s->{x_label};
 
 	# Make sure the y1 axis has a label if there is one set for y in
 	# general
-	$s->{y1_label} = $s->{y_label} 
-		if ( ! $s->{y1_label} && $s->{y_label} );
+	$s->{y1_label} = $s->{y_label} if !$s->{y1_label} && $s->{y_label};
 
 	# Set axis tick text heights and widths to 0 if they don't need to
 	# be plotted.
@@ -307,21 +307,24 @@ sub setup_coords
 	$s->{yafh} = 0, $s->{yafw} = 0 unless $s->{y_plot_values};
 
 	# Get the height of the space needed for the X axis tick text
-	$s->{x_axis_label_height} = $s->get_x_axis_label_height($data);
+	$s->{x_axis_label_height} = $s->get_x_axis_label_height;
 
 	# calculate the top and bottom of the bounding box for the graph
 	$s->{bottom} = $s->{height} - $s->{b_margin} - 1 -
 		# X axis tick labels
-		( $s->{x_axis_label_height} ? $s->{x_axis_label_height} : 0) -
+		( $s->{x_axis_label_height} ? $s->{x_axis_label_height} : 0 ) -
 		# X axis label
 		( $s->{xlfh} ? $s->{xlfh} + $s->{text_space} : 0 );
 
 	$s->{top} = $s->{t_margin} +
 				( $s->{tfh} ? $s->{tfh} + $s->{text_space} : 0 );
 	# Make sure the text for the y axis tick markers fits on the canvas
-	$s->{top} = $s->{yafh}/2 if ( $s->{top} == 0 );
+	$s->{top} = $s->{yafh}/2 if $s->{top} == 0;
 
-	$s->set_max_min($data);
+	return $s->_set_error('Vertical size too small')
+		if $s->{bottom} - $s->{top} <= 0;
+
+	$s->set_max_min() or return;
 
 	# Create the labels for the y_axes, and calculate the max length
 
@@ -345,9 +348,11 @@ sub setup_coords
 					  ( $s->{y2_label} ? $s->{ylfh} + $s->{text_space} : 0 )
 				  );
 
+	return $s->_set_error('Horizontal size too small')	
+		if $s->{right} - $s->{left} <= 0;
+
 	# CONTRIB Scott Prahl
 	# make sure that we can generate valid x tick marks
-	# XXX 2 or 1?
 	undef($s->{x_tick_number}) if $s->{_data}->num_points < 3;
 	undef($s->{x_tick_number}) if (
 			!defined $s->{x_max} || 
@@ -373,61 +378,53 @@ sub setup_coords
 	}
 
 	# get the zero axis level
-	my $dum;
-	($dum, $s->{zeropoint}) = $s->val_to_pixel(0, 0, 1);
-
-	# Check the size
-	croak "Vertical size too small"
-		if ( ($s->{bottom} - $s->{top}) <= 0 );
-
-	croak "Horizontal size too small"	
-		if ( ($s->{right} - $s->{left}) <= 0 );
+	(undef, $s->{zeropoint}) = $s->val_to_pixel(0, 0, 1);
 
 	# More sanity checks
 	$s->{x_label_skip} = 1 		if ( $s->{x_label_skip} < 1 );
 	$s->{y_label_skip} = 1 		if ( $s->{y_label_skip} < 1 );
 	$s->{y_tick_number} = 1		if ( $s->{y_tick_number} < 1 );
+
+	return $s;
 }
 
 sub create_y_labels
 {
-	my $s = shift;
+	my $self = shift;
 
-	$s->{y_label_len}[1] = 0;
-	$s->{y_label_len}[2] = 0;
+	$self->{y_label_len}[1] = 0;
+	$self->{y_label_len}[2] = 0;
 
-	my $t;
-	foreach $t (0 .. $s->{y_tick_number})
+	for my $t (0 .. $self->{y_tick_number})
 	{
-		my $a;
-		foreach $a (1 .. ($s->{two_axes} + 1))
+		for my $a (1 .. ($self->{two_axes} + 1))
 		{
 			my $label = 
-				$s->{y_min}[$a] +
-				$t *
-				($s->{y_max}[$a] - $s->{y_min}[$a])/$s->{y_tick_number};
+				$self->{y_min}[$a] +
+				$t * ($self->{y_max}[$a] - 
+					$self->{y_min}[$a])/$self->{y_tick_number};
 			
-			$s->{y_values}[$a][$t] = $label;
+			$self->{y_values}[$a][$t] = $label;
 
-			if (defined $s->{y_number_format})
+			if (defined $self->{y_number_format})
 			{
-				if (ref $s->{y_number_format} eq 'CODE')
+				if (ref $self->{y_number_format} eq 'CODE')
 				{
-					$label = &{$s->{y_number_format}}($label);
+					$label = &{$self->{y_number_format}}($label);
 				}
 				else
 				{
-					$label = sprintf($s->{y_number_format}, $label);
+					$label = sprintf($self->{y_number_format}, $label);
 				}
 			}
 			
-			$s->{gdta_y_axis}->set_text($label);
-			my $len = $s->{gdta_y_axis}->get('width');
+			$self->{gdta_y_axis}->set_text($label);
+			my $len = $self->{gdta_y_axis}->get('width');
 
-			$s->{y_labels}[$a][$t] = $label;
+			$self->{y_labels}[$a][$t] = $label;
 
-			($len > $s->{y_label_len}[$a]) and 
-				$s->{y_label_len}[$a] = $len;
+			($len > $self->{y_label_len}[$a]) and 
+				$self->{y_label_len}[$a] = $len;
 		}
 	}
 }
@@ -435,56 +432,52 @@ sub create_y_labels
 # CONTRIB Scott Prahl
 sub create_x_labels
 {
-	my $s = shift;
-	return unless defined($s->{x_tick_number});
+	my $self = shift;
+	return unless defined $self->{x_tick_number};
 
-	$s->{x_label_len} = 0;
+	$self->{x_label_len} = 0;
 
-	my $t;
-	foreach $t (0..$s->{x_tick_number})
+	foreach my $t (0..$self->{x_tick_number})
 	{
 		my $label =
-			$s->{x_min} +
-			$t * ($s->{x_max} - $s->{x_min})/$s->{x_tick_number};
+			$self->{x_min} +
+			$t * ($self->{x_max} - $self->{x_min})/$self->{x_tick_number};
 
-		$s->{x_values}[$t] = $label;
+		$self->{x_values}[$t] = $label;
 
-		if (defined $s->{x_number_format})
+		if (defined $self->{x_number_format})
 		{
-			if (ref $s->{x_number_format} eq 'CODE')
+			if (ref $self->{x_number_format} eq 'CODE')
 			{
-				$label = &{$s->{x_number_format}}($label);
+				$label = &{$self->{x_number_format}}($label);
 			}
 			else
 			{
-				$label = sprintf($s->{x_number_format}, $label);
+				$label = sprintf($self->{x_number_format}, $label);
 			}
 		}
 
-		$s->{gdta_x_label}->set_text($label);
-		my $len = $s->{gdta_x_label}->get('width');
+		$self->{gdta_x_label}->set_text($label);
+		my $len = $self->{gdta_x_label}->get('width');
 
-		$s->{x_labels}[$t] = $label;
+		$self->{x_labels}[$t] = $label;
 
-		($len > $s->{x_label_len}) and $s->{x_label_len} = $len;
+		($len > $self->{x_label_len}) and $self->{x_label_len} = $len;
 	}
 }
 
 sub get_x_axis_label_height
 {
-	my $s = shift;
-	my $data = shift;
+	my $self = shift;
 
-	return $s->{xafh} unless $s->{x_labels_vertical};
+	return $self->{xafh} unless $self->{x_labels_vertical};
 
 	my $len = 0;
-	my $labels = $data->[0];
-	my $label;
-	foreach $label (@$labels)
+	foreach my $label ($self->{_data}->x_values)
 	{
-		$s->{gdta_x_axis}->set_text($label);
-		my $llen = $s->{gdta_x_axis}->get('width');
-		($llen > $len) and $len = $llen;
+		$self->{gdta_x_axis}->set_text($label);
+		my $llen = $self->{gdta_x_axis}->get('width');
+		$len = $llen if $len < $llen;
 	}
 	return $len
 }
@@ -493,186 +486,183 @@ sub get_x_axis_label_height
 
 sub draw_text
 {
-	my $s = shift;
+	my $self = shift;
 
-	if ($s->{title})
+	if ($self->{title})
 	{
-		my $xc = $s->{left} + ($s->{right} - $s->{left})/2;
-		$s->{gdta_title}->set_align('top', 'center');
-		$s->{gdta_title}->set_text($s->{title});
-		$s->{gdta_title}->draw($xc, $s->{t_margin});
+		my $xc = $self->{left} + ($self->{right} - $self->{left})/2;
+		$self->{gdta_title}->set_align('top', 'center');
+		$self->{gdta_title}->set_text($self->{title});
+		$self->{gdta_title}->draw($xc, $self->{t_margin});
 	}
 
 	# X label
-	if (defined $s->{x_label}) 
+	if (defined $self->{x_label}) 
 	{
-		$s->{gdta_x_label}->set_text($s->{x_label});
-		$s->{gdta_x_label}->set_align('bottom', 'left');
-		my $tx = $s->{left} +
-			$s->{x_label_position} * ($s->{right} - $s->{left}) - 
-			$s->{x_label_position} * $s->{gdta_x_label}->get('width');
-		$s->{gdta_x_label}->draw($tx, $s->{height} - $s->{b_margin});
+		$self->{gdta_x_label}->set_text($self->{x_label});
+		$self->{gdta_x_label}->set_align('bottom', 'left');
+		my $tx = $self->{left} +
+			$self->{x_label_position} * ($self->{right} - $self->{left}) - 
+			$self->{x_label_position} * $self->{gdta_x_label}->get('width');
+		$self->{gdta_x_label}->draw($tx, $self->{height} - $self->{b_margin});
 	}
 
 	# Y labels
-	if (defined $s->{y1_label}) 
+	if (defined $self->{y1_label}) 
 	{
-		$s->{gdta_y_label}->set_text($s->{y1_label});
-		$s->{gdta_y_label}->set_align('top', 'left');
-		my $tx = $s->{l_margin};
-		my $ty = $s->{bottom} -
-			$s->{y_label_position} * ($s->{bottom} - $s->{top}) + 
-			$s->{y_label_position} * $s->{gdta_y_label}->get('width');
-		$s->{gdta_y_label}->draw($tx, $ty, PI/2);
+		$self->{gdta_y_label}->set_text($self->{y1_label});
+		$self->{gdta_y_label}->set_align('top', 'left');
+		my $tx = $self->{l_margin};
+		my $ty = $self->{bottom} -
+			$self->{y_label_position} * ($self->{bottom} - $self->{top}) + 
+			$self->{y_label_position} * $self->{gdta_y_label}->get('width');
+		$self->{gdta_y_label}->draw($tx, $ty, PI/2);
 	}
-	if ( $s->{two_axes} && defined $s->{y2_label} ) 
+	if ( $self->{two_axes} && defined $self->{y2_label} ) 
 	{
-		$s->{gdta_y_label}->set_text($s->{y2_label});
-		$s->{gdta_y_label}->set_align('bottom', 'left');
-		my $tx = $s->{width} - $s->{r_margin};
-		my $ty = $s->{bottom} -
-			$s->{y_label_position} * ($s->{bottom} - $s->{top}) + 
-			$s->{y_label_position} * $s->{gdta_y_label}->get('width');
-		$s->{gdta_y_label}->draw($tx, $ty, PI/2);
+		$self->{gdta_y_label}->set_text($self->{y2_label});
+		$self->{gdta_y_label}->set_align('bottom', 'left');
+		my $tx = $self->{width} - $self->{r_margin};
+		my $ty = $self->{bottom} -
+			$self->{y_label_position} * ($self->{bottom} - $self->{top}) + 
+			$self->{y_label_position} * $self->{gdta_y_label}->get('width');
+		$self->{gdta_y_label}->draw($tx, $ty, PI/2);
 	}
 }
 
 sub draw_axes
 {
-	my $s = shift;
-	my $d = shift;
-	my $g = $s->{graph};
+	my $self = shift;
 
 	my ($l, $r, $b, $t) = 
-		( $s->{left}, $s->{right}, $s->{bottom}, $s->{top} );
+		( $self->{left}, $self->{right}, $self->{bottom}, $self->{top} );
 
-	if ( $s->{box_axis} ) 
+	if ( $self->{box_axis} ) 
 	{
-		$g->filledRectangle($l+1, $t+1, $r-1, $b-1, $s->{boxci})
-			if $s->{boxci};
+		$self->{graph}->filledRectangle($l+1, $t+1, $r-1, $b-1, $self->{boxci})
+			if $self->{boxci};
 
-		$g->rectangle($l, $t, $r, $b, $s->{fgci});
+		$self->{graph}->rectangle($l, $t, $r, $b, $self->{fgci});
 	}
 	else
 	{
-		$g->line($l, $t, $l, $b, $s->{fgci});
-		$g->line($l, $b, $r, $b, $s->{fgci}) 
-			unless ($s->{zero_axis_only});
-		$g->line($r, $b, $r, $t, $s->{fgci}) 
-			if ($s->{two_axes});
+		$self->{graph}->line($l, $t, $l, $b, $self->{fgci});
+		$self->{graph}->line($l, $b, $r, $b, $self->{fgci}) 
+			unless ($self->{zero_axis_only});
+		$self->{graph}->line($r, $b, $r, $t, $self->{fgci}) 
+			if ($self->{two_axes});
 	}
 
-	if ($s->{zero_axis} or $s->{zero_axis_only})
+	if ($self->{zero_axis} or $self->{zero_axis_only})
 	{
-		my ($x, $y) = $s->val_to_pixel(0, 0, 1);
-		$g->line($l, $y, $r, $y, $s->{fgci});
+		my ($x, $y) = $self->val_to_pixel(0, 0, 1);
+		$self->{graph}->line($l, $y, $r, $y, $self->{fgci});
 	}
 }
 
 #
 # Ticks and values for y axes
 #
-sub draw_y_ticks # \@data
+sub draw_y_ticks
 {
-	my $s = shift;
-	my $d = shift;
+	my $self = shift;
 
-	my $t;
-	foreach $t (0 .. $s->{y_tick_number}) 
+	for my $t (0 .. $self->{y_tick_number}) 
 	{
-		my $a;
-		foreach $a (1 .. ($s->{two_axes} + 1)) 
+		for my $a (1 .. ($self->{two_axes} + 1)) 
 		{
-			my $value = $s->{y_values}[$a][$t];
-			my $label = $s->{y_labels}[$a][$t];
+			my $value = $self->{y_values}[$a][$t];
+			my $label = $self->{y_labels}[$a][$t];
 			
-			my ($x, $y) = $s->val_to_pixel(0, $value, $a);
-			$x = ($a == 1) ? $s->{left} : $s->{right};
+			my ($x, $y) = $self->val_to_pixel(0, $value, $a);
+			$x = ($a == 1) ? $self->{left} : $self->{right};
 
-			if ($s->{y_long_ticks}) 
+			if ($self->{y_long_ticks}) 
 			{
-				$s->{graph}->line( 
+				$self->{graph}->line( 
 					$x, $y, 
-					$x + $s->{right} - $s->{left}, $y, 
-					$s->{fgci} 
+					$x + $self->{right} - $self->{left}, $y, 
+					$self->{fgci} 
 				) unless ($a-1);
 			} 
 			else 
 			{
-				$s->{graph}->line( 
+				$self->{graph}->line( 
 					$x, $y, 
-					$x + (3 - 2 * $a) * $s->{y_tick_length}, $y, 
-					$s->{fgci} 
+					$x + (3 - 2 * $a) * $self->{y_tick_length}, $y, 
+					$self->{fgci} 
 				);
 			}
 
 			next 
-				if ( $t % ($s->{y_label_skip}) || ! $s->{y_plot_values} );
+				if $t % ($self->{y_label_skip}) || ! $self->{y_plot_values};
 
-			$s->{gdta_y_axis}->set_text($label);
-			$s->{gdta_y_axis}->set_align('center', 
+			$self->{gdta_y_axis}->set_text($label);
+			$self->{gdta_y_axis}->set_align('center', 
 				$a == 1 ? 'right' : 'left');
-			$x -= (3 - 2 * $a) * $s->{axis_space};
-			$s->{gdta_y_axis}->draw($x, $y);
+			$x -= (3 - 2 * $a) * $self->{axis_space};
+			$self->{gdta_y_axis}->draw($x, $y);
 		}
 	}
+
+	return $self;
 }
 
 #
 # Ticks and values for x axes
 #
-sub draw_x_ticks # \@data
+sub draw_x_ticks
 {
-	my $s = shift;
-	my $d = shift;
+	my $self = shift;
 
-	my $i;
-	for $i (0 .. $s->{_data}->num_points - 1) 
+	for (my $i = 0; $i < $self->{_data}->num_points; $i++) 
 	{
-		my ($x, $y) = $s->val_to_pixel($i + 1, 0, 1);
+		my ($x, $y) = $self->val_to_pixel($i + 1, 0, 1);
 
-		$y = $s->{bottom} unless $s->{zero_axis_only};
+		$y = $self->{bottom} unless $self->{zero_axis_only};
 
 		# CONTRIB  Damon Brodie for x_tick_offset
-		next if (!$s->{x_all_ticks} and 
-				($i - $s->{x_tick_offset}) % $s->{x_label_skip} and 
-				$i != $s->{_data}->num_points - 1 
+		next if (!$self->{x_all_ticks} and 
+				($i - $self->{x_tick_offset}) % $self->{x_label_skip} and 
+				$i != $self->{_data}->num_points - 1 
 			);
 
-		if ($s->{x_ticks})
+		if ($self->{x_ticks})
 		{
-			if ($s->{x_long_ticks})
+			if ($self->{x_long_ticks})
 			{
-				$s->{graph}->line($x, $s->{bottom}, $x, $s->{top},
-					$s->{fgci});
+				$self->{graph}->line($x, $self->{bottom}, $x, $self->{top},
+					$self->{fgci});
 			}
 			else
 			{
-				$s->{graph}->line($x, $y, $x, $y - $s->{x_tick_length},
-					$s->{fgci});
+				$self->{graph}->line($x, $y, $x, $y - $self->{x_tick_length},
+					$self->{fgci});
 			}
 		}
 
 		# CONTRIB Damon Brodie for x_tick_offset
 		next if 
-			($i - $s->{x_tick_offset}) % ($s->{x_label_skip}) and 
-			$i != $s->{_data}->num_points - 1;
+			($i - $self->{x_tick_offset}) % ($self->{x_label_skip}) and 
+			$i != $self->{_data}->num_points - 1;
 
-		$s->{gdta_x_axis}->set_text($d->[0][$i]);
+		$self->{gdta_x_axis}->set_text($self->{_data}->get_x($i));
 
-		my $yt = $y + $s->{axis_space};
+		my $yt = $y + $self->{axis_space};
 
-		if ($s->{x_labels_vertical})
+		if ($self->{x_labels_vertical})
 		{
-			$s->{gdta_x_axis}->set_align('center', 'right');
-			$s->{gdta_x_axis}->draw($x, $yt, PI/2);
+			$self->{gdta_x_axis}->set_align('center', 'right');
+			$self->{gdta_x_axis}->draw($x, $yt, PI/2);
 		}
 		else
 		{
-			$s->{gdta_x_axis}->set_align('top', 'center');
-			$s->{gdta_x_axis}->draw($x, $yt);
+			$self->{gdta_x_axis}->set_align('top', 'center');
+			$self->{gdta_x_axis}->draw($x, $yt);
 		}
 	}
+
+	return $self;
 }
 
 
@@ -680,87 +670,93 @@ sub draw_x_ticks # \@data
 # Assume x array contains equally spaced x-values
 # and generate an appropriate axis
 #
-sub draw_x_ticks_number # \@data
+sub draw_x_ticks_number
 {
-	my $s = shift;
-	my $d = shift;
+	my $self = shift;
 
-	my $i;
-	for $i (0 .. $s->{x_tick_number})
+	for my $i (0 .. $self->{x_tick_number})
 	{
-		my $value = ($s->{_data}->num_points - 1)
-					* ($s->{x_values}[$i] - $s->{true_x_min})
-					/ ($s->{true_x_max} - $s->{true_x_min});
+		my $value = ($self->{_data}->num_points - 1)
+					* ($self->{x_values}[$i] - $self->{true_x_min})
+					/ ($self->{true_x_max} - $self->{true_x_min});
 
-		my $label = $s->{x_labels}[$i];
+		my $label = $self->{x_labels}[$i];
 
-		my ($x, $y) = $s->val_to_pixel($value + 1, 0, 1);
+		my ($x, $y) = $self->val_to_pixel($value + 1, 0, 1);
 
-		$y = $s->{bottom} unless $s->{zero_axis_only};
+		$y = $self->{bottom} unless $self->{zero_axis_only};
 
-		if ($s->{x_ticks})
+		if ($self->{x_ticks})
 		{
-			if ($s->{x_long_ticks})
+			if ($self->{x_long_ticks})
 			{
-				$s->{graph}->line($x, $s->{bottom}, 
-					$x, $s->{top},$s->{fgci});
+				$self->{graph}->line($x, $self->{bottom}, 
+					$x, $self->{top}, $self->{fgci});
 			}
 			else
 			{
-				$s->{graph}->line( $x, $y, 
-					$x, $y - $s->{x_tick_length}, $s->{fgci} );
+				$self->{graph}->line($x, $y, 
+					$x, $y - $self->{x_tick_length}, $self->{fgci} );
 			}
 		}
 
 		next
-			if ( $i%($s->{x_label_skip}) and $i != $s->{x_tick_number} );
+			if $i % $self->{x_label_skip} and $i != $self->{x_tick_number};
 
-		$s->{gdta_x_axis}->set_text($label);
+		$self->{gdta_x_axis}->set_text($label);
 
-		if ($s->{x_labels_vertical})
+		if ($self->{x_labels_vertical})
 		{
-			$s->{gdta_x_axis}->set_align('center', 'right');
-			my $yt = $y + $s->{text_space}/2;
-			$s->{gdta_x_axis}->draw($x, $yt, PI/2);
+			$self->{gdta_x_axis}->set_align('center', 'right');
+			my $yt = $y + $self->{text_space}/2;
+			$self->{gdta_x_axis}->draw($x, $yt, PI/2);
 		}
 		else
 		{
-			$s->{gdta_x_axis}->set_align('top', 'center');
-			my $yt = $y + $s->{text_space}/2;
-			$s->{gdta_x_axis}->draw($x, $yt);
+			$self->{gdta_x_axis}->set_align('top', 'center');
+			my $yt = $y + $self->{text_space}/2;
+			$self->{gdta_x_axis}->draw($x, $yt);
 		}
 	}
+
+	return $self;
 }
 
-sub draw_ticks # \@data
+sub draw_ticks
 {
-	my $s = shift;
-	my $d = shift;
+	my $self = shift;
 
-	$s->draw_y_ticks($d);
+	$self->draw_y_ticks() or return;
 
-	return unless ( $s->{x_plot_values} );
+	return $self 
+		unless $self->{x_plot_values};
 
-	if (defined $s->{x_tick_number})
+	if (defined $self->{x_tick_number})
 	{
-		$s->draw_x_ticks_number($d);
+		$self->draw_x_ticks_number() or return;
 	}
 	else
 	{
-		$s->draw_x_ticks($d);
+		$self->draw_x_ticks() or return;
 	}
+
+	return $self;
 }
 
-sub draw_data # \@data
+sub draw_data
 {
-	my $s = shift;
-	my $d = shift;
+	my $self = shift;
 
-	my $ds;
-	foreach $ds (1 .. $s->{_data}->num_sets) 
+	# The drawing of 'overwrite == 2' sets needs to be done in reverse,
+	# for area and bar charts. This is mainly because of backward
+	# compatibility
+
+	for (my $dsn = 1; $dsn <= $self->{_data}->num_sets; $dsn++)
 	{
-		$s->draw_data_set($d->[$ds], $ds);
+		$self->draw_data_set($dsn) or return;
 	}
+
+	return $self
 }
 
 #
@@ -769,8 +765,8 @@ sub draw_data # \@data
 sub draw_data_set
 {
 	# ABSTRACT
-	my $s = shift;
-	$s->die_abstract( "sub draw_data missing, ")
+	my $self = shift;
+	$self->die_abstract( "sub draw_data missing, ")
 }
 
 #
@@ -779,77 +775,70 @@ sub draw_data_set
 #
 sub set_max_min
 {
-	my $s = shift;
-	my $d = shift;
-
-	my @max_min;
+	my $self = shift;
 
 	# First, calculate some decent values
-	if ( $s->{two_axes} ) 
+	if ( $self->{two_axes} ) 
 	{
-		my $i;
-		for $i (1 .. 2) 
+		for my $i (1 .. 2) 
 		{
-			my $true_y_min = get_min_y(@{$$d[$i]});
-			my $true_y_max = get_max_y(@{$$d[$i]});
-			($s->{y_min}[$i], $s->{y_max}[$i], $s->{y_tick_number}) =
-				_best_ends($true_y_min, $true_y_max, $s->{y_tick_number});
+			my ($y_min, $y_max) = $self->{_data}->get_min_max_y($i);
+			($self->{y_min}[$i], $self->{y_max}[$i], $self->{y_tick_number}) =
+				_best_ends($y_min, $y_max, $self->{y_tick_number});
 		}
 	} 
 	else 
 	{
-		my ($true_y_min, $true_y_max) = $s->get_max_min_y_all($d);
-		($s->{y_min}[1], $s->{y_max}[1], $s->{y_tick_number}) =
-			_best_ends($true_y_min, $true_y_max, $s->{y_tick_number});
+		my ($y_min, $y_max) = $self->{_data}->get_min_max_y_all;
+		($self->{y_min}[1], $self->{y_max}[1], $self->{y_tick_number}) =
+			_best_ends($y_min, $y_max, $self->{y_tick_number});
 	}
 
-	if (defined( $s->{x_tick_number} ))
+	if (defined($self->{x_tick_number}))
 	{
-		$s->{true_x_min} = get_min_y(@{$d->[0]});
-		$s->{true_x_max} = get_max_y(@{$d->[0]});
+		($self->{true_x_min}, $self->{true_x_max}) = 
+			$self->{_data}->get_min_max_x;
 
-		($s->{x_min}, $s->{x_max}, $s->{x_tick_number}) =
-			_best_ends( $s->{true_x_min}, $s->{true_x_max}, 
-						$s->{x_tick_number});
+		($self->{x_min}, $self->{x_max}, $self->{x_tick_number}) =
+			_best_ends( $self->{true_x_min}, $self->{true_x_max}, 
+						$self->{x_tick_number});
 	}
 
 	# Make sure bars and area always have a zero offset
 	# This has to work for all subclasses
-	my ($subclass) = ref($s) =~ m/.*::(.*)$/;
+	my ($subclass) = ref($self) =~ m/.*::(.*)$/;
 
 	if (defined $subclass and ($subclass eq 'bars' or $subclass eq 'area'))
 	{
-		for my $i (1..($s->{two_axes} ? 2 : 1))
+		for my $i (1..($self->{two_axes} ? 2 : 1))
 		{
-			#print "in:  $i $s->{y_min}[$i] - $s->{y_max}[$i]\n";
 			# If at the same side of the zero axis
-			if ($s->{y_max}[$i] && $s->{y_min}[$i]/$s->{y_max}[$i] > 0)
+			if ($self->{y_max}[$i] && $self->{y_min}[$i]/$self->{y_max}[$i] > 0)
 			{
-				$s->{y_min}[$i] > 0 ? 
-				$s->{y_min}[$i] = 0 : 
-				$s->{y_max}[$i] = 0 ;
+				$self->{y_min}[$i] > 0 ? 
+				$self->{y_min}[$i] = 0 : 
+				$self->{y_max}[$i] = 0 ;
 			}
-			#print "out: $i $s->{y_min}[$i] - $s->{y_max}[$i]\n";
 		}
 	}
 
 	# Overwrite these with any user supplied ones
-	$s->{y_min}[1] = $s->{y_min_value}  if defined $s->{y_min_value};
-	$s->{y_min}[2] = $s->{y_min_value}  if defined $s->{y_min_value};
+	$self->{y_min}[1] = $self->{y_min_value}  if defined $self->{y_min_value};
+	$self->{y_min}[2] = $self->{y_min_value}  if defined $self->{y_min_value};
 
-	$s->{y_max}[1] = $s->{y_max_value}  if defined $s->{y_max_value};
-	$s->{y_max}[2] = $s->{y_max_value}  if defined $s->{y_max_value};
+	$self->{y_max}[1] = $self->{y_max_value}  if defined $self->{y_max_value};
+	$self->{y_max}[2] = $self->{y_max_value}  if defined $self->{y_max_value};
 
-	$s->{y_min}[1] = $s->{y1_min_value} if defined $s->{y1_min_value};
-	$s->{y_max}[1] = $s->{y1_max_value} if defined $s->{y1_max_value};
+	$self->{y_min}[1] = $self->{y1_min_value} if defined $self->{y1_min_value};
+	$self->{y_max}[1] = $self->{y1_max_value} if defined $self->{y1_max_value};
 
-	$s->{y_min}[2] = $s->{y2_min_value} if defined $s->{y2_min_value};
-	$s->{y_max}[2] = $s->{y2_max_value} if defined $s->{y2_max_value};
+	$self->{y_min}[2] = $self->{y2_min_value} if defined $self->{y2_min_value};
+	$self->{y_max}[2] = $self->{y2_max_value} if defined $self->{y2_max_value};
 
-	$s->{x_min}    = $s->{x_min_value}  if defined $s->{x_min_value};
-	$s->{x_max}    = $s->{x_max_value}  if defined $s->{x_max_value};
+	$self->{x_min}    = $self->{x_min_value}  if defined $self->{x_min_value};
+	$self->{x_max}    = $self->{x_max_value}  if defined $self->{x_max_value};
 
-	if ($s->{two_axes})
+	if ($self->{two_axes})
 	{
 		# If we have two axes, we need to make sure that the zero is at
 		# the same spot.
@@ -858,25 +847,25 @@ sub set_max_min
 		#print "beg: $_ $s->{y_min}[$_] - $s->{y_max}[$_]\n" for (1..2);
 		#print "tck: $s->{y_tick_number}\n";
 
-		my $l_range = $s->{y_max}[1] - $s->{y_min}[1];
-		my $r_range = $s->{y_max}[2] - $s->{y_min}[2];
+		my $l_range = $self->{y_max}[1] - $self->{y_min}[1];
+		my $r_range = $self->{y_max}[2] - $self->{y_min}[2];
 
-		my $l_top = $s->{y_max}[1]/$l_range;
-		my $r_top = $s->{y_max}[2]/$r_range;
-		my $l_bot = $s->{y_min}[1]/$l_range;
-		my $r_bot = $s->{y_min}[2]/$r_range;
+		my $l_top = $self->{y_max}[1]/$l_range;
+		my $r_top = $self->{y_max}[2]/$r_range;
+		my $l_bot = $self->{y_min}[1]/$l_range;
+		my $r_bot = $self->{y_min}[2]/$r_range;
 
 		if ($l_top > $r_top)
 		{
-			$s->{y_max}[2] = $l_top * $r_range;
-			$s->{y_min}[1] = $r_bot * $l_range;
-			$s->{y_tick_number} *= 1 + abs $r_bot - $l_bot;
+			$self->{y_max}[2] = $l_top * $r_range;
+			$self->{y_min}[1] = $r_bot * $l_range;
+			$self->{y_tick_number} *= 1 + abs $r_bot - $l_bot;
 		}
 		else
 		{
-			$s->{y_max}[1] = $r_top * $l_range;
-			$s->{y_min}[2] = $l_bot * $r_range;
-			$s->{y_tick_number} *= 1 + abs $r_top - $l_top;
+			$self->{y_max}[1] = $r_top * $l_range;
+			$self->{y_min}[2] = $l_bot * $r_range;
+			$self->{y_tick_number} *= 1 + abs $r_top - $l_top;
 		}
 
 		#print "$l_top - $l_bot - $r_top - $r_bot\n";
@@ -886,96 +875,20 @@ sub set_max_min
 	}
 
 	# Check to see if we have sensible values
-	if ( $s->{two_axes} ) 
+	if ($self->{two_axes}) 
 	{
-		my $i;
-		for $i (1 .. 2)
+		for my $i (1 .. 2)
 		{
-			croak "Minimum for y" . $i . " too large\n"
-				if ( $s->{y_min}[$i] > get_min_y(@{$d->[$i]}) );
-			croak "Maximum for y" . $i . " too small\n"
-				if ( $s->{y_max}[$i] < get_max_y(@{$d->[$i]}) );
+			my ($min, $max) = $self->{_data}->get_min_max_y($i);
+			return $self->_set_error("Minimum for y" . $i . " too large")
+				if $self->{y_min}[$i] > $min;
+			return $self->_set_error("Maximum for y" . $i . " too small")
+				if $self->{y_max}[$i] < $max;
 		}
 	} 
-#	else 
-#	{
-#		croak "Minimum for y too large\n"
-#			if ( $s->{y_min}[1] > $max_min[1] );
-#		croak "Maximum for y too small\n"
-#			if ( $s->{y_max}[1] < $max_min[0] );
-#	}
+
+	return $self;
 }
-
-#
-# return maximum value from an array
-#
-sub get_max_y # array
-{
-	my $max = undef;
-
-	my $i;
-	foreach $i (@_) 
-	{ 
-		next unless defined $i;
-		$max = (defined($max) && $max >= $i) ? $max : $i; 
-	}
-
-	return $max
-}
-
-sub get_min_y # array
-{
-	my $min = undef;
-
-	my $i;
-	foreach $i (@_) 
-	{ 
-		next unless defined $i;
-		$min = ( defined($min) and $min <= $i) ? $min : $i;
-	}
-
-	return $min
-}
-
-# get maximum y value from the whole data set
-sub get_max_min_y_all # \@data
-{
-	my $s = shift;
-	my $d = shift;
-
-	my $max = undef;
-	my $min = undef;
-
-	if ($s->{overwrite} == 2) 
-	{
-		my $i;
-		for $i (0 .. $s->{_data}->num_points - 1) 
-		{
-			my $sum = 0;
-
-			my $j;
-			for $j (1 .. $s->{_data}->num_sets) 
-			{ 
-				$sum += $d->[$j][$i]; 
-			}
-
-			$max = _max( $max, $sum );
-			$min = _min( $min, $sum );
-		}
-	}
-	else 
-	{
-		my $i;
-		for $i ( 1 .. $s->{_data}->num_sets ) 
-		{
-			$max = _max( $max, get_max_y(@{$d->[$i]}) );
-			$min = _min( $min, get_min_y(@{$d->[$i]}) );
-		}
-	}
-
-	return ($max, $min)
-}
-
 
 # CONTRIB Scott Prahl
 #
@@ -1004,7 +917,7 @@ sub _best_ends
 	# long with negative values were causing infinite loops later on.
 	($min, $max) = ($max, $min) if ($min > $max);
 
-	@n = (3..6) if (@n <= 0 || $n[0] =~ /auto/i);
+	@n = (3..6) if @n <= 0 || $n[0] =~ /auto/i;
 
 	my $best_fit = 1e30;
 	my $range = $max - $min;
@@ -1043,26 +956,41 @@ sub _best_ends
 	return ($best_min, $best_max, $best_num)
 }
 
+sub _get_bottom
+{
+	my $self = shift;
+	my ($ds, $np) = @_;
+	my $bottom = $self->{zeropoint};
+
+	if ($self->{overwrite} == 2 && $ds > 1)
+	{
+		my $pvalue = $self->{_data}->get_y_cumulative($ds - 1, $np);
+		(undef, $bottom) = $self->val_to_pixel($np + 1, $pvalue, $ds);
+	}
+
+	return $bottom;
+}
+
 #
 # Convert value coordinates to pixel coordinates on the canvas.
 #
 sub val_to_pixel	# ($x, $y, $i) in real coords ($Dataspace), 
 {						# return [x, y] in pixel coords
-	my $s = shift;
+	my $self = shift;
 	my ($x, $y, $i) = @_;
 
-	my $y_min = 
-		($s->{two_axes} && $i == 2) ? $s->{y_min}[2] : $s->{y_min}[1];
+	my $y_min = ($self->{two_axes} && $i == 2) ? 
+		$self->{y_min}[2] : $self->{y_min}[1];
 
-	my $y_max = 
-		($s->{two_axes} && $i == 2) ? $s->{y_max}[2] : $s->{y_max}[1];
+	my $y_max = ($self->{two_axes} && $i == 2) ? 
+		$self->{y_max}[2] : $self->{y_max}[1];
 
-	my $y_step = abs(($s->{bottom} - $s->{top})/($y_max - $y_min));
+	my $y_step = abs(($self->{bottom} - $self->{top})/($y_max - $y_min));
 
 	return ( 
-		_round( ($s->{x_tick_number} ? $s->{x_offset} : $s->{left}) 
-					+ $x * $s->{x_step} ),
-		_round( $s->{bottom} - ($y - $y_min) * $y_step )
+		_round( ($self->{x_tick_number} ? $self->{x_offset} : $self->{left}) 
+					+ $x * $self->{x_step} ),
+		_round( $self->{bottom} - ($y - $y_min) * $y_step )
 	)
 }
 
@@ -1071,153 +999,151 @@ sub val_to_pixel	# ($x, $y, $i) in real coords ($Dataspace),
 #
 sub setup_legend
 {
-	my $s = shift;
+	my $self = shift;
 
-	return unless defined($s->{legend});
+	return unless defined $self->{legend};
 
 	my $maxlen = 0;
 	my $num = 0;
 
 	# Save some variables
-	$s->{r_margin_abs} = $s->{r_margin};
-	$s->{b_margin_abs} = $s->{b_margin};
+	$self->{r_margin_abs} = $self->{r_margin};
+	$self->{b_margin_abs} = $self->{b_margin};
 
-	my $legend;
-	foreach $legend (@{$s->{legend}})
+	foreach my $legend (@{$self->{legend}})
 	{
 		if (defined($legend) and $legend ne "")
 		{
-			$s->{gdta_legend}->set_text($legend);
-			my $len = $s->{gdta_legend}->get('width');
+			$self->{gdta_legend}->set_text($legend);
+			my $len = $self->{gdta_legend}->get('width');
 			$maxlen = ($maxlen > $len) ? $maxlen : $len;
 			$num++;
 		}
-		last if ($num >= $s->{_data}->num_sets);
+		last if $num >= $self->{_data}->num_sets;
 	}
 
-	$s->{lg_num} = $num;
+	$self->{lg_num} = $num;
 
 	# calculate the height and width of each element
-	my $legend_height = _max($s->{lgfh}, $s->{legend_marker_height});
+	my $legend_height = _max($self->{lgfh}, $self->{legend_marker_height});
 
-	$s->{lg_el_width} = 
-		$maxlen + $s->{legend_marker_width} + 
-		3 * $s->{legend_spacing};
-	$s->{lg_el_height} = $legend_height + 2 * $s->{legend_spacing};
+	$self->{lg_el_width} = 
+		$maxlen + $self->{legend_marker_width} + 3 * $self->{legend_spacing};
+	$self->{lg_el_height} = $legend_height + 2 * $self->{legend_spacing};
 
-	my ($lg_pos, $lg_align) = split(//, $s->{legend_placement});
+	my ($lg_pos, $lg_align) = split(//, $self->{legend_placement});
 
 	if ($lg_pos eq 'R')
 	{
 		# Always work in one column
-		$s->{lg_cols} = 1;
-		$s->{lg_rows} = $num;
+		$self->{lg_cols} = 1;
+		$self->{lg_rows} = $num;
 
 		# Just for completeness, might use this in later versions
-		$s->{lg_x_size} = $s->{lg_cols} * $s->{lg_el_width};
-		$s->{lg_y_size} = $s->{lg_rows} * $s->{lg_el_height};
+		$self->{lg_x_size} = $self->{lg_cols} * $self->{lg_el_width};
+		$self->{lg_y_size} = $self->{lg_rows} * $self->{lg_el_height};
 
 		# Adjust the right margin for the rest of the graph
-		$s->{r_margin} += $s->{lg_x_size};
+		$self->{r_margin} += $self->{lg_x_size};
 
 		# Set the x starting point
-		$s->{lg_xs} = $s->{width} - $s->{r_margin};
+		$self->{lg_xs} = $self->{width} - $self->{r_margin};
 
 		# Set the y starting point, depending on alignment
 		if ($lg_align eq 'T')
 		{
-			$s->{lg_ys} = $s->{t_margin};
+			$self->{lg_ys} = $self->{t_margin};
 		}
 		elsif ($lg_align eq 'B')
 		{
-			$s->{lg_ys} = $s->{height} - $s->{b_margin} - $s->{lg_y_size};
+			$self->{lg_ys} = $self->{height} - $self->{b_margin} - 
+				$self->{lg_y_size};
 		}
 		else # default 'C'
 		{
-			my $height = $s->{height} - $s->{t_margin} - $s->{b_margin};
+			my $height = $self->{height} - $self->{t_margin} - 
+				$self->{b_margin};
 
-			$s->{lg_ys} = 
-				int($s->{t_margin} + $height/2 - $s->{lg_y_size}/2) ;
+			$self->{lg_ys} = 
+				int($self->{t_margin} + $height/2 - $self->{lg_y_size}/2) ;
 		}
 	}
 	else # 'B' is the default
 	{
 		# What width can we use
-		my $width = $s->{width} - $s->{l_margin} - $s->{r_margin};
+		my $width = $self->{width} - $self->{l_margin} - $self->{r_margin};
 
-		(!defined($s->{lg_cols})) and 
-			$s->{lg_cols} = int($width/$s->{lg_el_width});
+		(!defined($self->{lg_cols})) and 
+			$self->{lg_cols} = int($width/$self->{lg_el_width});
 		
-		$s->{lg_cols} = _min($s->{lg_cols}, $num);
+		$self->{lg_cols} = _min($self->{lg_cols}, $num);
 
-		$s->{lg_rows} = 
-			int($num/$s->{lg_cols}) + (($num % $s->{lg_cols}) ? 1 : 0);
+		$self->{lg_rows} = 
+			int($num / $self->{lg_cols}) + (($num % $self->{lg_cols}) ? 1 : 0);
 
-		$s->{lg_x_size} = $s->{lg_cols} * $s->{lg_el_width};
-		$s->{lg_y_size} = $s->{lg_rows} * $s->{lg_el_height};
+		$self->{lg_x_size} = $self->{lg_cols} * $self->{lg_el_width};
+		$self->{lg_y_size} = $self->{lg_rows} * $self->{lg_el_height};
 
 		# Adjust the bottom margin for the rest of the graph
-		$s->{b_margin} += $s->{lg_y_size};
+		$self->{b_margin} += $self->{lg_y_size};
 
 		# Set the y starting point
-		$s->{lg_ys} = $s->{height} - $s->{b_margin};
+		$self->{lg_ys} = $self->{height} - $self->{b_margin};
 
 		# Set the x starting point, depending on alignment
 		if ($lg_align eq 'R')
 		{
-			$s->{lg_xs} = $s->{width} - $s->{r_margin} - $s->{lg_x_size};
+			$self->{lg_xs} = $self->{width} - $self->{r_margin} - 
+				$self->{lg_x_size};
 		}
 		elsif ($lg_align eq 'L')
 		{
-			$s->{lg_xs} = $s->{l_margin};
+			$self->{lg_xs} = $self->{l_margin};
 		}
 		else # default 'C'
 		{
-			$s->{lg_xs} =  
-				int($s->{l_margin} + $width/2 - $s->{lg_x_size}/2);
+			$self->{lg_xs} =  
+				int($self->{l_margin} + $width/2 - $self->{lg_x_size}/2);
 		}
 	}
 }
 
 sub draw_legend
 {
-	my $s = shift;
-	my $g = $s->{graph};
+	my $self = shift;
 
-	return unless defined($s->{legend});
+	return unless defined $self->{legend};
 
-	my $xl = $s->{lg_xs} + $s->{legend_spacing};
-	my $y = $s->{lg_ys} + $s->{legend_spacing} - 1;
+	my $xl = $self->{lg_xs} + $self->{legend_spacing};
+	my $y  = $self->{lg_ys} + $self->{legend_spacing} - 1;
 	
 	my $i = 0;
 	my $row = 1;
 	my $x = $xl;	# start position of current element
 
-	my $legend;
-	foreach $legend (@{$s->{legend}})
+	foreach my $legend (@{$self->{legend}})
 	{
 		$i++;
-		last if ($i > $s->{_data}->num_sets);
+		last if $i > $self->{_data}->num_sets;
 
 		my $xe = $x;	# position within an element
 
-		next unless (defined($legend) && $legend ne "");
+		next unless defined($legend) && $legend ne "";
 
-		$s->draw_legend_marker($i, $xe, $y);
+		$self->draw_legend_marker($i, $xe, $y);
 
-		$xe += $s->{legend_marker_width} + $s->{legend_spacing};
-		my $ys = int($y + $s->{lg_el_height}/2 - $s->{lgfh}/2);
+		$xe += $self->{legend_marker_width} + $self->{legend_spacing};
+		my $ys = int($y + $self->{lg_el_height}/2 - $self->{lgfh}/2);
 
-		$s->{gdta_legend}->set_text($legend);
-		$s->{gdta_legend}->draw($xe, $ys);
-		#$g->string($s->{lgf}, $xe, $ys, $legend, $s->{fgci});
+		$self->{gdta_legend}->set_text($legend);
+		$self->{gdta_legend}->draw($xe, $ys);
 
-		$x += $s->{lg_el_width};
+		$x += $self->{lg_el_width};
 
-		if (++$row > $s->{lg_cols})
+		if (++$row > $self->{lg_cols})
 		{
 			$row = 1;
-			$y += $s->{lg_el_height};
+			$y += $self->{lg_el_height};
 			$x = $xl;
 		}
 	}

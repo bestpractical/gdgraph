@@ -1,7 +1,7 @@
 use Test;
 use strict;
 
-BEGIN { plan tests => 26 }
+BEGIN { plan tests => 28 }
 
 use GD::Graph::Data;
 ok(1);

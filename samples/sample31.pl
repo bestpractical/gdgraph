@@ -1,7 +1,7 @@
 use GD::Graph::points;
 require 'save.pl';
 
-print STDERR "Processing sample 3-1\n";
+print STDERR "Processing sample31\n";
 
 @data = ( 
     ["1st","2nd","3rd","4th","5th","6th","7th", "8th", "9th"],

@@ -70,9 +70,7 @@ sbonds@agora.rdrop.com
 MOST IMPORTANT CHANGES FOR VERSION 1.34
 
 - Added GD::Graph::hbars, to create horizontal bar charts. Many thanks
-  to brian d foy for doing the actual work. :)
-- Reworked the example set to have more logical names for files and
-  stuff.
+  to brian d foy for doing almost all of the actual work. :)
 
 MOST IMPORTANT CHANGES FOR VERSION 1.30
 

@@ -3,7 +3,7 @@ use GD::Graph::lines;
 require 'save.pl';
 use constant PI => 4 * atan2(1,1);
 
-print STDERR "Processing sample 5-5\n";
+print STDERR "Processing sample55\n";
 
 my @x = map {$_ * 3 * PI/100} (0 .. 100);
 my @y = map sin, @x;

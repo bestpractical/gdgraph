@@ -20,8 +20,8 @@ $values->set_y(2, 7, undef) or warn $data->error;
 
 my @names = qw/sample14 sample14-h/;
 
-for my $my_graph (GD::Graph::bars->new(500,300),
-                  GD::Graph::hbars->new(500,300))
+for my $my_graph (GD::Graph::bars->new(600,400),
+                  GD::Graph::hbars->new(600,400))
 {
     my $name = shift @names;
     print STDERR "Processing $name\n";

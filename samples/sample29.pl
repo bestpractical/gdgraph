@@ -2,7 +2,7 @@
 use GD::Graph::area;
 require 'save.pl';
 
-print STDERR "Processing sample 2-3\n";
+print STDERR "Processing sample23\n";
 
 @data = ( 
     ["1st","2nd","3rd","4th","5th","6th","7th", "8th", "9th"],

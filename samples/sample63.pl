@@ -4,7 +4,7 @@ require 'save.pl';
 
 # Also see sample17
 
-print STDERR "Processing sample 6-3\n";
+print STDERR "Processing sample63\n";
 
 my @data = ( 
     ["1st","2nd","3rd","4th","5th","6th","7th", "8th", "9th"],

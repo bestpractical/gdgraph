@@ -24,6 +24,8 @@ for my $my_graph (GD::Graph::bars->new, GD::Graph::hbars->new)
 	y_max_value     => 8,
 	y_tick_number   => 8,
 	y_label_skip    => 2,
+
+	#x_labels_vertical => 1,
 	
 	# shadows
 	bar_spacing     => 8,

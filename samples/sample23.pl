@@ -6,7 +6,7 @@ require 'save.pl';
 # See changes in bars.pm: Check for bar height rounding errors when 
 # stacking bars.
 
-print STDERR "Processing sample 2-3\n";
+print STDERR "Processing sample23\n";
 
 @dat = qw(
 	991006 991007 991114 991117 991118 991119 991120 

@@ -1,7 +1,7 @@
 use GD::Graph::linespoints;
 require 'save.pl';
 
-print STDERR "Processing sample 4-2\n";
+print STDERR "Processing sample42\n";
 
 @data =  read_data_from_csv("sample42.dat")
 	or die "Cannot read data from sample42.dat";

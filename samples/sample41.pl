@@ -1,7 +1,7 @@
 use GD::Graph::linespoints;
 require 'save.pl';
 
-print STDERR "Processing sample 4-1\n";
+print STDERR "Processing sample41\n";
 
 @data = ( 
     ["1st","2nd","3rd","4th","5th","6th","7th", "8th", "9th"],
@@ -29,7 +29,7 @@ $my_graph->set(
 
 ) or warn $my_graph->error;
 
-$my_graph->set_legend( 'data set 1', 'data set 2' );
+$my_graph->set_legend( 'data set 1', 'data set 2', 'data set 3' );
 $my_graph->plot(\@data);
 save_chart($my_graph, 'sample41');
 

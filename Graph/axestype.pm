@@ -5,13 +5,13 @@
 #   Name:
 #       GD::Graph::axestype.pm
 #
-# $Id: axestype.pm,v 1.31 2002/06/08 13:35:05 mgjv Exp $
+# $Id: axestype.pm,v 1.32 2002/06/09 03:15:15 mgjv Exp $
 #
 #==========================================================================
 
 package GD::Graph::axestype;
 
-$GD::Graph::axestype::VERSION = '$Revision: 1.31 $' =~ /\s([\d.]+)/;
+$GD::Graph::axestype::VERSION = '$Revision: 1.32 $' =~ /\s([\d.]+)/;
 
 use strict;
  
@@ -291,13 +291,27 @@ sub setup_text
     $self->{lgfh} = $self->{gdta_legend}->get('height');
 
     $self->{gdta_values}->set(colour => $self->{valuesci});
-    if ($self->{values_vertical})
+    unless ($self->{rotate_chart})
     {
-        $self->{gdta_values}->set_align('center', 'left');
+	if ($self->{values_vertical})
+	{
+	    $self->{gdta_values}->set_align('center', 'left');
+	}
+	else
+	{
+	    $self->{gdta_values}->set_align('bottom', 'center');
+	}
     }
     else
     {
-        $self->{gdta_values}->set_align('bottom', 'center');
+	if ($self->{values_vertical})
+	{
+	    $self->{gdta_values}->set_align('top', 'center');
+	}
+	else
+	{
+	    $self->{gdta_values}->set_align('center', 'left');
+	}
     }
 
     return $self;
@@ -367,65 +381,150 @@ sub get_hotspot
 
 # inherit check_data from GD::Graph
 
+#
+# calculate the bottom of the bounding box for the graph
+#
+sub setup_bottom_boundary
+{
+    my $self = shift;
+    $self->{bottom} = $self->{height} - $self->{b_margin} - 1;
+    if (! $self->{rotate_chart})
+    {
+	# X label
+	$self->{bottom} -= $self->{xlfh} + $self->{text_space}
+	    if $self->{xlfh};
+	# X axis tick labels
+	$self->{bottom} -= $self->{x_label_height} + $self->{axis_space}
+	    if $self->{xafh};
+    }
+    else
+    {
+	# Y1 label
+	$self->{bottom} -= $self->{ylfh} + $self->{text_space}
+	    if $self->{y1_label};
+	# Y1 axis labels
+	$self->{bottom} -= $self->{y_label_height}[1] + $self->{axis_space}
+	    if $self->{y_label_height}[1];
+    }
+}
+#
+# Calculate the top of the bounding box for the graph
+#
+sub setup_top_boundary
+{
+    my $self = shift;
+
+    $self->{top} = $self->{t_margin};
+    # Chart title
+    $self->{top} += $self->{tfh} + $self->{text_space} if $self->{tfh};
+    if (! $self->{rotate_chart})
+    {
+	# Make sure the text for the y axis tick markers fits on the canvas
+	$self->{top} = $self->{yafh}/2 if $self->{top} == 0;
+    }
+    else
+    {
+	if ($self->{two_axes})
+	{
+	    # Y2 label
+	    $self->{top} += $self->{ylfh} + $self->{text_space}
+		if $self->{y2_label};
+	    # Y2 axis labels
+	    $self->{top} += $self->{y_label_height}[2] + $self->{axis_space}
+		if $self->{y_label_height}[2];
+	}
+    }
+}
+#
+# calculate the left of the bounding box for the graph
+#
+sub setup_left_boundary
+{
+    my $self = shift;
+
+    $self->{left} = $self->{l_margin};
+    if (! $self->{rotate_chart})
+    {
+	# Y1 label
+	$self->{left} += $self->{ylfh} + $self->{text_space}
+	    if $self->{y1_label};
+	# Y1 axis labels
+	$self->{left} += $self->{y_label_len}[1] + $self->{axis_space}
+	    if $self->{y_label_len}[1];
+    }
+    else
+    {
+	# X label
+	$self->{left} += $self->{xlfh} + $self->{text_space}
+	    if $self->{x_label};
+	# X axis labels
+	$self->{left} += $self->{x_label_width} + $self->{axis_space}
+	    if $self->{x_label_width};
+    }
+}
+#
+# calculate the right of the bounding box for the graph
+#
+sub setup_right_boundary
+{
+    my $self = shift;
+    $self->{right} = $self->{width} - $self->{r_margin};
+
+    if (! $self->{rotate_chart})
+    {
+	if ($self->{two_axes})
+	{
+	    # Y2 label
+	    $self->{right} -= $self->{ylfh} + $self->{text_space}
+		if $self->{y2_label};
+	    # Y2 axis label
+	    $self->{right} -= $self->{y_label_len}[2] + $self->{axis_space}
+		if $self->{y_label_len}[2];
+	}
+    }
+    else
+    {
+	if ($self->{right} >= $self->{width} - $self->{r_margin})
+	{
+	    # TODO also take y2 labels into account
+	    # TODO Don't assume rightmost label is the same as the
+	    # longest label
+	    $self->{right} -= int(($self->{y_label_len}[1] + 1)/2);
+	}
+    }
+}
+
 sub _setup_boundaries
 {
     my $self = shift;
 
-    #
-    # calculate the bottom of the bounding box for the graph
-    #
-    $self->{bottom} = $self->{height} - $self->{b_margin} - 1;
-    # TODO Adapt this to allow for rated charts. Maybe break this stuff
-    # out into a separate sub
-    # X axis tick labels
-    $self->{bottom} -= $self->{x_label_height} + $self->{axis_space}
-	if $self->{xafh};
-    # X axis label
-    $self->{bottom} -= $self->{xlfh} + $self->{text_space}
-	if $self->{xlfh};
-    
-    #
-    # Calculate the top of the bounding box for the graph
-    #
-    $self->{top} = $self->{t_margin};
-    $self->{top} += $self->{tfh} + $self->{text_space} if $self->{tfh};
-    # Make sure the text for the y axis tick markers fits on the canvas
-    $self->{top} = $self->{yafh}/2 if $self->{top} == 0;
-    # TODO Adapt this to fit in y2 axis when chart is rotated
-
-    return $self->_set_error('Vertical size too small')
-        if $self->{bottom} <= $self->{top};
-    
-    #
-    # calculate the left and right of the bounding box for the graph
-    #
-    my $ls = $self->{y_label_len}[1];
-    $self->{left} = $self->{l_margin} +
-        # Space for tick values
-        ($ls ? $ls + $self->{axis_space} : 0) +
-        # Space for the Y axis label
-        ($self->{y1_label} ? $self->{ylfh} + $self->{text_space} : 0);
-
-    $ls = $self->{y_label_len}[2] if $self->{two_axes};
-    $self->{right} = $self->{width} - $self->{r_margin} - 1 -
-        $self->{two_axes} * (
-            ($ls ? $ls + $self->{axis_space} : 0) +
-            ($self->{y2_label} ? $self->{ylfh} + $self->{text_space} : 0)
-        );
+    $self->setup_bottom_boundary();
+    $self->setup_top_boundary();
+    $self->setup_left_boundary();
+    $self->setup_right_boundary();
 
     if ($self->correct_width && !$self->{x_tick_number})
     {
-        # Make sure we have a nice integer number of pixels
-        $self->{r_margin} += ($self->{right} - $self->{left}) %
-            ($self->{_data}->num_points + 1);
-        
-        $self->{right} = $self->{width} - $self->{r_margin} - 1 -
-            $self->{two_axes} * (
-                ($ls ? $ls + $self->{axis_space} : 0) +
-                ($self->{y2_label} ? $self->{ylfh} + $self->{text_space} : 0)
-            );
+	if (! $self->{rotate_chart})
+	{
+	    # Make sure we have a nice integer number of pixels
+	    $self->{r_margin} += ($self->{right} - $self->{left}) %
+		($self->{_data}->num_points + 1);
+	    
+	    $self->setup_right_boundary();
+	}
+	else
+	{
+	    # Make sure we have a nice integer number of pixels
+	    $self->{b_margin} += ($self->{bottom} - $self->{top}) %
+		($self->{_data}->num_points + 1);
+	    
+	    $self->setup_bottom_boundary();
+	}
     }
 
+    return $self->_set_error('Vertical size too small')
+        if $self->{bottom} <= $self->{top};
     return $self->_set_error('Horizontal size too small')   
         if $self->{right} <= $self->{left};
 
@@ -562,19 +661,20 @@ sub create_y_labels
 {
     my $self = shift;
 
-    $self->{y_label_len}[1] = 0;
-    $self->{y_label_len}[2] = 0;
+    # XXX This should really be y_label_width
+    $self->{y_label_len}[$_]    = 0 for 1, 2;
+    $self->{y_label_height}[$_] = 0 for 1, 2;
 
     for my $t (0 .. $self->{y_tick_number})
     {
         # XXX Ugh, why did I ever do it this way? How bloody obscure.
-        for my $a (1 .. ($self->{two_axes} + 1))
+        for my $axis (1 .. ($self->{two_axes} + 1))
         {
-            my $label = $self->{y_min}[$a] +
-                $t * ($self->{y_max}[$a] - $self->{y_min}[$a]) /
+            my $label = $self->{y_min}[$axis] +
+                $t * ($self->{y_max}[$axis] - $self->{y_min}[$axis]) /
                 $self->{y_tick_number};
             
-            $self->{y_values}[$a][$t] = $label;
+            $self->{y_values}[$axis][$t] = $label;
 
             if (defined $self->{y_number_format})
             {
@@ -586,19 +686,19 @@ sub create_y_labels
             $self->{gdta_y_axis}->set_text($label);
             my $len = $self->{gdta_y_axis}->get('width');
 
-            $self->{y_labels}[$a][$t] = $label;
+            $self->{y_labels}[$axis][$t] = $label;
 
-            $self->{y_label_len}[$a] = $len 
-                if $len > $self->{y_label_len}[$a];
+	    # TODO Allow vertical y labels
+            $self->{y_label_len}[$axis] = $len 
+                if $len > $self->{y_label_len}[$axis];
+            $self->{y_label_height}[$axis] = $self->{yafh};
         }
     }
 }
 
-sub get_x_axis_label_height
+sub get_x_axis_label_length
 {
     my $self = shift;
-
-    return $self->{xafh} unless $self->{x_labels_vertical};
 
     my @values = $self->{x_tick_number} ? 
         @{$self->{x_values}} : 
@@ -619,40 +719,46 @@ sub get_x_axis_label_height
 sub create_x_labels
 {
     my $self = shift;
+    my $maxlen = 0;
 
     $self->{x_label_height} = 0;
     $self->{x_label_width} = 0;
 
-    unless (defined $self->{x_tick_number})
+    if (defined $self->{x_tick_number})
     {
-        $self->{x_label_height} = $self->{x_labels_vertical} ?
-            $self->get_x_axis_label_height : $self->{xafh};
-        return;
+	# We want to emulate numerical x axes
+	foreach my $t (0..$self->{x_tick_number})
+	{
+	    my $label =
+		$self->{x_min} +
+		$t * ($self->{x_max} - $self->{x_min})/$self->{x_tick_number};
+
+	    $self->{x_values}[$t] = $label;
+
+	    if (defined $self->{x_number_format})
+	    {
+		$label = ref $self->{x_number_format} eq 'CODE' ?
+		    &{$self->{x_number_format}}($label) :
+		    sprintf($self->{x_number_format}, $label);
+	    }
+
+	    $self->{gdta_x_label}->set_text($label);
+	    my $len = $self->{gdta_x_label}->get('width');
+
+	    $self->{x_labels}[$t] = $label;
+	    $maxlen = $len 
+		if $len > $self->{x_label_height};
+	}
+    }
+    else
+    {
+	$maxlen = $self->get_x_axis_label_length;
     }
 
-    # We want to emulate numerical x axes
-    foreach my $t (0..$self->{x_tick_number})
-    {
-        my $label =
-            $self->{x_min} +
-            $t * ($self->{x_max} - $self->{x_min})/$self->{x_tick_number};
-
-        $self->{x_values}[$t] = $label;
-
-        if (defined $self->{x_number_format})
-        {
-            $label = ref $self->{x_number_format} eq 'CODE' ?
-                &{$self->{x_number_format}}($label) :
-                sprintf($self->{x_number_format}, $label);
-        }
-
-        $self->{gdta_x_label}->set_text($label);
-        my $len = $self->{gdta_x_label}->get('width');
-
-        $self->{x_labels}[$t] = $label;
-        $self->{x_label_height} = $len 
-            if $len > $self->{x_label_height};
-    }
+    $self->{x_label_height} = $self->{x_labels_vertical} ?
+	$maxlen : $self->{xafh};
+    $self->{x_label_width} = $self->{x_labels_vertical} ?
+	$self->{xafh} : $maxlen;
 }
 
 #
@@ -686,9 +792,14 @@ sub draw_bottom_label
 
 sub draw_top_label
 {
-    # TODO Implement this. This requires some careful work in the setup
-    # of the coordinates
-    print STDERR "Two axes for horizontal charts not fully implemented\n";
+    my ($self, $label, $align) = @_;
+
+    $label->set_align('top', 'left');
+    my $tx = $self->{left} + $align * ($self->{right} - $self->{left}) - 
+	$align * $label->get('width');
+    my $ty = $self->{t_margin};
+    $ty += $self->{tfh} + $self->{text_space} if $self->{tfh};
+    $label->draw($tx, $ty, 0);
 }
 
 sub draw_right_label
@@ -818,14 +929,13 @@ sub draw_y_ticks_h
 
     for my $t (0 .. $self->{y_tick_number}) 
     {
-        for my $a (1 .. ($self->{two_axes} + 1)) 
+        for my $axis (1 .. ($self->{two_axes} + 1)) 
         {
-            my $value = $self->{y_values}[$a][$t];
-            my $label = $self->{y_labels}[$a][$t];
-            my $half_len   = $self->{y_label_len}[$a] / 2;
+            my $value = $self->{y_values}[$axis][$t];
+            my $label = $self->{y_labels}[$axis][$t];
             
-            my ($x, $y) = $self->val_to_pixel(0, $value, $a);
-            $y = ($a == 1) ? $self->{bottom} : $self->{top};
+            my ($x, $y) = $self->val_to_pixel(0, $value, $axis);
+            $y = ($axis == 1) ? $self->{bottom} : $self->{top};
             
             if ($self->{y_long_ticks}) 
             {
@@ -833,7 +943,7 @@ sub draw_y_ticks_h
                     $x, $self->{bottom}, 
                     $x, $self->{top}, 
                     $self->{fgci} 
-                ) unless ($a-1);
+                ) unless ($axis-1);
             } 
             else 
             {
@@ -848,10 +958,17 @@ sub draw_y_ticks_h
                 if $t % ($self->{y_label_skip}) || ! $self->{y_plot_values};
 
             $self->{gdta_y_axis}->set_text($label);
-            $self->{gdta_y_axis}->set_align('center', 
-                $a == 1 ? 'right' : 'left');
-            $y += (3 - 2 * $a) * $self->{axis_space};
-            $self->{gdta_y_axis}->draw($x + $half_len, $y);
+	    if ($axis == 1)
+	    {
+		$self->{gdta_y_axis}->set_align('top', 'center');
+		$y += $self->{axis_space};
+	    }
+	    else
+	    {
+		$self->{gdta_y_axis}->set_align('bottom', 'center');
+		$y -= $self->{axis_space};
+	    }
+            $self->{gdta_y_axis}->draw($x, $y);
         }
     }
 
@@ -865,13 +982,13 @@ sub draw_y_ticks_v
     for my $t (0 .. $self->{y_tick_number}) 
     {
         # XXX Ugh, why did I ever do it this way? How bloody obscure.
-        for my $a (1 .. ($self->{two_axes} + 1)) 
+        for my $axis (1 .. ($self->{two_axes} + 1)) 
         {
-            my $value = $self->{y_values}[$a][$t];
-            my $label = $self->{y_labels}[$a][$t];
+            my $value = $self->{y_values}[$axis][$t];
+            my $label = $self->{y_labels}[$axis][$t];
             
-            my ($x, $y) = $self->val_to_pixel(0, $value, $a);
-            $x = ($a == 1) ? $self->{left} : $self->{right};
+            my ($x, $y) = $self->val_to_pixel(0, $value, $axis);
+            $x = ($axis == 1) ? $self->{left} : $self->{right};
 
             if ($self->{y_long_ticks}) 
             {
@@ -879,13 +996,13 @@ sub draw_y_ticks_v
                     $x, $y, 
                     $x + $self->{right} - $self->{left}, $y, 
                     $self->{fgci} 
-                ) unless ($a-1);
+                ) unless ($axis-1);
             } 
             else 
             {
                 $self->{graph}->line( 
                     $x, $y, 
-                    $x + (3 - 2 * $a) * $self->{y_tick_length}, $y, 
+                    $x + (3 - 2 * $axis) * $self->{y_tick_length}, $y, 
                     $self->{fgci} 
                 );
             }
@@ -894,9 +1011,16 @@ sub draw_y_ticks_v
                 if $t % ($self->{y_label_skip}) || ! $self->{y_plot_values};
 
             $self->{gdta_y_axis}->set_text($label);
-            $self->{gdta_y_axis}->set_align('center', 
-                $a == 1 ? 'right' : 'left');
-            $x -= (3 - 2 * $a) * $self->{axis_space};
+	    if ($axis == 1)
+	    {
+		$self->{gdta_y_axis}->set_align('center', 'right');
+		$x -= $self->{axis_space};
+	    }
+	    else
+	    {
+		$self->{gdta_y_axis}->set_align('center', 'left');
+		$x += $self->{axis_space};
+	    }
             $self->{gdta_y_axis}->draw($x, $y);
         }
     }
@@ -951,18 +1075,17 @@ sub draw_x_ticks_h
 
         $self->{gdta_x_axis}->set_text($self->{_data}->get_x($i));
 
+	my $angle = 0;
         if ($self->{x_labels_vertical})
         {
-            $self->{gdta_x_axis}->set_align('center', 'right');
-            $self->{gdta_x_axis}->draw($x - $self->{axis_space}, 
-                $y - $self->{xafh} / 2, PI/2);
+            $self->{gdta_x_axis}->set_align('bottom', 'center');
+	    $angle = PI/2;
         }
         else
         {
-            $self->{gdta_x_axis}->set_align('top', 'center');
-            $self->{gdta_x_axis}->draw($x - $self->{axis_space}
-                - $self->{x_label_height}/2, $y - $self->{xafh}/2 );
+            $self->{gdta_x_axis}->set_align('center', 'right');
         }
+	$self->{gdta_x_axis}->draw($x - $self->{axis_space}, $y, $angle);
     }
 
     return $self;
@@ -1005,18 +1128,17 @@ sub draw_x_ticks_v
 
         $self->{gdta_x_axis}->set_text($self->{_data}->get_x($i));
 
-        my $yt = $y + $self->{axis_space};
-
+	my $angle = 0;
         if ($self->{x_labels_vertical})
         {
             $self->{gdta_x_axis}->set_align('center', 'right');
-            $self->{gdta_x_axis}->draw($x, $yt, PI/2);
+	    $angle = PI/2;
         }
         else
         {
             $self->{gdta_x_axis}->set_align('top', 'center');
-            $self->{gdta_x_axis}->draw($x, $yt);
         }
+	$self->{gdta_x_axis}->draw($x, $y + $self->{axis_space}, $angle);
     }
 
     return $self;

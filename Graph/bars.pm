@@ -5,13 +5,13 @@
 #   Name:
 #       GD::Graph::bars.pm
 #
-# $Id: bars.pm,v 1.21 2002/06/08 13:35:05 mgjv Exp $
+# $Id: bars.pm,v 1.22 2002/06/09 03:15:16 mgjv Exp $
 #
 #==========================================================================
  
 package GD::Graph::bars;
 
-$GD::Graph::bars::VERSION = '$Revision: 1.21 $' =~ /\s([\d.]+)/;
+$GD::Graph::bars::VERSION = '$Revision: 1.22 $' =~ /\s([\d.]+)/;
 
 use strict;
 
@@ -55,7 +55,101 @@ sub draw_data
     return $self;
 }
 
-sub draw_data_set
+
+sub draw_data_set_h
+{
+    my $self = shift;
+    my $ds = shift;
+
+    my $bar_s = $self->{bar_spacing}/2;
+
+    # Pick a data colour
+    my $dsci = $self->set_clr($self->pick_data_clr($ds));
+    # contrib "Bremford, Mike" <mike.bremford@gs.com>
+    my $brci = $self->set_clr($self->pick_border_clr($ds));
+
+    # CONTRIB Jeremy Wadsack, shadows
+    my $bsd = $self->{shadow_depth} and
+        my $bsci = $self->set_clr(_rgb($self->{shadowclr}));
+
+    my @values = $self->{_data}->y_values($ds) or
+        return $self->_set_error("Impossible illegal data set: $ds",
+            $self->{_data}->error);
+
+    for (my $i = 0; $i < @values; $i++) 
+    {
+        my $value = $values[$i];
+        next unless defined $value;
+
+        my $l = $self->_get_bottom($ds, $i);
+        $value = $self->{_data}->get_y_cumulative($ds, $i)
+            if ($self->{cumulate});
+
+        # CONTRIB Jeremy Wadsack
+        #
+        # cycle_clrs option sets the color based on the point, 
+        # not the dataset.
+        $dsci = $self->set_clr($self->pick_data_clr($i + 1))
+            if $self->{cycle_clrs};
+        $brci = $self->set_clr($self->pick_data_clr($i + 1))
+            if $self->{cycle_clrs} > 1;
+
+        # get coordinates of right and center of bar
+        my ($r, $xp) = $self->val_to_pixel($i + 1, $value, $ds);
+
+        # calculate top and bottom of bar
+        my ($t, $b);
+
+        if (ref $self eq 'GD::Graph::mixed' || $self->{overwrite})
+        {
+            $t = $xp - $self->{x_step}/2 + $bar_s + 1;
+            $b = $xp + $self->{x_step}/2 - $bar_s;
+        }
+        else
+        {
+            $t = $xp 
+                - $self->{x_step}/2
+                + ($ds - 1) * $self->{x_step}/$self->{_data}->num_sets
+                + $bar_s + 1;
+            $b = $xp 
+                - $self->{x_step}/2
+                + $ds * $self->{x_step}/$self->{_data}->num_sets
+                - $bar_s;
+        }
+
+        # draw the bar
+        if ($value >= 0)
+        {
+            # positive value
+            $self->{graph}->filledRectangle(
+                $l, $t + $bsd, $r - $bsd, $b + $bsd, $bsci
+            ) if $bsd;
+            $self->{graph}->filledRectangle($l, $t, $r, $b, $dsci)
+                if defined $dsci;
+            $self->{graph}->rectangle($l, $t, $r, $b, $brci) 
+                if defined $brci && $b - $t > $self->{accent_treshold};
+
+            $self->{_hotspots}->[$ds]->[$i] = ['rect', $t, $l, $r, $b]
+        }
+        else
+        {
+            # negative value
+            $self->{graph}->filledRectangle(
+                $l + $bsd, $t, $r + $bsd, $b, $bsci
+            ) if $bsd;
+            $self->{graph}->filledRectangle($r, $t, $l, $b, $dsci)
+                if defined $dsci;
+            $self->{graph}->rectangle($l, $t, $r, $b, $brci) 
+                if defined $brci && $b - $t > $self->{accent_treshold};
+
+            $self->{_hotspots}->[$ds]->[$i] = ['rect', $t, $l, $b, $r]
+        }
+    }
+
+    return $ds;
+}
+
+sub draw_data_set_v
 {
     my $self = shift;
     my $ds = shift;
@@ -148,10 +242,15 @@ sub draw_data_set
     return $ds;
 }
 
+sub draw_data_set
+{
+    $_[0]->{rotate_chart} ? goto &draw_data_set_h : goto &draw_data_set_v;
+}
+
 sub draw_values
 {
     my $self = shift;
-    
+
     return $self unless $self->{show_values};
     
     my $text_angle = $self->{values_vertical} ? PI/2 : 0;
@@ -166,6 +265,15 @@ sub draw_values
         for (my $i = 0; $i < @values; $i++)
         {
             next unless defined $display[$i];
+
+            my $value = $display[$i];
+            if (defined $self->{values_format})
+            {
+                $value = ref $self->{values_format} eq 'CODE' ?
+                    &{$self->{values_format}}($value) :
+                    sprintf($self->{values_format}, $value);
+            }
+
             my ($xp, $yp);
             if (defined($self->{x_min_value}) && defined($self->{x_max_value}))
             {
@@ -176,22 +284,24 @@ sub draw_values
             {
                 ($xp, $yp) = $self->val_to_pixel($i+1, $values[$i], $dsn);
             }
-            $yp -= $self->{values_space};
-
-            my $value = $display[$i];
-            if (defined $self->{values_format})
-            {
-                $value = ref $self->{values_format} eq 'CODE' ?
-                    &{$self->{values_format}}($value) :
-                    sprintf($self->{values_format}, $value);
-            }
-
-            unless ($self->{overwrite})
-            {
-                $xp = $xp 
-                    - $self->{x_step}/2
-                    + ($dsn - 0.5) * $self->{x_step}/$self->{_data}->num_sets;
-            }
+	    if ($self->{rotate_chart})
+	    {
+		$xp += $self->{values_space};
+		unless ($self->{overwrite})
+		{
+		    $yp -= $self->{x_step}/2 - ($dsn - 0.5) 
+			* $self->{x_step}/$self->{_data}->num_sets;
+		}
+	    }
+	    else
+	    {
+		$yp -= $self->{values_space};
+		unless ($self->{overwrite})
+		{
+		    $xp -= $self->{x_step}/2 - ($dsn - 0.5) 
+			* $self->{x_step}/$self->{_data}->num_sets;
+		}
+	    }
 
             $self->{gdta_values}->set_text($value);
             $self->{gdta_values}->draw($xp, $yp, $text_angle);

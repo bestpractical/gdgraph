@@ -1,17 +1,17 @@
 #==========================================================================
-#			   Copyright (c) 1995-2000 Martien Verbruggen
+#              Copyright (c) 1995-2000 Martien Verbruggen
 #--------------------------------------------------------------------------
 #
-#	Name:
-#		GD::Graph::Data.pm
+#   Name:
+#       GD::Graph::Data.pm
 #
-# $Id: Data.pm,v 1.16 2002/06/08 13:40:45 mgjv Exp $
+# $Id: Data.pm,v 1.17 2002/06/09 03:15:15 mgjv Exp $
 #
 #==========================================================================
 
 package GD::Graph::Data;
 
-$GD::Graph::Data::VERSION = '$Revision: 1.16 $' =~ /\s([\d.]+)/;
+$GD::Graph::Data::VERSION = '$Revision: 1.17 $' =~ /\s([\d.]+)/;
 
 use strict;
 use GD::Graph::Error;
@@ -56,7 +56,7 @@ you. Many won't even I<seem> useful to you...
 
   while (@row = $sth->fetchrow_array)
   {
-	  $data->add_point(@row);
+      $data->add_point(@row);
   }
 
   my $chart = GD::Graph::bars->new();
@@ -74,7 +74,7 @@ or for quick changes to legacy code
   # And now do all the new stuff that's wanted.
   while (@foo = bar_baz())
   {
-	  $data->add_point(@foo);
+      $data->add_point(@foo);
   }
 
 =head1 METHODS
@@ -86,44 +86,44 @@ Create a new GD::Graph::Data object.
 =cut
 
 # Error constants
-use constant ERR_ILL_DATASET	=> 'Illegal dataset number';
-use constant ERR_ILL_POINT		=> 'Illegal point number';
-use constant ERR_NO_DATASET		=> 'No data sets set';
-use constant ERR_ARGS_NO_HASH	=> 'Arguments must be given as a hash list';
+use constant ERR_ILL_DATASET    => 'Illegal dataset number';
+use constant ERR_ILL_POINT      => 'Illegal point number';
+use constant ERR_NO_DATASET     => 'No data sets set';
+use constant ERR_ARGS_NO_HASH   => 'Arguments must be given as a hash list';
 
 sub new
 {
-	my $proto = shift;
-	my $class = ref($proto) || $proto;
-	my $self = [];
-	bless $self => $class;
-	$self->copy_from(@_) or return $self->_move_errors if (@_);
-	return $self;
+    my $proto = shift;
+    my $class = ref($proto) || $proto;
+    my $self = [];
+    bless $self => $class;
+    $self->copy_from(@_) or return $self->_move_errors if (@_);
+    return $self;
 }
 
 sub DESTROY
 {
-	my $self = shift;
-	$self->clear_errors();
+    my $self = shift;
+    $self->clear_errors();
 }
 
 sub _set_value
 {
-	my $self = shift;
-	my ($nd, $np, $val) = @_;
+    my $self = shift;
+    my ($nd, $np, $val) = @_;
 
-	# Make sure we have empty arrays in between
-	if ($nd > $self->num_sets)
-	{
-		# XXX maybe do this with splice
-		for ($self->num_sets .. $nd - 1)
-		{
-			push @{$self}, [];
-		}
-	}
-	$self->[$nd][$np] = $val;
+    # Make sure we have empty arrays in between
+    if ($nd > $self->num_sets)
+    {
+        # XXX maybe do this with splice
+        for ($self->num_sets .. $nd - 1)
+        {
+            push @{$self}, [];
+        }
+    }
+    $self->[$nd][$np] = $val;
 
-	return $self;
+    return $self;
 }
 
 =head2 $data->set_x($np, $value);
@@ -136,8 +136,8 @@ failure.
 
 sub set_x
 {
-	my $self = shift;
-	$self->_set_value(0, @_);
+    my $self = shift;
+    $self->_set_value(0, @_);
 }
 
 =head2 $data->get_x($np)
@@ -148,12 +148,12 @@ Get the X value of point I<$np>. See L<"set_x">.
 
 sub get_x
 {
-	my $self = shift;
-	my $np   = shift;
-	return $self->_set_error(ERR_ILL_POINT)
-		unless defined $np && $np >= 0;
+    my $self = shift;
+    my $np   = shift;
+    return $self->_set_error(ERR_ILL_POINT)
+        unless defined $np && $np >= 0;
 
-	$self->[0][$np];
+    $self->[0][$np];
 }
 
 =head2 $data->set_y($nd, $np, $value);
@@ -166,10 +166,10 @@ You probably will never need this. Returns undef on failure.
 
 sub set_y
 {
-	my $self = shift;
-	return $self->_set_error(ERR_ILL_DATASET)
-		unless defined $_[0] && $_[0] >= 1;
-	$self->_set_value(@_);
+    my $self = shift;
+    return $self->_set_error(ERR_ILL_DATASET)
+        unless defined $_[0] && $_[0] >= 1;
+    $self->_set_value(@_);
 }
 
 =head2 $data->get_y($nd, $np)
@@ -183,14 +183,14 @@ therefore returned).
 
 sub get_y
 {
-	my $self = shift;
-	my ($nd, $np) = @_;
-	return $self->_set_error(ERR_ILL_DATASET)
-		unless defined $nd && $nd >= 1 && $nd <= $self->num_sets;
-	return $self->_set_error(ERR_ILL_POINT)
-		unless defined $np && $np >= 0;
+    my $self = shift;
+    my ($nd, $np) = @_;
+    return $self->_set_error(ERR_ILL_DATASET)
+        unless defined $nd && $nd >= 1 && $nd <= $self->num_sets;
+    return $self->_set_error(ERR_ILL_POINT)
+        unless defined $np && $np >= 0;
 
-	$self->[$nd][$np];
+    $self->[$nd][$np];
 }
 
 =head2 $data->get_y_cumulative($nd, $np)
@@ -203,40 +203,40 @@ I<$np> in the data sets 1 to I<$nd>.
 
 sub get_y_cumulative
 {
-	my $self = shift;
-	my ($nd, $np) = @_;
-	return $self->_set_error(ERR_ILL_DATASET)
-		unless defined $nd && $nd >= 1 && $nd <= $self->num_sets;
-	return $self->_set_error(ERR_ILL_POINT)
-		unless defined $np && $np >= 0;
-	
-	my $value;
-	for (my $i = 1; $i <= $nd; $i++)
-	{
-		$value += $self->[$i][$np] || 0;
-	}
+    my $self = shift;
+    my ($nd, $np) = @_;
+    return $self->_set_error(ERR_ILL_DATASET)
+        unless defined $nd && $nd >= 1 && $nd <= $self->num_sets;
+    return $self->_set_error(ERR_ILL_POINT)
+        unless defined $np && $np >= 0;
+    
+    my $value;
+    for (my $i = 1; $i <= $nd; $i++)
+    {
+        $value += $self->[$i][$np] || 0;
+    }
 
-	return $value;
+    return $value;
 }
 
 sub _get_min_max
 {
-	my $self = shift;
-	my $nd   = shift;
-	my ($min, $max);
+    my $self = shift;
+    my $nd   = shift;
+    my ($min, $max);
 
-	for my $val (@{$self->[$nd]})
-	{
-		next unless defined $val;
-		$min = $val if !defined $min || $val < $min;
-		$max = $val if !defined $max || $val > $max;
-	}
+    for my $val (@{$self->[$nd]})
+    {
+        next unless defined $val;
+        $min = $val if !defined $min || $val < $min;
+        $max = $val if !defined $max || $val > $max;
+    }
 
-	return $self->_set_error("No (defined) values in " . 
-		($nd == 0 ? "X list" : "dataset $nd"))
-			unless defined $min && defined $max;
-	
-	return ($min, $max);
+    return $self->_set_error("No (defined) values in " . 
+        ($nd == 0 ? "X list" : "dataset $nd"))
+            unless defined $min && defined $max;
+    
+    return ($min, $max);
 }
 
 =head2 $data->get_min_max_x
@@ -248,8 +248,8 @@ empty list on failure.
 
 sub get_min_max_x
 {
-	my $self = shift;
-	$self->_get_min_max(0);
+    my $self = shift;
+    $self->_get_min_max(0);
 }
 
 =head2 $data->get_min_max_y($nd)
@@ -261,13 +261,13 @@ empty list on failure.
 
 sub get_min_max_y
 {
-	my $self = shift;
-	my $nd   = shift;
+    my $self = shift;
+    my $nd   = shift;
 
-	return $self->_set_error(ERR_ILL_DATASET)
-		unless defined $nd && $nd >= 1 && $nd <= $self->num_sets;
-	
-	$self->_get_min_max($nd);
+    return $self->_set_error(ERR_ILL_DATASET)
+        unless defined $nd && $nd >= 1 && $nd <= $self->num_sets;
+    
+    $self->_get_min_max($nd);
 }
 
 =head2 $data->get_min_max_y_all()
@@ -279,21 +279,21 @@ empty list on failure.
 
 sub get_min_max_y_all
 {
-	my $self = shift;
-	my ($min, $max);
+    my $self = shift;
+    my ($min, $max);
 
-	for (my $ds = 1; $ds <= $self->num_sets; $ds++)
-	{
-		my ($ds_min, $ds_max) = $self->get_min_max_y($ds);
-		next unless defined $ds_min;
-		$min = $ds_min if !defined $min || $ds_min < $min;
-		$max = $ds_max if !defined $max || $ds_max > $max;
-	}
+    for (my $ds = 1; $ds <= $self->num_sets; $ds++)
+    {
+        my ($ds_min, $ds_max) = $self->get_min_max_y($ds);
+        next unless defined $ds_min;
+        $min = $ds_min if !defined $min || $ds_min < $min;
+        $max = $ds_max if !defined $max || $ds_max > $max;
+    }
 
-	return $self->_set_error('No (defined) values in any data set')
-		unless defined $min && defined $max;
-	
-	return ($min, $max);
+    return $self->_set_error('No (defined) values in any data set')
+        unless defined $min && defined $max;
+    
+    return ($min, $max);
 }
 
 # Undocumented, not part of interface right now. Might expose at later
@@ -301,16 +301,16 @@ sub get_min_max_y_all
 
 sub set_point
 {
-	my $self = shift;
-	my $np = shift;
-	return $self->_set_error(ERR_ILL_POINT)
-		unless defined $np && $np >= 0;
+    my $self = shift;
+    my $np = shift;
+    return $self->_set_error(ERR_ILL_POINT)
+        unless defined $np && $np >= 0;
 
-	for (my $ds = 0; $ds < @_; $ds++)
-	{
-		$self->_set_value($ds, $np, $_[$ds]);
-	}
-	return $self;
+    for (my $ds = 0; $ds < @_; $ds++)
+    {
+        $self->_set_value($ds, $np, $_[$ds]);
+    }
+    return $self;
 }
 
 =head2 $data->add_point($X, $Y1, $Y2 ...)
@@ -339,8 +339,8 @@ all data sets are of equal length, this method is safe to use.
 
 sub add_point
 {
-	my $self = shift;
-	$self->set_point(scalar $self->num_points, @_);
+    my $self = shift;
+    $self->set_point(scalar $self->num_points, @_);
 }
 
 =head2 $data->num_sets()
@@ -351,8 +351,8 @@ Returns the number of data sets.
 
 sub num_sets
 {
-	my $self = shift;
-	@{$self} - 1;
+    my $self = shift;
+    @{$self} - 1;
 }
 
 =head2 $data->num_points()
@@ -367,12 +367,12 @@ from a call to C<make_strict>.
 
 sub num_points
 {
-	my $self = shift;
-	return (0) unless @{$self};
+    my $self = shift;
+    return (0) unless @{$self};
 
-	wantarray ?
-		map { scalar @{$_} } @{$self} :
-		scalar @{$self->[0]}
+    wantarray ?
+        map { scalar @{$_} } @{$self} :
+        scalar @{$self->[0]}
 }
 
 =head2 $data->x_values()
@@ -383,10 +383,10 @@ Return a list of all the X values.
 
 sub x_values
 {
-	my $self = shift;
-	return $self->_set_error(ERR_NO_DATASET)
-		unless @{$self};
-	@{$self->[0]};
+    my $self = shift;
+    return $self->_set_error(ERR_NO_DATASET)
+        unless @{$self};
+    @{$self->[0]};
 }
 
 =head2 $data->y_values($nd)
@@ -399,14 +399,14 @@ the data set at $nd is empty.
 
 sub y_values
 {
-	my $self = shift;
-	my $nd   = shift;
-	return $self->_set_error(ERR_ILL_DATASET)
-		unless defined $nd && $nd >= 1 && $nd <= $self->num_sets;
-	return $self->_set_error(ERR_NO_DATASET)
-		unless @{$self};
+    my $self = shift;
+    my $nd   = shift;
+    return $self->_set_error(ERR_ILL_DATASET)
+        unless defined $nd && $nd >= 1 && $nd <= $self->num_sets;
+    return $self->_set_error(ERR_NO_DATASET)
+        unless @{$self};
 
-	@{$self->[$nd]};
+    @{$self->[$nd]};
 }
 
 =head2 $data->reset() OR GD::Graph::Data->reset()
@@ -419,10 +419,10 @@ and possible other crud.
 
 sub reset
 {
-	my $self = shift;
-	@{$self} = () if ref($self);
-	$self->clear_errors();
-	return $self;
+    my $self = shift;
+    @{$self} = () if ref($self);
+    $self->clear_errors();
+    return $self;
 }
 
 =head2 $data->make_strict()
@@ -435,26 +435,26 @@ undef values. always returns a true value.
 
 sub make_strict
 {
-	my $self = shift;
+    my $self = shift;
 
-	for my $ds (1 .. $self->num_sets)
-	{
-		my $data_set = $self->[$ds];
+    for my $ds (1 .. $self->num_sets)
+    {
+        my $data_set = $self->[$ds];
 
-		my $short = $self->num_points - @{$data_set};
-		next if $short == 0;
+        my $short = $self->num_points - @{$data_set};
+        next if $short == 0;
 
-		if ($short > 0)
-		{
-			my @fill = (undef) x $short;
-			push @{$data_set}, @fill;
-		}
-		else
-		{
-			splice @{$data_set}, $short;
-		}
-	}
-	return $self;
+        if ($short > 0)
+        {
+            my @fill = (undef) x $short;
+            push @{$data_set}, @fill;
+        }
+        else
+        {
+            splice @{$data_set}, $short;
+        }
+    }
+    return $self;
 }
 
 =head2 $data->cumulate(preserve_undef => boolean)
@@ -477,34 +477,34 @@ really shouldn't be using this to store that sort of Y data.
 
 sub cumulate
 {
-	my $self = shift;
+    my $self = shift;
 
-	return $self->_set_error(ERR_ARGS_NO_HASH) if (@_ && @_ % 2);
-	my %args = @_;
+    return $self->_set_error(ERR_ARGS_NO_HASH) if (@_ && @_ % 2);
+    my %args = @_;
 
-	# For all the sets, starting at the last one, ending just 
-	# before the first
-	for (my $ds = $self->num_sets; $ds > 1; $ds--)
-	{
-		# For each point in the set
-		for my $point (0 .. $#{$self->[$ds]})
-		{
-			# Add the value for each point in lower sets to this one
-			for my $i (1 .. $ds - 1)
-			{
-				# If neither are defined, we want to preserve the
-				# undefinedness of this point. If we don't do this, then
-				# the mathematical operation will force undef to be a 0.
-				next if 
-					$args{preserve_undef} &&
-					! defined $self->[$ds][$point] &&
-					! defined $self->[$i][$point];
+    # For all the sets, starting at the last one, ending just 
+    # before the first
+    for (my $ds = $self->num_sets; $ds > 1; $ds--)
+    {
+        # For each point in the set
+        for my $point (0 .. $#{$self->[$ds]})
+        {
+            # Add the value for each point in lower sets to this one
+            for my $i (1 .. $ds - 1)
+            {
+                # If neither are defined, we want to preserve the
+                # undefinedness of this point. If we don't do this, then
+                # the mathematical operation will force undef to be a 0.
+                next if 
+                    $args{preserve_undef} &&
+                    ! defined $self->[$ds][$point] &&
+                    ! defined $self->[$i][$point];
 
-				$self->[$ds][$point] += $self->[$i][$point] || 0;
-			}
-		}
-	}
-	return $self;
+                $self->[$ds][$point] += $self->[$i][$point] || 0;
+            }
+        }
+    }
+    return $self;
 }
 
 =head2 $data->wanted(indexes)
@@ -521,16 +521,16 @@ order:
 
 sub wanted
 {
-	my $self = shift;
+    my $self = shift;
 
-	for my $wanted (@_)
-	{
-		return $self->_set_error("Wanted index $wanted out of range 1-"
-					. $self->num_sets)
-			if $wanted < 1 || $wanted > $self->num_sets;
-	}
-	@{$self} = @{$self}[0, @_];
-	return $self;
+    for my $wanted (@_)
+    {
+        return $self->_set_error("Wanted index $wanted out of range 1-"
+                    . $self->num_sets)
+            if $wanted < 1 || $wanted > $self->num_sets;
+    }
+    @{$self} = @{$self}[0, @_];
+    return $self;
 }
 
 =head2 $data->reverse
@@ -541,9 +541,9 @@ Reverse the order of the data sets.
 
 sub reverse
 {
-	my $self = shift;
-	@{$self} = ($self->[0], reverse @{$self}[1..$#{$self}]);
-	return $self;
+    my $self = shift;
+    @{$self} = ($self->[0], reverse @{$self}[1..$#{$self}]);
+    return $self;
 }
 
 =head2 $data->copy_from($data_ref)
@@ -556,25 +556,25 @@ on failure.
 
 sub copy_from
 {
-	my $self = shift;
-	my $data = shift;
-	return $self->_set_error('Not a valid source data structure')
-		unless defined $data && (
-				ref($data) eq 'ARRAY' || ref($data) eq __PACKAGE__);
-	
-	$self->reset;
+    my $self = shift;
+    my $data = shift;
+    return $self->_set_error('Not a valid source data structure')
+        unless defined $data && (
+                ref($data) eq 'ARRAY' || ref($data) eq __PACKAGE__);
+    
+    $self->reset;
 
-	my $i = 0;
-	for my $data_set (@{$data})
-	{
-		return $self->_set_error("Invalid data set: $i")
-			unless ref($data_set) eq 'ARRAY';
+    my $i = 0;
+    for my $data_set (@{$data})
+    {
+        return $self->_set_error("Invalid data set: $i")
+            unless ref($data_set) eq 'ARRAY';
 
-		push @{$self}, [@{$data_set}];
-		$i++;
-	}
+        push @{$self}, [@{$data_set}];
+        $i++;
+    }
 
-	return $self;
+    return $self;
 }
 
 =head2 $data->copy()
@@ -585,11 +585,11 @@ Returns a copy of the object, or undef on failure.
 
 sub copy
 {
-	my $self = shift;
+    my $self = shift;
 
-	my $new = $self->new();
-	$new->copy_from($self);
-	return $new;
+    my $new = $self->new();
+    $new->copy_from($self);
+    return $new;
 }
 
 =head2 $data->read(I<arguments>)
@@ -632,34 +632,34 @@ delimiter instead of a single tab.
 
 sub read
 {
-	my $self = shift;
-	local(*DATA, $_);
+    my $self = shift;
+    local(*DATA, $_);
 
-	return $self->_set_error(ERR_ARGS_NO_HASH) if (@_ && @_ % 2);
-	my %args = @_;
+    return $self->_set_error(ERR_ARGS_NO_HASH) if (@_ && @_ % 2);
+    my %args = @_;
 
-	return $self->_set_error('Missing required argument: file') 
-		unless $args{file};
+    return $self->_set_error('Missing required argument: file') 
+        unless $args{file};
 
-	my $delim = $args{delimiter} || "\t";
+    my $delim = $args{delimiter} || "\t";
 
-	# The following will die if these modules are not present, as
-	# documented.
-	require Text::ParseWords;
+    # The following will die if these modules are not present, as
+    # documented.
+    require Text::ParseWords;
 
-	$self->reset;
+    $self->reset;
 
-	open(DATA, $args{file}) or 
-		return $self->_set_error("open ($args{file}): $!");
-	while (<DATA>)
-	{
-		chomp;
-		next if /^#/ && !$args{no_comment};
-		my @fields = Text::ParseWords::parse_line($delim, 1, $_);
-		next unless @fields;
-		$self->add_point(@fields);
-	}
-	return $self;
+    open(DATA, $args{file}) or 
+        return $self->_set_error("open ($args{file}): $!");
+    while (<DATA>)
+    {
+        chomp;
+        next if /^#/ && !$args{no_comment};
+        my @fields = Text::ParseWords::parse_line($delim, 1, $_);
+        next unless @fields;
+        $self->add_point(@fields);
+    }
+    return $self;
 }
 
 =head2 $data->error() OR GD::Graph::Data->error()

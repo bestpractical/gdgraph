@@ -1,19 +1,19 @@
+use strict;
 use GD::Graph::mixed;
-use constant PI => 4 * atan2(1,1);
 require 'save.pl';
 
-print STDERR "Processing sample 7-1\n";
+print STDERR "Processing sample71\n";
 
-@data = ( 
+my @data = ( 
     ["1st","2nd","3rd","4th","5th","6th","7th", "8th", "9th"],
     [    1,    2,    5,    6,    3,  1.5,   -1,    -3,    -4],
     [   -4,   -3,    1,    1,   -3, -1.5,   -2,    -1,     0],
     [    9,    8,    9,  8.4,  7.1,  7.5,    8,     3,    -3],
-	[  0.1,  0.2,  0.5,  0.4,  0.3,  0.5,  0.1,     0,   0.4],
-	[ -0.1,    2,    5,    4,   -3,  2.5,  3.2,     4,    -4],
+    [  0.1,  0.2,  0.5,  0.4,  0.3,  0.5,  0.1,     0,   0.4],
+    [ -0.1,    2,    5,    4,   -3,  2.5,  3.2,     4,    -4],
 );
-
-$my_graph = new GD::Graph::mixed();
+my ($width, $height) = (500, 400);
+my $my_graph = new GD::Graph::mixed($width, $height);
 
 $my_graph->set( 
 	types => [ qw( lines bars points area linespoints ) ],
@@ -59,10 +59,21 @@ $my_graph->set_legend( qw( one two three four five six ) );
 
 if ($my_graph->can_do_ttf)
 {
-	my $gd = $my_graph->gd;
-	my $white = $gd->colorAllocate(255,255,255);
-	my $pink = $gd->colorAllocate(255,240,240);
-	$gd->stringTTF($pink, '../20thcent.ttf', 72, PI/6, 20, 280, 'GD::Graph');
+    my $gd = $my_graph->gd;
+    my $white = $gd->colorAllocate(255,255,255);
+    my $pink = $gd->colorAllocate(255,240,240);
+    my $gdta;
+
+    $gdta = GD::Text::Align->new($gd,
+	text => 'GD::Graph',
+	font => '../20thcent.ttf',
+	ptsize => 72,
+	colour => $pink,
+	valign => 'center',
+	halign => 'center',
+    ) or warn $gdta->error;
+
+    $gdta->draw($width/2, $height/2, atan2($height, $width));
 }
 
 $my_graph->plot(\@data);

@@ -1,17 +1,17 @@
 #==========================================================================
-#			   Copyright (c) 1995-1998 Martien Verbruggen
+#              Copyright (c) 1995-1998 Martien Verbruggen
 #--------------------------------------------------------------------------
 #
-#	Name:
-#		GD::Graph::mixed.pm
+#   Name:
+#       GD::Graph::mixed.pm
 #
-# $Id: mixed.pm,v 1.9 2000/04/30 03:09:30 mgjv Exp $
+# $Id: mixed.pm,v 1.10 2002/06/09 03:15:16 mgjv Exp $
 #
 #==========================================================================
 
 package GD::Graph::mixed;
  
-$GD::Graph::mixed::VERSION = '$Revision: 1.9 $' =~ /\s([\d.]+)/;
+$GD::Graph::mixed::VERSION = '$Revision: 1.10 $' =~ /\s([\d.]+)/;
 
 use strict;
  
@@ -29,69 +29,69 @@ use Carp;
 # that's where we look first for methods.
 
 @GD::Graph::mixed::ISA = qw( 
-	GD::Graph::axestype 
-	GD::Graph::lines 
-	GD::Graph::points 
+    GD::Graph::axestype 
+    GD::Graph::lines 
+    GD::Graph::points 
 );
 
 sub initialise
 {
-	my $self = shift;
-	$self->SUPER::initialise();
+    my $self = shift;
+    $self->SUPER::initialise();
 }
 
 sub correct_width
 {
-	my $self = shift;
+    my $self = shift;
 
-	return $self->{correct_width} if defined $self->{correct_width};
+    return $self->{correct_width} if defined $self->{correct_width};
 
-	for my $type ($self->{default_type}, @{$self->{types}})
-	{
-		return 1 if $type eq 'bars';
-	}
+    for my $type ($self->{default_type}, @{$self->{types}})
+    {
+        return 1 if $type eq 'bars';
+    }
 }
 
 sub draw_data_set
 {
-	my $self = shift;
-	my $ds   = $_[0];
+    my $self = shift;
+    my $ds   = $_[0];
 
-	my $rc;
+    my $rc;
 
-	my $type = $self->{types}->[$ds-1] || $self->{default_type};
+    my $type = $self->{types}->[$ds-1] || $self->{default_type};
 
-	# Try to execute the draw_data_set function in the package
-	# specified by type
-	$rc = eval '$self->GD::Graph::'.$type.'::draw_data_set(@_)';
+    # Try to execute the draw_data_set function in the package
+    # specified by type
+    $rc = eval '$self->GD::Graph::'.$type.'::draw_data_set(@_)';
 
-	# If we fail, we try it in the package specified by the
-	# default_type, and warn the user
-	if ($@)
-	{
-		carp "Set $ds, unknown type $type, assuming $self->{default_type}";
+    # If we fail, we try it in the package specified by the
+    # default_type, and warn the user
+    if ($@)
+    {
+        carp "Set $ds, unknown type $type, assuming $self->{default_type}";
 
-		$rc = eval '$self->GD::Graph::'.
-			$self->{default_type}.'::draw_data_set(@_)';
-	}
+        $rc = eval '$self->GD::Graph::'.
+            $self->{default_type}.'::draw_data_set(@_)';
+    }
 
-	# If even that fails, we bail out
-	croak "Set $ds: unknown default type $self->{default_type}" if $@;
+    # If even that fails, we bail out
+    croak "Set $ds: unknown default type $self->{default_type}" if $@;
 
-	return $rc;
+    return $rc;
 }
 
 sub draw_legend_marker
 {
-	my $self = shift;
-	my $ds = $_[0];
+    my $self = shift;
+    my $ds = $_[0];
 
-	my $type = $self->{types}->[$ds-1] || $self->{default_type};
+    my $type = $self->{types}->[$ds-1] || $self->{default_type};
 
-	eval '$self->GD::Graph::'.$type.'::draw_legend_marker(@_)';
+    eval '$self->GD::Graph::'.$type.'::draw_legend_marker(@_)';
 
-	eval '$self->GD::Graph::'.
-		$self->{default_type}.'::draw_legend_marker(@_)' if $@;
+    eval '$self->GD::Graph::'.
+        $self->{default_type}.'::draw_legend_marker(@_)' if $@;
 }
 
 "Just another true value";

@@ -1,7 +1,7 @@
 use GD::Graph::pie;
 require 'save.pl';
 
-print STDERR "Processing sample 9-1\n";
+print STDERR "Processing sample91\n";
 
 @data = ( 
     ["1st","2nd","3rd","4th","5th","6th"],

@@ -1,7 +1,7 @@
 use GD::Graph::lines;
 require 'save.pl';
 
-print STDERR "Processing sample 5-6 (experimental)\n";
+print STDERR "Processing sample56 (experimental)\n";
 
 @data = read_data("sample54.dat") 
 	or die "Cannot read data from sample54.dat";

@@ -1,7 +1,7 @@
 use GD::Graph::lines;
 require 'save.pl';
 
-print STDERR "Processing sample 5-2\n";
+print STDERR "Processing sample52\n";
 
 @data = ( 
     [ qw( Jan Feb Mar Apr May Jun Jul Aug Sep Oct Nov Dec) ],

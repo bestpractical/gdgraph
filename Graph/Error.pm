@@ -1,17 +1,17 @@
 #==========================================================================
-#			   Copyright (c) 1995-2000 Martien Verbruggen
+#              Copyright (c) 1995-2000 Martien Verbruggen
 #--------------------------------------------------------------------------
 #
-#	Name:
-#		GD::Graph::Error.pm
+#   Name:
+#       GD::Graph::Error.pm
 #
-# $Id: Error.pm,v 1.6 2002/06/08 13:40:45 mgjv Exp $
+# $Id: Error.pm,v 1.7 2002/06/09 03:15:15 mgjv Exp $
 #
 #==========================================================================
 
 package GD::Graph::Error;
 
-$GD::Graph::Error::VERSION = '$Revision: 1.6 $' =~ /\s([\d.]+)/;
+$GD::Graph::Error::VERSION = '$Revision: 1.7 $' =~ /\s([\d.]+)/;
 
 use strict;
 use Carp;
@@ -81,44 +81,44 @@ and C<has_error> does not change).
 
 sub _error
 {
-	my $self = shift;
-	my $min_level = shift || 0;
-	my $max_level = shift || 1 << 31;
-	return unless exists $Errors{$self};
-	my $error = $Errors{$self};
+    my $self = shift;
+    my $min_level = shift || 0;
+    my $max_level = shift || 1 << 31;
+    return unless exists $Errors{$self};
+    my $error = $Errors{$self};
 
-	my @return;
+    my @return;
 
-	@return = 
-		map { 
-			($Debug > 3 ? "[$_->{level}] " : '') .
-			"$_->{msg}" .
-			($Debug ? " at $_->{whence}[1] line $_->{whence}[2]" : '') .
-			($Debug > 5 ? " => $_->{caller}[0]($_->{caller}[2])" : '') .
-			"\n"
-		} 
-		grep { $_->{level} >= $min_level && $_->{level} <= $max_level }
-		@$error;
+    @return = 
+        map { 
+            ($Debug > 3 ? "[$_->{level}] " : '') .
+            "$_->{msg}" .
+            ($Debug ? " at $_->{whence}[1] line $_->{whence}[2]" : '') .
+            ($Debug > 5 ? " => $_->{caller}[0]($_->{caller}[2])" : '') .
+            "\n"
+        } 
+        grep { $_->{level} >= $min_level && $_->{level} <= $max_level }
+        @$error;
 
-	wantarray && @return > 1 and  
-		$return[-1] =~ s/\n/\n\t/ or
-		$return[-1] =~ s/\n//;
+    wantarray && @return > 1 and  
+        $return[-1] =~ s/\n/\n\t/ or
+        $return[-1] =~ s/\n//;
 
-	return wantarray ? @return : $return[-1];
+    return wantarray ? @return : $return[-1];
 }
 
 sub error
 {
-	my $self = shift;
-	$Debug > 3 and return $self->_error();
-	$self->_error($ErrorLevel);
+    my $self = shift;
+    $Debug > 3 and return $self->_error();
+    $self->_error($ErrorLevel);
 }
 
 sub warning
 {
-	my $self = shift;
-	$Debug > 3 and return $self->_error();
-	$self->_error(0, $ErrorLevel - 1);
+    my $self = shift;
+    $Debug > 3 and return $self->_error();
+    $self->_error(0, $ErrorLevel - 1);
 }
 
 =head2 $object->has_error() OR Class->has_error()
@@ -152,16 +152,16 @@ which you only need to call C<has_error>.
 
 sub has_error
 {
-	my $self = shift;
-	return unless exists $Errors{$self};
-	grep { $_->{level} >= $ErrorLevel } @{$Errors{$self}};
+    my $self = shift;
+    return unless exists $Errors{$self};
+    grep { $_->{level} >= $ErrorLevel } @{$Errors{$self}};
 }
 
 sub has_warning
 {
-	my $self = shift;
-	return unless exists $Errors{$self};
-	grep { $_->{level} < $ErrorLevel } @{$Errors{$self}};
+    my $self = shift;
+    return unless exists $Errors{$self};
+    grep { $_->{level} < $ErrorLevel } @{$Errors{$self}};
 }
 
 =head2 $object->clear_errors() or Class->clear_errors()
@@ -172,8 +172,8 @@ Clears all outstanding errors.
 
 sub clear_errors
 {
-	my $self = shift;
-	delete $Errors{$self};
+    my $self = shift;
+    delete $Errors{$self};
 }
 
 =head1 PROTECTED METHODS
@@ -207,67 +207,67 @@ clarity.
 # object, but that's too much work right now.
 sub __error_hash
 {
-	my $caller  = shift;
-	my $default = shift;
-	my $msg     = shift;
+    my $caller  = shift;
+    my $default = shift;
+    my $msg     = shift;
 
-	my %error = (caller => $caller);
+    my %error = (caller => $caller);
 
-	if (ref($msg) && ref($msg) eq 'ARRAY' && @{$msg} >= 2)
-	{
-		# Array reference
-		$error{level} = $msg->[0];
-		$error{msg}   = $msg->[1];
-	}
-	elsif (ref($_[0]) eq '')
-	{
-		# simple scalar
-		$error{level} = $default;
-		$error{msg}   = $msg;
-	}
-	else
-	{
-		# someting else, which I can't deal with
-		warn "Did you read the documentation for GD::Graph::Error?";
-		return;
-	}
+    if (ref($msg) && ref($msg) eq 'ARRAY' && @{$msg} >= 2)
+    {
+        # Array reference
+        $error{level} = $msg->[0];
+        $error{msg}   = $msg->[1];
+    }
+    elsif (ref($_[0]) eq '')
+    {
+        # simple scalar
+        $error{level} = $default;
+        $error{msg}   = $msg;
+    }
+    else
+    {
+        # someting else, which I can't deal with
+        warn "Did you read the documentation for GD::Graph::Error?";
+        return;
+    }
 
-	my $lvl = 1;
-	while (my @c = caller($lvl))
-	{
-		$error{whence} = [@c[0..2]];
-		$lvl++;
-	}
+    my $lvl = 1;
+    while (my @c = caller($lvl))
+    {
+        $error{whence} = [@c[0..2]];
+        $lvl++;
+    }
 
-	return \%error;
+    return \%error;
 }
 
 sub _set_error
 {
-	my $self = shift;
-	return unless @_;
+    my $self = shift;
+    return unless @_;
 
-	while (@_)
-	{
-		my $e_h = __error_hash([caller], $ErrorLevel, shift) or return;
-		push @{$Errors{$self}}, $e_h;
-		croak $self->error if $e_h->{level} >= $CriticalLevel;
-	}
-	return;
+    while (@_)
+    {
+        my $e_h = __error_hash([caller], $ErrorLevel, shift) or return;
+        push @{$Errors{$self}}, $e_h;
+        croak $self->error if $e_h->{level} >= $CriticalLevel;
+    }
+    return;
 }
 
 sub _set_warning
 {
-	my $self = shift;
-	return unless @_;
+    my $self = shift;
+    return unless @_;
 
-	while (@_)
-	{
-		my $e_h = __error_hash([caller], $ErrorLevel, shift) or return;
-		push @{$Errors{$self}}, $e_h;
-		croak $self->error if $e_h->{level} >= $CriticalLevel;
-	}
-	return;
+    while (@_)
+    {
+        my $e_h = __error_hash([caller], $ErrorLevel, shift) or return;
+        push @{$Errors{$self}}, $e_h;
+        croak $self->error if $e_h->{level} >= $CriticalLevel;
+    }
+    return;
 }
 
 =head2 $object->_move_errors
@@ -282,18 +282,18 @@ example)
 
 sub _move_errors
 {
-	my $self = shift;
-	my $class = ref($self);
-	push @{$Errors{$class}}, @{$Errors{$self}};
-	return;
+    my $self = shift;
+    my $class = ref($self);
+    push @{$Errors{$class}}, @{$Errors{$self}};
+    return;
 }
 
 sub _dump
 {
-	my $self = shift;
-	require Data::Dumper;
-	my $dd = Data::Dumper->new([$self], ['me']);
-	$dd->Dumpxs;
+    my $self = shift;
+    require Data::Dumper;
+    my $dd = Data::Dumper->new([$self], ['me']);
+    $dd->Dumpxs;
 }
 
 =head1 VARIABLES

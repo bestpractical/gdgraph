@@ -1,17 +1,17 @@
 #==========================================================================
-#			   Copyright (c) 1995-1998 Martien Verbruggen
+#              Copyright (c) 1995-1998 Martien Verbruggen
 #--------------------------------------------------------------------------
 #
-#	Name:
-#		GD::Graph::linespoints.pm
+#   Name:
+#       GD::Graph::linespoints.pm
 #
-# $Id: linespoints.pm,v 1.6 2000/03/18 06:01:43 mgjv Exp $
+# $Id: linespoints.pm,v 1.7 2002/06/09 03:15:16 mgjv Exp $
 #
 #==========================================================================
 
 package GD::Graph::linespoints;
  
-$GD::Graph::linespoints::VERSION = '$Revision: 1.6 $' =~ /\s([\d.]+)/;
+$GD::Graph::linespoints::VERSION = '$Revision: 1.7 $' =~ /\s([\d.]+)/;
 
 use strict;
  
@@ -29,18 +29,18 @@ use GD::Graph::points;
 
 sub draw_data_set
 {
-	my $self = shift;
+    my $self = shift;
 
-	$self->GD::Graph::points::draw_data_set(@_) or return;
-	$self->GD::Graph::lines::draw_data_set(@_);
+    $self->GD::Graph::points::draw_data_set(@_) or return;
+    $self->GD::Graph::lines::draw_data_set(@_);
 }
 
 sub draw_legend_marker
 {
-	my $self = shift;
+    my $self = shift;
 
-	$self->GD::Graph::points::draw_legend_marker(@_);
-	$self->GD::Graph::lines::draw_legend_marker(@_);
+    $self->GD::Graph::points::draw_legend_marker(@_);
+    $self->GD::Graph::lines::draw_legend_marker(@_);
 }
 
 "Just another true value";

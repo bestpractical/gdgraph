@@ -2,19 +2,19 @@
 #              Copyright (c) 1995-1999 Martien Verbruggen
 #--------------------------------------------------------------------------
 #
-#	Name:
-#		GD::Graph::utils.pm
+#   Name:
+#       GD::Graph::utils.pm
 #
-#	Description:
-#		Package of general utilities.
+#   Description:
+#       Package of general utilities.
 #
-# $Id: utils.pm,v 1.5 2000/03/18 06:01:43 mgjv Exp $
+# $Id: utils.pm,v 1.6 2002/06/09 03:15:16 mgjv Exp $
 #
 #==========================================================================
  
 package GD::Graph::utils;
 
-$GD::Graph::utils::VERSION = '$Revision: 1.5 $' =~ /\s([\d.]+)/;
+$GD::Graph::utils::VERSION = '$Revision: 1.6 $' =~ /\s([\d.]+)/;
 
 use strict;
 
@@ -27,19 +27,19 @@ require Exporter;
 %EXPORT_TAGS = (all => [qw(_max _min _round)]);
 
 sub _max { 
-	my ($a, $b) = @_; 
-	return undef	if (!defined($a) and !defined($b));
-	return $a 		if (!defined($b));
-	return $b 		if (!defined($a));
-	( $a >= $b ) ? $a : $b; 
+    my ($a, $b) = @_; 
+    return undef    if (!defined($a) and !defined($b));
+    return $a       if (!defined($b));
+    return $b       if (!defined($a));
+    ( $a >= $b ) ? $a : $b; 
 }
 
 sub _min { 
-	my ($a, $b) = @_; 
-	return undef	if (!defined($a) and !defined($b));
-	return $a 		if (!defined($b));
-	return $b 		if (!defined($a));
-	( $a <= $b ) ? $a : $b; 
+    my ($a, $b) = @_; 
+    return undef    if (!defined($a) and !defined($b));
+    return $a       if (!defined($b));
+    return $b       if (!defined($a));
+    ( $a <= $b ) ? $a : $b; 
 }
 
 sub _round { sprintf "%.0f", shift }

@@ -1,7 +1,7 @@
 use GD::Graph::lines;
 require 'save.pl';
 
-print STDERR "Processing sample 5-1\n";
+print STDERR "Processing sample51\n";
 
 # The reverse is in here, because I thought the falling line was 
 # depressing, but I was too lazy to retype the data set

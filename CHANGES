@@ -1,3 +1,13 @@
+9 Jun 2002
+
+- I just realised this file is severely out of date. I'll only keep
+  track of the really big changes here, since I really can't remember
+  what I've fixed and changed sine 1.33, and it's really too much work
+  to go through all CVS comments.
+- Added hbars.pm, and put most of the framework in place to allow the
+  other charts to be plotted rotated as well.
+- preparation of release 1.34
+
 7 Oct 2000
 
 - Addition of undefined data set colour.

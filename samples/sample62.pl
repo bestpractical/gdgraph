@@ -1,7 +1,7 @@
 use GD::Graph::mixed;
 require 'save.pl';
 
-print STDERR "Processing sample 6-2\n";
+print STDERR "Processing sample62\n";
 
 @data = ( 
     ["1st","2nd","3rd","4th","5th","6th","7th", "8th", "9th"],

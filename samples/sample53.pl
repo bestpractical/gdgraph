@@ -6,7 +6,7 @@ require 'save.pl';
 GD::Graph::colour::read_rgb("rgb.txt") or 
 	die "Cannot read colours from rgb.txt";
 
-print STDERR "Processing sample 5-3\n";
+print STDERR "Processing sample53\n";
 
 $data = ([
     ["1st","2nd","3rd","4th","5th","6th","7th", "8th", "9th"],

@@ -2,23 +2,24 @@
 #              Copyright (c) 1995-2000 Martien Verbruggen
 #--------------------------------------------------------------------------
 #
-#	Name:
-#		GD::Graph.pm
+#   Name:
+#       GD::Graph.pm
 #
-#	Description:
+#   Description:
 #       Module to create graphs from a data set drawing on a GD::Image
 #       object
 #
-#		Package of a number of graph types:
-#		GD::Graph::bars
-#		GD::Graph::lines
-#		GD::Graph::points
-#		GD::Graph::linespoints
-#		GD::Graph::area
-#		GD::Graph::pie
-#		GD::Graph::mixed
+#       Package of a number of graph types:
+#       GD::Graph::bars
+#       GD::Graph::hbars
+#       GD::Graph::lines
+#       GD::Graph::points
+#       GD::Graph::linespoints
+#       GD::Graph::area
+#       GD::Graph::pie
+#       GD::Graph::mixed
 #
-# $Id: Graph.pm,v 1.38 2001/02/27 01:21:13 mgjv Exp $
+# $Id: Graph.pm,v 1.39 2002/06/09 03:15:15 mgjv Exp $
 #
 #==========================================================================
 
@@ -30,7 +31,7 @@
 
 package GD::Graph;
 
-$GD::Graph::prog_version = '$Revision: 1.38 $' =~ /\s([\d.]+)/;
+$GD::Graph::prog_version = '$Revision: 1.39 $' =~ /\s([\d.]+)/;
 $GD::Graph::VERSION = '1.34';
 
 use strict;
@@ -46,63 +47,63 @@ use Carp;
 use GD::Graph::colour qw(:colours);
 
 my %GDsize = ( 
-	'x' => 400, 
-	'y' => 300 
+    'x' => 400, 
+    'y' => 300 
 );
 
 my %Defaults = (
 
-	# Set the top, bottom, left and right margin for the chart. These 
-	# margins will be left empty.
-	t_margin      => 0,
-	b_margin      => 0,
-	l_margin      => 0,
-	r_margin      => 0,
+    # Set the top, bottom, left and right margin for the chart. These 
+    # margins will be left empty.
+    t_margin      => 0,
+    b_margin      => 0,
+    l_margin      => 0,
+    r_margin      => 0,
 
-	# Set the factor with which to resize the logo in the chart (need to
-	# automatically compute something nice for this, really), set the 
-	# default logo file name, and set the logo position (UR, BR, UL, BL)
-	logo          => undef,
-	logo_resize   => 1.0,
-	logo_position => 'LR',
+    # Set the factor with which to resize the logo in the chart (need to
+    # automatically compute something nice for this, really), set the 
+    # default logo file name, and set the logo position (UR, BR, UL, BL)
+    logo          => undef,
+    logo_resize   => 1.0,
+    logo_position => 'LR',
 
-	# Do we want a transparent background?
-	transparent   => 1,
+    # Do we want a transparent background?
+    transparent   => 1,
 
-	# Do we want interlacing?
-	interlaced    => 1,
+    # Do we want interlacing?
+    interlaced    => 1,
 
-	# Set the background colour, the default foreground colour (used 
-	# for axes etc), the textcolour, the colour for labels, the colour 
-	# for numbers on the axes, the colour for accents (extra lines, tick
-	# marks, etc..)
-	bgclr         => 'white',	# background colour
-	fgclr         => 'dblue',	# Axes and grid
-	boxclr		  => undef,		# Fill colour for box axes, default: not used
-	accentclr     => 'gray',	# bar, area and pie outlines.
+    # Set the background colour, the default foreground colour (used 
+    # for axes etc), the textcolour, the colour for labels, the colour 
+    # for numbers on the axes, the colour for accents (extra lines, tick
+    # marks, etc..)
+    bgclr         => 'white',   # background colour
+    fgclr         => 'dblue',   # Axes and grid
+    boxclr        => undef,     # Fill colour for box axes, default: not used
+    accentclr     => 'gray',    # bar, area and pie outlines.
 
-	labelclr      => 'dblue',	# labels on axes
-	axislabelclr  => 'dblue',	# values on axes
-	legendclr	  => 'dblue',	# Text for the legend
-	textclr       => 'dblue',	# All text, apart from the following 2
+    labelclr      => 'dblue',   # labels on axes
+    axislabelclr  => 'dblue',   # values on axes
+    legendclr     => 'dblue',   # Text for the legend
+    textclr       => 'dblue',   # All text, apart from the following 2
 
-	valuesclr     => 'dblue',	# values printed above the points
-	
-	# data set colours
-	dclrs => [ qw(lred lgreen lblue lyellow lpurple cyan lorange)], 
+    valuesclr     => 'dblue',   # values printed above the points
+    
+    # data set colours
+    dclrs => [ qw(lred lgreen lblue lyellow lpurple cyan lorange)], 
 
-	# number of pixels to use as text spacing
-	text_space    => 8,
+    # number of pixels to use as text spacing
+    text_space    => 4,
 
-	# These have undefined values, but are here so that the set method
-	# knows about them:
-	title		=> undef,
+    # These have undefined values, but are here so that the set method
+    # knows about them:
+    title       => undef,
 );
 
 sub _has_default { 
-	my $self = shift;
-	my $attr = shift || return;
-	exists $Defaults{$attr} 
+    my $self = shift;
+    my $attr = shift || return;
+    exists $Defaults{$attr} 
 }
 
 #
@@ -110,107 +111,107 @@ sub _has_default {
 #
 sub new  # ( width, height ) optional;
 {
-	my $type = shift;
-	my $self = {};
-	bless $self, $type;
+    my $type = shift;
+    my $self = {};
+    bless $self, $type;
 
-	if (@_) 
-	{
-		# If there are any parameters, they should be the size
-		return $self->set_error(
-			"Usage: GD::Graph::<type>::new(width, height)") unless @_ >= 2;
+    if (@_) 
+    {
+        # If there are any parameters, they should be the size
+        return $self->set_error(
+            "Usage: GD::Graph::<type>::new(width, height)") unless @_ >= 2;
 
-		$self->{width} = shift;
-		$self->{height} = shift;
-	} 
-	else 
-	{
-		# There were obviously no parameters, so use defaults
-		$self->{width} = $GDsize{'x'};
-		$self->{height} = $GDsize{'y'};
-	}
+        $self->{width} = shift;
+        $self->{height} = shift;
+    } 
+    else 
+    {
+        # There were obviously no parameters, so use defaults
+        $self->{width} = $GDsize{'x'};
+        $self->{height} = $GDsize{'y'};
+    }
 
-	# Initialise all relevant parameters to defaults
-	# These are defined in the subclasses. See there.
-	$self->initialise() or return;
+    # Initialise all relevant parameters to defaults
+    # These are defined in the subclasses. See there.
+    $self->initialise() or return;
 
-	return $self;
+    return $self;
 }
 
 sub get
 {
-	my $self = shift;
-	my @wanted = map $self->{$_}, @_;
-	wantarray ? @wanted : $wanted[0];
+    my $self = shift;
+    my @wanted = map $self->{$_}, @_;
+    wantarray ? @wanted : $wanted[0];
 }
 
 sub set
 {
-	my $self = shift;
-	my %args = @_;
-	my $w = 0;
+    my $self = shift;
+    my %args = @_;
+    my $w = 0;
 
-	foreach (keys %args) 
-	{ 
-		# Enforce read-only attributes.
-		/^width$/ || /^height$/ and do 
-		{
-			$self->_set_warning("Read-only attribute '$_' not set");
-			$w++;
-			next;
-		};
+    foreach (keys %args) 
+    { 
+        # Enforce read-only attributes.
+        /^width$/ || /^height$/ and do 
+        {
+            $self->_set_warning("Read-only attribute '$_' not set");
+            $w++;
+            next;
+        };
 
-		$self->{$_} = $args{$_}, next if $self->_has_default($_); 
+        $self->{$_} = $args{$_}, next if $self->_has_default($_); 
 
-		$w++;
-		$self->_set_warning("No attribute '$_'");
-	}
+        $w++;
+        $self->_set_warning("No attribute '$_'");
+    }
 
-	return $w ? undef : "No problems";
+    return $w ? undef : "No problems";
 }
 
 # Generic routine to instantiate GD::Text::Align objects for text
 # attributes
 sub _set_font
 {
-	my $self = shift;
-	my $name = shift;
+    my $self = shift;
+    my $name = shift;
 
-	if (! exists $self->{$name})
-	{
-		$self->{$name} = GD::Text::Align->new($self->{graph}, 
-			valign => 'top',
-			halign => 'center',
-		) or return $self->_set_error("Couldn't set font");
-	}
+    if (! exists $self->{$name})
+    {
+        $self->{$name} = GD::Text::Align->new($self->{graph}, 
+            valign => 'top',
+            halign => 'center',
+        ) or return $self->_set_error("Couldn't set font");
+    }
 
-	$self->{$name}->set_font(@_);
+    $self->{$name}->set_font(@_);
 }
 
 sub set_title_font # (fontname, size)
 {
-	my $self = shift;
-	$self->_set_font('gdta_title', @_);
+    my $self = shift;
+    $self->_set_font('gdta_title', @_);
 }
 
 sub set_text_clr # (colour name)
 {
-	my $self = shift;
-	my $clr  = shift;
+    my $self = shift;
+    my $clr  = shift;
 
-	$self->set(
-		textclr       => $clr,
-		labelclr      => $clr,
-		axislabelclr  => $clr,
-		valuesclr     => $clr,
-	);
+    $self->set(
+        textclr       => $clr,
+        labelclr      => $clr,
+        axislabelclr  => $clr,
+        valuesclr     => $clr,
+    );
 }
 
 sub plot
 {
-	# ABSTRACT
-	my $self = shift;
-	$self->die_abstract("sub plot missing,");
+    # ABSTRACT
+    my $self = shift;
+    $self->die_abstract("sub plot missing,");
 }
 
 # Set defaults that apply to all graph/chart types. 
@@ -219,15 +220,15 @@ sub plot
 
 sub initialise
 {
-	my $self = shift;
+    my $self = shift;
 
-	foreach (keys %Defaults) 
-	{
-		$self->set($_ => $Defaults{$_});
-	}
+    foreach (keys %Defaults) 
+    {
+        $self->set($_ => $Defaults{$_});
+    }
 
-	$self->open_graph() 					or return;
-	$self->set_title_font(GD::Font->Large) 	or return;
+    $self->open_graph()                     or return;
+    $self->set_title_font(GD::Font->Large)  or return;
 }
 
 
@@ -241,48 +242,48 @@ sub initialise
 
 sub check_data # \@data
 {
-	my $self = shift;
-	my $data = shift;
+    my $self = shift;
+    my $data = shift;
 
-	$self->{_data} = GD::Graph::Data->new($data) 
-		or return $self->_set_error(GD::Graph::Data->error);
-	
-	$self->{_data}->make_strict;
+    $self->{_data} = GD::Graph::Data->new($data) 
+        or return $self->_set_error(GD::Graph::Data->error);
+    
+    $self->{_data}->make_strict;
 
-	$self->{_data}->num_sets > 0 && $self->{_data}->num_points > 0
-		or return $self->_set_error('No data sets or points');
-	
-	if ($self->{show_values})
-	{
-		# If this isn't a GD::Graph::Data compatible structure, then
-		# we'll just use the data structure.
-		#
-		# XXX We should probably check a few more things here, e.g.
-		# similarity between _data and show_values.
-		#
-		my $ref = ref($self->{show_values});
-		if (! $ref || ($ref ne 'GD::Graph::Data' && $ref ne 'ARRAY'))
-		{
-			$self->{show_values} = $self->{_data}
-		}
-		elsif ($ref eq 'ARRAY')
-		{
-			$self->{show_values} =
-				GD::Graph::Data->new($self->{show_values})
-				or return $self->_set_error(GD::Graph::Data->error);
-		}
-	}
+    $self->{_data}->num_sets > 0 && $self->{_data}->num_points > 0
+        or return $self->_set_error('No data sets or points');
+    
+    if ($self->{show_values})
+    {
+        # If this isn't a GD::Graph::Data compatible structure, then
+        # we'll just use the data structure.
+        #
+        # XXX We should probably check a few more things here, e.g.
+        # similarity between _data and show_values.
+        #
+        my $ref = ref($self->{show_values});
+        if (! $ref || ($ref ne 'GD::Graph::Data' && $ref ne 'ARRAY'))
+        {
+            $self->{show_values} = $self->{_data}
+        }
+        elsif ($ref eq 'ARRAY')
+        {
+            $self->{show_values} =
+                GD::Graph::Data->new($self->{show_values})
+                or return $self->_set_error(GD::Graph::Data->error);
+        }
+    }
 
-	return $self;
+    return $self;
 }
 
 # Open the graph output canvas by creating a new GD object.
 
 sub open_graph
 {
-	my $self = shift;
-	return $self->{graph} if exists $self->{graph};
-	$self->{graph} = GD::Image->new($self->{width}, $self->{height});
+    my $self = shift;
+    return $self->{graph} if exists $self->{graph};
+    $self->{graph} = GD::Image->new($self->{width}, $self->{height});
 }
 
 # Initialise the graph output canvas, setting colours (and getting back
@@ -291,87 +292,87 @@ sub open_graph
 
 sub init_graph
 {
-	my $self = shift;
+    my $self = shift;
 
-	$self->{bgci} = $self->set_clr(_rgb($self->{bgclr}));
-	$self->{fgci} = $self->set_clr(_rgb($self->{fgclr}));
-	$self->{tci}  = $self->set_clr(_rgb($self->{textclr}));
-	$self->{lci}  = $self->set_clr(_rgb($self->{labelclr}));
-	$self->{alci} = $self->set_clr(_rgb($self->{axislabelclr}));
-	$self->{acci} = $self->set_clr(_rgb($self->{accentclr}));
-	$self->{valuesci} = $self->set_clr(_rgb($self->{valuesclr}));
-	$self->{legendci} = $self->set_clr(_rgb($self->{legendclr}));
-	$self->{boxci} = $self->set_clr(_rgb($self->{boxclr})) 
-		if $self->{boxclr};
+    $self->{bgci} = $self->set_clr(_rgb($self->{bgclr}));
+    $self->{fgci} = $self->set_clr(_rgb($self->{fgclr}));
+    $self->{tci}  = $self->set_clr(_rgb($self->{textclr}));
+    $self->{lci}  = $self->set_clr(_rgb($self->{labelclr}));
+    $self->{alci} = $self->set_clr(_rgb($self->{axislabelclr}));
+    $self->{acci} = $self->set_clr(_rgb($self->{accentclr}));
+    $self->{valuesci} = $self->set_clr(_rgb($self->{valuesclr}));
+    $self->{legendci} = $self->set_clr(_rgb($self->{legendclr}));
+    $self->{boxci} = $self->set_clr(_rgb($self->{boxclr})) 
+        if $self->{boxclr};
 
-	$self->{graph}->transparent($self->{bgci}) if $self->{transparent};
-	$self->{graph}->interlaced($self->{interlaced});
+    $self->{graph}->transparent($self->{bgci}) if $self->{transparent};
+    $self->{graph}->interlaced($self->{interlaced});
 
-	# XXX yuck. This doesn't belong here.. or does it?
-	$self->put_logo();
+    # XXX yuck. This doesn't belong here.. or does it?
+    $self->put_logo();
 
-	return $self;
+    return $self;
 }
 
 sub _read_logo_file
 {
-	my $self = shift;
-	my $gdimport = 'newFrom' . ucfirst($self->export_format);
-	my $glogo;
-	local (*LOGO);
+    my $self = shift;
+    my $gdimport = 'newFrom' . ucfirst($self->export_format);
+    my $glogo;
+    local (*LOGO);
 
-	open(LOGO, $self->{logo}) or return;
-	binmode(LOGO);
-	unless ( $glogo = GD::Image->$gdimport(\*LOGO) ) 
-	{
-		carp "Problems reading $self->{logo}"; 
-		return;
-	}
+    open(LOGO, $self->{logo}) or return;
+    binmode(LOGO);
+    unless ( $glogo = GD::Image->$gdimport(\*LOGO) ) 
+    {
+        carp "Problems reading $self->{logo}"; 
+        return;
+    }
 
-	return $glogo;
+    return $glogo;
 }
 
 # read in the logo, and paste it on the graph canvas
 
 sub put_logo
 {
-	my $self = shift;
-	return unless defined $self->{logo};
+    my $self = shift;
+    return unless defined $self->{logo};
 
-	my $glogo = $self->_read_logo_file() or return;
+    my $glogo = $self->_read_logo_file() or return;
 
-	my ($x, $y);
-	my $r = $self->{logo_resize};
+    my ($x, $y);
+    my $r = $self->{logo_resize};
 
-	my $r_margin = (defined $self->{r_margin_abs}) ? 
-		$self->{r_margin_abs} : $self->{r_margin};
-	my $b_margin = (defined $self->{b_margin_abs}) ? 
-		$self->{b_margin_abs} : $self->{b_margin};
+    my $r_margin = (defined $self->{r_margin_abs}) ? 
+        $self->{r_margin_abs} : $self->{r_margin};
+    my $b_margin = (defined $self->{b_margin_abs}) ? 
+        $self->{b_margin_abs} : $self->{b_margin};
 
-	my ($w, $h) = $glogo->getBounds;
-	LOGO: for ($self->{logo_position}) {
-		/UL/i and do {
-			$x = $self->{l_margin};
-			$y = $self->{t_margin};
-			last LOGO;
-		};
-		/UR/i and do {
-			$x = $self->{width} - $r_margin - $w * $r;
-			$y = $self->{t_margin};
-			last LOGO;
-		};
-		/LL/i and do {
-			$x = $self->{l_margin};
-			$y = $self->{height} - $b_margin - $h * $r;
-			last LOGO;
-		};
-		# default "LR"
-		$x = $self->{width} - $r_margin - $r * $w;
-		$y = $self->{height} - $b_margin - $r * $h;
-		last LOGO;
-	}
-	$self->{graph}->copyResized($glogo, 
-		$x, $y, 0, 0, $r * $w, $r * $h, $w, $h);
+    my ($w, $h) = $glogo->getBounds;
+    LOGO: for ($self->{logo_position}) {
+        /UL/i and do {
+            $x = $self->{l_margin};
+            $y = $self->{t_margin};
+            last LOGO;
+        };
+        /UR/i and do {
+            $x = $self->{width} - $r_margin - $w * $r;
+            $y = $self->{t_margin};
+            last LOGO;
+        };
+        /LL/i and do {
+            $x = $self->{l_margin};
+            $y = $self->{height} - $b_margin - $h * $r;
+            last LOGO;
+        };
+        # default "LR"
+        $x = $self->{width} - $r_margin - $r * $w;
+        $y = $self->{height} - $b_margin - $r * $h;
+        last LOGO;
+    }
+    $self->{graph}->copyResized($glogo, 
+        $x, $y, 0, 0, $r * $w, $r * $h, $w, $h);
 }
 
 # Set a colour to work with on the canvas, by rgb value. 
@@ -379,40 +380,40 @@ sub put_logo
 
 sub set_clr # GD::Image, r, g, b
 {
-	my $self = shift; 
-	return unless @_;
-	my $i;
+    my $self = shift; 
+    return unless @_;
+    my $i;
 
-	# Check if this colour already exists on the canvas
-	if (($i = $self->{graph}->colorExact(@_)) < 0) 
-	{
-		# if not, allocate a new one, and return its index
-		$i = $self->{graph}->colorAllocate(@_);
+    # Check if this colour already exists on the canvas
+    if (($i = $self->{graph}->colorExact(@_)) < 0) 
+    {
+        # if not, allocate a new one, and return its index
+        $i = $self->{graph}->colorAllocate(@_);
 
-		# XXX if this fails, we should use colorClosest.
-		# All of this could potentially be done by using colorResolve
-		# The problem is that colorResolve doesn't return an error
-		# condition (-1) if it can't allocate a color. Instead it always
-		# returns 0.
-	} 
-	return $i;
+        # XXX if this fails, we should use colorClosest.
+        # All of this could potentially be done by using colorResolve
+        # The problem is that colorResolve doesn't return an error
+        # condition (-1) if it can't allocate a color. Instead it always
+        # returns 0.
+    } 
+    return $i;
 }
 
 # Set a temporary colour that can be used with fillToBorder
 sub _set_tmp_clr
 {
-	my $self = shift; 
-	# XXX Error checks!
-	$self->{graph}->colorAllocate(0,0,0);
+    my $self = shift; 
+    # XXX Error checks!
+    $self->{graph}->colorAllocate(0,0,0);
 }
 
 # Remove the temporary colour
 sub _rm_tmp_clr
 {
-	my $self = shift; 
-	return unless @_;
-	# XXX Error checks?
-	$self->{graph}->colorDeallocate(shift);
+    my $self = shift; 
+    return unless @_;
+    # XXX Error checks?
+    $self->{graph}->colorDeallocate(shift);
 }
 
 # Set a colour, disregarding wether or not it already exists. This may
@@ -422,56 +423,56 @@ sub _rm_tmp_clr
 
 sub set_clr_uniq # GD::Image, r, g, b
 {
-	my $self = shift; 
-	return unless @_;
-	$self->{graph}->colorAllocate(@_); 
+    my $self = shift; 
+    return unless @_;
+    $self->{graph}->colorAllocate(@_); 
 }
 
 # Return an array of rgb values for a colour number
 
 sub pick_data_clr # number
 {
-	my $self = shift;
-	_rgb($self->{dclrs}[$_[0] % @{$self->{dclrs}} - 1]);
+    my $self = shift;
+    _rgb($self->{dclrs}[$_[0] % @{$self->{dclrs}} - 1]);
 }
 
 # contrib "Bremford, Mike" <mike.bremford@gs.com>
 sub pick_border_clr # number
 {
-	my $self = shift;
+    my $self = shift;
 
-	ref $self->{borderclrs} ?
-		_rgb($self->{borderclrs}[$_[0] % @{$self->{borderclrs}} - 1]) :
-		_rgb($self->{accentclr});
+    ref $self->{borderclrs} ?
+        _rgb($self->{borderclrs}[$_[0] % @{$self->{borderclrs}} - 1]) :
+        _rgb($self->{accentclr});
 }
 
 sub gd 
 {
-	my $self = shift;
-	return $self->{graph};
+    my $self = shift;
+    return $self->{graph};
 }
 
 sub export_format
 {
-	my $proto = shift;
-	my @f = grep { GD::Image->can($_) } qw(gif png jpeg xbm xpm gd gd2);
-	wantarray ? @f : $f[0];
+    my $proto = shift;
+    my @f = grep { GD::Image->can($_) } qw(gif png jpeg xbm xpm gd gd2);
+    wantarray ? @f : $f[0];
 }
 
 # The following method is undocumented, and will not be supported as
 # part of the interface. There isn't really much reason to do so.
 sub import_format
 {
-	my $proto = shift;
-	# For now, exclude xpm, as it's buggy
-	my @f = grep { GD::Image->can("newFrom\u$_") } qw(gif png jpeg xbm gd gd2);
-	wantarray ? @f : $f[0];
+    my $proto = shift;
+    # For now, exclude xpm, as it's buggy
+    my @f = grep { GD::Image->can("newFrom\u$_") } qw(gif png jpeg xbm gd gd2);
+    wantarray ? @f : $f[0];
 }
 
 sub can_do_ttf
 {
-	my $proto = shift;
-	return GD::Text->can_do_ttf;
+    my $proto = shift;
+    return GD::Text->can_do_ttf;
 }
 
 # DEBUGGING
@@ -479,14 +480,14 @@ sub can_do_ttf
 
 sub die_abstract
 {
-	my $self = shift;
-	my $msg = shift;
-	# ABSTRACT
-	confess
-		"Subclass (" .
-		ref($self) . 
-		") not implemented correctly: " .
-		(defined($msg) ? $msg : "unknown error");
+    my $self = shift;
+    my $msg = shift;
+    # ABSTRACT
+    confess
+        "Subclass (" .
+        ref($self) . 
+        ") not implemented correctly: " .
+        (defined($msg) ? $msg : "unknown error");
 }
 
 "Just another true value";
@@ -512,9 +513,9 @@ The following classes for graphs with axes are defined:
 
 Create a line chart.
 
-=item C<GD::Graph::bars>
+=item C<GD::Graph::bars> and C<GD::Graph::hbars>
 
-Create a bar chart.
+Create a bar chart with vertical or horizontal bars.
 
 =item C<GD::Graph::points>
 
@@ -1079,7 +1080,8 @@ Instead see the C<cumulate> attribute.
 =item correct_width
 
 If this is set to a true value and C<x_tick_number> is false, then the
-width of the graph will be recalculated to make sure that each data
+width of the graph (or the height for rotated graphs like
+C<GD::Graph::hbar>) will be recalculated to make sure that each data
 point is exactly an integer number of pixels wide. You probably never
 want to fiddle with this.
 
@@ -1114,7 +1116,7 @@ make a copy of your data set, and selectively set points to C<undef> to
 disable plotting of them.
 
   my $data = GD::Graph::Data->new( 
-  	[ [ 'A', 'B', 'C' ], [ 1, 2, 3 ], [ 11, 12, 13 ] ]);
+    [ [ 'A', 'B', 'C' ], [ 1, 2, 3 ], [ 11, 12, 13 ] ]);
   my $values = $data->copy;
   $values->set_y(1, 1, undef);
   $values->set_y(2, 0, undef);
@@ -1474,6 +1476,10 @@ module, you could get burned. I may change them at any time.
 
 GD::Graph objects cannot be reused. To create a new plot, you have to
 create a new GD::Graph object.
+
+Rotated charts (ones with the X axis on the left) can currently only be
+created for bars. With a little work, this will work for all others as
+well. Please, be patient :)
 
 =head1 AUTHOR
 

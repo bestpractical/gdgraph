@@ -5,7 +5,7 @@ require 'save.pl';
 # Test for very large slices that wrap around, and for text that
 # is larger than the pie boundaries
 
-print STDERR "Processing sample 9-4\n";
+print STDERR "Processing sample94\n";
 
 @data = ( 
     ["Oversized label", "label", undef],

@@ -2,21 +2,21 @@
 #              Copyright (c) 1995-1998 Martien Verbruggen
 #--------------------------------------------------------------------------
 #
-#	Name:
-#		GD::Graph::colour.pm
+#   Name:
+#       GD::Graph::colour.pm
 #
-#	Description:
-#		Package of colour manipulation routines, to be used 
-#		with GD::Graph.
+#   Description:
+#       Package of colour manipulation routines, to be used 
+#       with GD::Graph.
 #
-# $Id: colour.pm,v 1.7 2000/10/07 04:06:22 mgjv Exp $
+# $Id: colour.pm,v 1.8 2002/06/09 03:15:16 mgjv Exp $
 #
 #==========================================================================
 
  
 package GD::Graph::colour;
 
-$GD::Graph::colour::VERSION = '$Revision: 1.7 $' =~ /\s([\d.]+)/;
+$GD::Graph::colour::VERSION = '$Revision: 1.8 $' =~ /\s([\d.]+)/;
 
 =head1 NAME
 
@@ -42,48 +42,48 @@ use Carp;
 @GD::Graph::colour::ISA = qw( Exporter );
 
 @EXPORT_OK = qw( 
-	_rgb _luminance _hue add_colour
-	colour_list sorted_colour_list
-	read_rgb
-	hex2rgb rgb2hex
+    _rgb _luminance _hue add_colour
+    colour_list sorted_colour_list
+    read_rgb
+    hex2rgb rgb2hex
 );
 %EXPORT_TAGS = ( 
-	colours => [qw( add_colour _rgb _luminance _hue )],
-	lists => [qw( colour_list sorted_colour_list )],
-	files => [qw( read_rgb )],
-	convert => [qw( hex2rgb rgb2hex )],
+    colours => [qw( add_colour _rgb _luminance _hue )],
+    lists => [qw( colour_list sorted_colour_list )],
+    files => [qw( read_rgb )],
+    convert => [qw( hex2rgb rgb2hex )],
 );
 
 my %RGB = (
-	white	=> [0xFF,0xFF,0xFF], 
-	lgray	=> [0xBF,0xBF,0xBF], 
-	gray	=> [0x7F,0x7F,0x7F],
-	dgray	=> [0x3F,0x3F,0x3F],
-	black	=> [0x00,0x00,0x00],
-	lblue	=> [0x00,0x00,0xFF], 
-	blue	=> [0x00,0x00,0xBF],
-	dblue	=> [0x00,0x00,0x7F], 
-	gold	=> [0xFF,0xD7,0x00],
-	lyellow	=> [0xFF,0xFF,0x00], 
-	yellow	=> [0xBF,0xBF,0x00], 
-	dyellow	=> [0x7F,0x7F,0x00],
-	lgreen	=> [0x00,0xFF,0x00], 
-	green	=> [0x00,0xBF,0x00], 
-	dgreen	=> [0x00,0x7F,0x00],
-	lred	=> [0xFF,0x00,0x00], 
-	red		=> [0xBF,0x00,0x00],
-	dred	=> [0x7F,0x00,0x00],
-	lpurple	=> [0xFF,0x00,0xFF], 
-	purple	=> [0xBF,0x00,0xBF],
-	dpurple	=> [0x7F,0x00,0x7F],
-	lorange	=> [0xFF,0xB7,0x00], 
-	orange	=> [0xFF,0x7F,0x00],
-	pink	=> [0xFF,0xB7,0xC1], 
-	dpink	=> [0xFF,0x69,0xB4],
-	marine	=> [0x7F,0x7F,0xFF], 
-	cyan	=> [0x00,0xFF,0xFF],
-	lbrown	=> [0xD2,0xB4,0x8C], 
-	dbrown	=> [0xA5,0x2A,0x2A],
+    white   => [0xFF,0xFF,0xFF], 
+    lgray   => [0xBF,0xBF,0xBF], 
+    gray    => [0x7F,0x7F,0x7F],
+    dgray   => [0x3F,0x3F,0x3F],
+    black   => [0x00,0x00,0x00],
+    lblue   => [0x00,0x00,0xFF], 
+    blue    => [0x00,0x00,0xBF],
+    dblue   => [0x00,0x00,0x7F], 
+    gold    => [0xFF,0xD7,0x00],
+    lyellow => [0xFF,0xFF,0x00], 
+    yellow  => [0xBF,0xBF,0x00], 
+    dyellow => [0x7F,0x7F,0x00],
+    lgreen  => [0x00,0xFF,0x00], 
+    green   => [0x00,0xBF,0x00], 
+    dgreen  => [0x00,0x7F,0x00],
+    lred    => [0xFF,0x00,0x00], 
+    red     => [0xBF,0x00,0x00],
+    dred    => [0x7F,0x00,0x00],
+    lpurple => [0xFF,0x00,0xFF], 
+    purple  => [0xBF,0x00,0xBF],
+    dpurple => [0x7F,0x00,0x7F],
+    lorange => [0xFF,0xB7,0x00], 
+    orange  => [0xFF,0x7F,0x00],
+    pink    => [0xFF,0xB7,0xC1], 
+    dpink   => [0xFF,0x69,0xB4],
+    marine  => [0x7F,0x7F,0xFF], 
+    cyan    => [0x00,0xFF,0xFF],
+    lbrown  => [0xD2,0xB4,0x8C], 
+    dbrown  => [0xA5,0x2A,0x2A],
 );
 
 =head1 FUNCTIONS
@@ -97,8 +97,8 @@ Exported with the :lists tag.
 
 sub colour_list 
 {
-	my $n = ( $_[0] ) ? $_[0] : keys %RGB;
-	return (keys %RGB)[0 .. $n-1]; 
+    my $n = ( $_[0] ) ? $_[0] : keys %RGB;
+    return (keys %RGB)[0 .. $n-1]; 
 }
 
 =head2 sorted_colour_list( I<number of colours> )
@@ -113,12 +113,12 @@ Exported with the :lists tag.
 
 sub sorted_colour_list 
 {
-	my $n = $_[0] ? $_[0] : keys %RGB;
-	return (sort by_luminance keys %RGB)[0 .. $n-1];
-	# return (sort by_hue keys %rgb)[0..$n-1];
+    my $n = $_[0] ? $_[0] : keys %RGB;
+    return (sort by_luminance keys %RGB)[0 .. $n-1];
+    # return (sort by_hue keys %rgb)[0..$n-1];
 
-	sub by_luminance { _luminance(@{$RGB{$b}}) <=> _luminance(@{$RGB{$a}}) }
-	sub by_hue       { _hue(@{$RGB{$b}}) <=> _hue(@{$RGB{$a}}) }
+    sub by_luminance { _luminance(@{$RGB{$b}}) <=> _luminance(@{$RGB{$a}}) }
+    sub by_hue       { _hue(@{$RGB{$b}}) <=> _hue(@{$RGB{$a}}) }
 }
 
 =head2 _rgb( I<colour name> )
@@ -135,24 +135,24 @@ my %warned_clrs = ();
 # return the RGB values of the colour name
 sub _rgb 
 { 
-	my $clr = shift or return;
+    my $clr = shift or return;
 
-	# Try adding the colour if it doesn't exist yet. It may be of a
-	# parseable form
-	add_colour($clr) unless exists $RGB{$clr};
+    # Try adding the colour if it doesn't exist yet. It may be of a
+    # parseable form
+    add_colour($clr) unless exists $RGB{$clr};
 
-	my $rgb_ref = $RGB{$clr};
-	if (!defined $rgb_ref)
-	{
-		$rgb_ref = $RGB{'black'};
-		unless ($warned_clrs{$clr})
-		{
-			$warned_clrs{$clr}++;
-			carp "Colour $clr is not defined, reverting to black"; 
-		}
-	};
+    my $rgb_ref = $RGB{$clr};
+    if (!defined $rgb_ref)
+    {
+        $rgb_ref = $RGB{'black'};
+        unless ($warned_clrs{$clr})
+        {
+            $warned_clrs{$clr}++;
+            carp "Colour $clr is not defined, reverting to black"; 
+        }
+    };
 
-	@{$rgb_ref};
+    @{$rgb_ref};
 }
 
 =head2 _hue( I<R,G,B> )
@@ -170,13 +170,13 @@ Exported with the :colours tag.
 # return the luminance of the colour (RGB)
 sub _luminance 
 { 
-	(0.212671 * $_[0] + 0.715160 * $_[1] + 0.072169 * $_[2])/0xFF
+    (0.212671 * $_[0] + 0.715160 * $_[1] + 0.072169 * $_[2])/0xFF
 }
 
 # return the hue of the colour (RGB)
 sub _hue 
 { 
-	($_[0] + $_[1] + $_[2])/(3 * 0xFF) 
+    ($_[0] + $_[1] + $_[2])/(3 * 0xFF) 
 }
 
 =head2 add_colour(colourname => [$r, $g, $b]) or
@@ -189,22 +189,22 @@ Exported with the :colours tag.
 
 sub add_colour
 {
-	my $name = shift;
-	my $val  = shift;
+    my $name = shift;
+    my $val  = shift;
 
-	if (!defined $val)
-	{
-		my @rgb = hex2rgb($name) or return;
-		$val = [@rgb];
-	}
+    if (!defined $val)
+    {
+        my @rgb = hex2rgb($name) or return;
+        $val = [@rgb];
+    }
 
-	if (ref $val && ref $val eq 'ARRAY')
-	{
-		$RGB{$name} = [@{$val}];
-		return $name;
-	}
+    if (ref $val && ref $val eq 'ARRAY')
+    {
+        $RGB{$name} = [@{$val}];
+        return $name;
+    }
 
-	return;
+    return;
 }
 
 =head2 rgb2hex($red, $green, $blue)
@@ -221,21 +221,21 @@ Exported with the :convert tag.
 # Color translation
 sub rgb2hex
 {
-	return unless @_ == 3;
-	my $color = '#';
-	foreach my $cc (@_)
-	{
-		$color .= sprintf("%02x", $cc);
-	}
-	return $color;
+    return unless @_ == 3;
+    my $color = '#';
+    foreach my $cc (@_)
+    {
+        $color .= sprintf("%02x", $cc);
+    }
+    return $color;
 }
 
 sub hex2rgb
 {
-	my $clr = shift;
-	my @rgb = $clr =~ /^#([a-f0-9]{2})([a-f0-9]{2})([a-f0-9]{2})$/i;
-	return unless @rgb;
-	return map { hex $_ } @rgb;
+    my $clr = shift;
+    my @rgb = $clr =~ /^#([a-f0-9]{2})([a-f0-9]{2})([a-f0-9]{2})$/i;
+    return unless @rgb;
+    return map { hex $_ } @rgb;
 }
 
 =head2 read_rgb( F<file name> )
@@ -269,49 +269,49 @@ Exported with the :files tag.
 
 sub read_rgb($) # (filename)
 {
-	my $fn = shift;
-	my $n = 0;
-	my $line;
+    my $fn = shift;
+    my $n = 0;
+    my $line;
 
-	open(RGB, $fn) or return 0;
+    open(RGB, $fn) or return 0;
 
-	while (defined($line = <RGB>))
-	{
-		next if ($line =~ /\s*!/);
-		chomp($line);
+    while (defined($line = <RGB>))
+    {
+        next if ($line =~ /\s*!/);
+        chomp($line);
 
-		# remove leading white space
-		$line =~ s/^\s+//;
+        # remove leading white space
+        $line =~ s/^\s+//;
 
-		# get the colours
-		my ($r, $g, $b, $name) = split(/\s+/, $line, 4);
-		
-		# Ignore bad lines
-		next unless (defined $name);
+        # get the colours
+        my ($r, $g, $b, $name) = split(/\s+/, $line, 4);
+        
+        # Ignore bad lines
+        next unless (defined $name);
 
-		$RGB{$name} = [$r, $g, $b];
-		$n++;
-	}
+        $RGB{$name} = [$r, $g, $b];
+        $n++;
+    }
 
-	close(RGB);
+    close(RGB);
 
-	return $n;
+    return $n;
 }
 
 sub version { $GD::Graph::colour::VERSION }
 
 sub dump_colours
 {
-	my $max = $_[0] ? $_[0] : keys %RGB;
-	my $n = 0;
+    my $max = $_[0] ? $_[0] : keys %RGB;
+    my $n = 0;
 
-	my $clr;
-	foreach $clr (sorted_colour_list($max))
-	{
-		last if $n > $max;
-		print "colour: $clr, " . 
-			"${$RGB{$clr}}[0], ${$RGB{$clr}}[1], ${$RGB{$clr}}[2]\n"
-	}
+    my $clr;
+    foreach $clr (sorted_colour_list($max))
+    {
+        last if $n > $max;
+        print "colour: $clr, " . 
+            "${$RGB{$clr}}[0], ${$RGB{$clr}}[1], ${$RGB{$clr}}[2]\n"
+    }
 }
 
 

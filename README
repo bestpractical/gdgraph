@@ -13,9 +13,10 @@ needed to install (also see TESTED PLATFORMS):
 
 It is very likely that it runs on 5.004, but I haven't tested it, and I
 won't support it, simply because I don't have the platforms to test it
-on. 5.005 has been available since July 1998, and should be installed.
-It is also possible that it works with older versions of GD.  Again, I
-have not tested it.
+on. 5.005 has been available since July 1998, and there is not really
+any excuse anymore to run anything older (5.6.0 is out! Get it!).  It is
+also possible that it works with older versions of GD.  Again, I have
+not tested it.
 
 to install:
 
@@ -23,7 +24,8 @@ to install:
 	make
 	make install
 
-to see some samples:
+There are no tests. The samples directory contains examples which also
+function as a test suite. To see the samples:
 
 	make samples
 	(use viewer to see samples/sample*.png or .gif)
@@ -41,22 +43,19 @@ perldoc GD::Graph
 
 after installation or 
 
-perldoc lib/GD/Graph
+perldoc Graph
 
 before installation.
 
+TESTED PLATFORMS
 
-TESTED PLATFORMS (also see NOTES FOR WIN32)
-
-Version 1.22:
-- perl 5.005_03 on Linux, GD 1.19 and 1.23
-
-I'd appreciate it if people let me know about other combinations of
-Perl, GD and OS that it runs on. When I get back to work I'll test it on
-Solaris and NT (maybe).
-
-GIFgraph has been known to run well on ActiveState's ports of Perl for
-Win32, but I haven't tested it myself for GD::Graph.
+I have discontinued this list, because it is too hard to maintain. There
+is hardly any code in the module that could provide problems with
+inter-platform portability, but you never know. I will always test the
+modules against the latest stable perl (5.6.0 right now) and one older
+version (5.005_03). I will not explicitly test against older versions of
+Perl. I normally test against the newest version of GD, and one version
+of the pre-PNG days. All of this happens on Linux.
 
 AUTHOR
 
@@ -72,6 +71,10 @@ MOST IMPORTANT CHANGES FOR VERSION 1.30
 
 - Added GD::Graph::Data as the preferred way of working with data sets.
   Internally all code has been changed to use these objects.
+- Many, many fundamental code changes, mainly to facilitate a future
+  breakup of the code into separate Data, Chart and Graphics handling.
+  All of this is internal, and there are not that many new options.
+  (check the CHANGES file for more information)
 
 MOST IMPORTANT CHANGES FOR VERSION 1.20
 
@@ -139,15 +142,14 @@ BUG FIXES IN THIS VERSION
 
 See file BUGS
 
-NOTES FOR WIN32
+NOTES FOR WIN32 and Mac
 
-I have not tested the PNG port on Win32.  sbonds.
+These modules _should_ work on all platforms.
 
-GIFgraph installs and runs well under Gurusamy Sarathy's port of
-perl for win32, and its usage is exactly the same as documented.
-
-It may very well, and _should_ work on the 5.005 ports, although I
-have personally not tested that yet.
+Please direct any questions about the availability of these modules as
+PPM packages to ActiveState. I only make this available as a standard
+tar on CPAN. I have emailed ActiveState to ask what I was supposed to
+do, and have, until today, not received any answers. 
 
 THANKS
 

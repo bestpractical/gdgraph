@@ -19,7 +19,7 @@
 #       GD::Graph::pie
 #       GD::Graph::mixed
 #
-# $Id: Graph.pm,v 1.56 2004/04/27 08:47:46 mgjv Exp $
+# $Id: Graph.pm,v 1.57 2004/08/31 22:30:27 mgjv Exp $
 #
 #==========================================================================
 
@@ -31,7 +31,7 @@
 
 package GD::Graph;
 
-($GD::Graph::prog_version) = '$Revision: 1.56 $' =~ /\s([\d.]+)/;
+($GD::Graph::prog_version) = '$Revision: 1.57 $' =~ /\s([\d.]+)/;
 $GD::Graph::VERSION = '1.43';
 
 use strict;
@@ -1485,6 +1485,10 @@ more restrictive behaviour).
 I<Note that this is an experimental feature, and its interface may, and
 likely will, change in the future. It currently does not work for area
 charts or pie charts.>
+
+I<A known problem with hotspots for GD::Graph::hbars is that the x and y
+coordinate come out transposed. This probably won't be fixed until the
+redesign of this section>
 
 GD::Graph keeps an internal set of coordinates for each data point and
 for certain features of a chart, like the title and axis labels. This

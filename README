@@ -43,7 +43,7 @@ perldoc GD::Graph
 
 after installation or 
 
-perldoc Graph
+perldoc -F Graph.pm
 
 before installation.
 
@@ -55,7 +55,7 @@ inter-platform portability, but you never know. I will always test the
 modules against the latest stable perl (5.6.0 right now) and one older
 version (5.005_03). I will not explicitly test against older versions of
 Perl. I normally test against the newest version of GD, and one version
-of the pre-PNG days. All of this happens on Linux.
+of the pre-PNG days (1.19). All of this happens on Linux.
 
 AUTHOR
 
@@ -136,7 +136,6 @@ TODO
 - 3d look for graphs
 - logarithmic scaling
 - numerical X axes (halfway there)
-- Autoloading/splitting, etc
 
 BUG FIXES IN THIS VERSION
 

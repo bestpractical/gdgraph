@@ -5,20 +5,24 @@
 #	Name:
 #		GD::Graph::Error.pm
 #
-# $Id: Error.pm,v 1.1 2000/02/16 12:45:32 mgjv Exp $
+# $Id: Error.pm,v 1.2 2000/02/17 12:38:35 mgjv Exp $
 #
 #==========================================================================
 
 package GD::Graph::Error;
 
 $GD::Graph::Error::VERSION = 
-	(q($Revision: 1.1 $) =~ /\s([\d.]+)/ ? $1 : "0.0");
+	(q($Revision: 1.2 $) =~ /\s([\d.]+)/ ? $1 : "0.0");
 
 use strict;
+use Carp;
 
 my %Errors;
-use vars qw( $Debug );
+use vars qw( $Debug $ErrorLevel $CriticalLevel );
 
+# Warnings from 0 to 4, Errors from 5 to 9, and Critical 10 and above.
+$ErrorLevel    = 5;
+$CriticalLevel = 10;
 
 =head1 NAME
 
@@ -26,7 +30,7 @@ GD::Graph::Error - Error handling for GD::Graph classes
 
 =head1 SYNOPSIS
 
-none.
+use GD::Graph::Error_subclass;
 
 =head1 DESCRIPTION
 
@@ -34,7 +38,13 @@ This class is a parent for all GD::Graph classes, including
 GD::Graph::Data, and offers error and warning handling and some
 debugging control.
 
-=head1 METHODS
+Errors are stored in a lexical hash in this package, so the
+implementation of the subclass should be irrelevant. 
+
+=head1 PUBLIC METHODS
+
+These methods can be used by users of any of the subclasses of
+GD::Graph::Error to get at the errors of objects or classes.
 
 =head2 $object->error() OR Class->error()
 
@@ -43,59 +53,32 @@ accumulated. In scalar context, returns the last error. If called as a
 class method it works at a class level. This is handy when a constructor
 fails, for example:
 
-  my $data = GD::Graph::Data->new()    or die GD::Graph::Data->error;
-  $data->read(file => '/foo/bar.data') or die $data->error;
+  my $data = GD::Graph::Data->new()    
+      or die GD::Graph::Data->error;
+  $data->read(file => '/foo/bar.data') 
+      or die $data->error;
 
 or if you really are only interested in the last error:
 
-  $data->read(file => '/foo/bar.data') or die scalar $data->error;
+  $data->read(file => '/foo/bar.data') 
+      or die scalar $data->error;
 
 This implementation does not clear the error list, so if you don't die
 on errors, you will need to make sure to never ask for anything but the
-last error (put this in scalar context).
+last error (put this in scalar context) or to call C<clear_error()> now
+and again.
 
 Errors are more verbose about where the errors originated if the
-$GD::Graph::Data::Debug variable is set to a true value, and even more
+$GD::Graph::Error::Debug variable is set to a true value, and even more
 verbose if this value is larger than 5.
 
 =cut
 
-# Move errors from an object into the class
-# This can be useful if something nasty happens in the constructor,
-# while instantiating one of these objects, and you need to move these
-# errors into the class space before returning. (see
-# GD::Graph::Data::new for an example)
-sub _move_errors
+sub _error
 {
 	my $self = shift;
-	my $class = __PACKAGE__;
-	push @{$Errors{$class}}, @{$Errors{$self}};
-	return;
-}
-
-# Subclasses call this to set an error.
-sub _set_error
-{
-	my $self = shift;
-	return unless @_;
-
-	my %error = (
-		messages => "@_",
-		caller   => [caller],
-	);
-	my $lvl = 1;
-	while (my @c = caller($lvl))
-	{
-		$error{whence} = [@c[0..2]];
-		$lvl++;
-	}
-	push @{$Errors{$self}}, \%error;
-	return;
-}
-
-sub error
-{
-	my $self = shift;
+	my $min_level = shift || 0;
+	my $max_level = shift || 1 << 31;
 	return unless exists $Errors{$self};
 	my $error = $Errors{$self};
 
@@ -103,11 +86,13 @@ sub error
 
 	@return = 
 		map { 
-			"$_->{messages}" .
+			($Debug > 3 ? "[$_->{level}] " : '') .
+			"$_->{msg}" .
 			($Debug ? " at $_->{whence}[1] line $_->{whence}[2]" : '') .
-			($Debug > 2 ? " => $_->{caller}[0]($_->{caller}[2])" : '') .
+			($Debug > 5 ? " => $_->{caller}[0]($_->{caller}[2])" : '') .
 			"\n"
 		} 
+		grep { $_->{level} >= $min_level && $_->{level} <= $max_level }
 		@$error;
 
 	wantarray && @return > 1 and  
@@ -117,29 +102,59 @@ sub error
 	return wantarray ? @return : $return[-1];
 }
 
+sub error
+{
+	my $self = shift;
+	$self->_error($ErrorLevel);
+}
+
+sub warning
+{
+	my $self = shift;
+	$self->_error(0, $ErrorLevel - 1);
+}
+
 =head2 $object->has_error() OR Class->has_error()
 
-Returns true if the object (or class) has errors pending, false if not.
+=head2 $object->has_warning() OR Class->has_warning()
 
-This allows you to do things like:
+Returns true if there are pending errors (warnings) for the object
+(or class). To be more precise, it returns a list of errors in list
+context, and the number of errors in scalar context.
 
-  $data->read(file => '/foo/bar.data');
+This allows you to check for errors and warnings after a large number of
+operations which each might fail:
+
+  $data->read(file => '/foo/bar.data') or die $data->error;
   while (my @foo = $sth->fetchrow_array)
   {
-	  $data->add_point(@foo);
+      $data->add_point(@foo);
   }
   $data->set_x(12, 'Foo');
-  die "ACK!:\n", $data->error if $data->has_error;
+  $data->has_warning and warn $data->warning;
+  $data->has_error   and die  $data->error;
 
-And in some cases (see L<"copy">) this is indeed the only way to
-check for errors.
+The reason to call this, instead of just calling C<error()> or
+C<warning()> and looking at its return value, is that this method is
+much more efficient and fast.
+
+If you want to count anything as bad, just set $ErrorLevel to 0, after
+which you only need to call C<has_error>.
 
 =cut
 
 sub has_error
 {
 	my $self = shift;
-	exists $Errors{$self};
+	return unless exists $Errors{$self};
+	grep { $_->{level} >= $ErrorLevel } @{$Errors{$self}};
+}
+
+sub has_warning
+{
+	my $self = shift;
+	return unless exists $Errors{$self};
+	grep { $_->{level} < $ErrorLevel } @{$Errors{$self}};
 }
 
 =head2 $object->clear_errors() or Class->clear_errors()
@@ -154,6 +169,89 @@ sub clear_errors
 	delete $Errors{$self};
 }
 
+=head1 PROTECTED METHODS
+
+These methods are only to be called from within this class and its
+Subclasses.
+
+=head2 $object->_set_error(I<arg>) or Class->_set_error(I<arg>)
+
+Subclasses call this to set an error. The argument can be a reference
+to an array, of which the first element should be the error level, and
+the second element the error message. Alternatively, it can just be the
+message, in which case the error level will be assumed to be
+$ErrorLevel.
+
+If the error level is >= $CriticalLevel the program will die, using
+Carp::croak to display the current message, as well as all the other
+error messages pending.
+
+=cut
+
+sub _set_error
+{
+	my $self = shift;
+	return unless @_;
+
+	my %error = ( caller   => [caller] );
+
+	if (ref($_[0]) && ref($_[0]) eq 'ARRAY' && @{$_[0]} >= 2)
+	{
+		# Array reference
+		$error{level} = $_[0]->[0];
+		$error{msg}   = $_[0]->[1];
+	}
+	elsif (ref($_[0]) eq '')
+	{
+		# simple scalar
+		$error{level} = $ErrorLevel;
+		$error{msg}   = $_[0];
+	}
+	else
+	{
+		# someting else, which I can't deal with
+		return;
+	}
+
+	my $lvl = 1;
+	while (my @c = caller($lvl))
+	{
+		$error{whence} = [@c[0..2]];
+		$lvl++;
+	}
+	# The following should never happen, unless the call stack is only 1
+	# deep, in which case the user has called this directly. Just in
+	# case, though:
+	$error{whence} = $error{caller} unless $error{whence};
+
+	push @{$Errors{$self}}, \%error;
+
+	if ($error{level} >= $CriticalLevel)
+	{
+		croak $self->error;
+	}
+
+	return;
+}
+
+=head2 $object->_move_errors
+
+Move errors from an object into the class it belongs to.  This can be
+useful if something nasty happens in the constructor, while
+instantiating one of these objects, and you need to move these errors
+into the class space before returning. (see GD::Graph::Data::new for an
+example)
+
+=cut
+
+sub _move_errors
+{
+	my $self = shift;
+	my $class = ref($self);
+	push @{$Errors{$class}}, @{$Errors{$self}};
+	return;
+}
+
 sub _dump
 {
 	my $self = shift;
@@ -161,6 +259,30 @@ sub _dump
 	my $dd = Data::Dumper->new([$self], ['me']);
 	$dd->Dumpxs;
 }
+
+=head1 VARIABLES
+
+=head2 $GD::Graph::Error::Debug
+
+The higher this value, the more verbose error messages will be. At the
+moment, any true value will cause the line number and source file of the
+caller at the top of the stack to be included, a value of more than 2
+will include the error severity, and a value of more than 5 will also
+include the direct caller's (i.e. the spot where the error message was
+generated) line number and package. Default: 0.
+
+=head2 $GD::Graph::Error::ErrorLevel
+
+Errors levels below this value will be counted as warnings, and error
+levels above (and inclusive) up to $CriticalLevel will be counted as
+errors. This is also the default error level for the C<_set_error()>
+method. This value should be 0 or larger, and smaller than
+$CriticalLevel. Default: 5.
+
+=head2 $GD::Graph::Error::CriticalLevel
+
+Any errorlevel of or above this level will immediately cause the program
+to die with the specified message, using Carp::croak. Default: 10.
 
 =head1 NOTES
 

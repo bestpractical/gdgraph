@@ -19,6 +19,8 @@ $my_graph->set(
 	overwrite => 1,
 	bar_spacing => 8,
 	shadow_depth => 4,
+
+	transparent => 0,
 );
 
 $my_graph->plot(\@data);

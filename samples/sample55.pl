@@ -22,6 +22,8 @@ $my_graph->set(
 	line_width 			=> 1,
 	x_label_position 	=> 1/2,
 	r_margin 			=> 15,
+
+	transparent => 0,
 );
 
 $my_graph->set_legend('Thanks to Scott Prahl');

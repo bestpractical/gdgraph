@@ -29,6 +29,8 @@ $my_graph->set(
 
 	x_label_skip => 3,
 	x_tick_offset => 2,
+
+	transparent => 0,
 );
 
 $my_graph->set_legend("Us", "Them", "Others");

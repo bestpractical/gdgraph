@@ -16,6 +16,8 @@ $my_graph->set(
 	y_tick_number => 6,
 	y_label_skip => 2,
 	markers => [ 1, 5 ],
+
+	transparent => 0,
 );
 
 $my_graph->set_legend( 'data set 1', 'data set 2' );

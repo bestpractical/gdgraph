@@ -41,6 +41,8 @@ $my_graph->set(
 	marker_size => 5,
 
 	bar_spacing => 8,
+
+	transparent => 0,
 );
 
 $my_graph->set_legend( qw( one two three four five six ) );

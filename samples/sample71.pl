@@ -44,6 +44,8 @@ $my_graph->set(
 	bar_spacing => 6,
 
 	legend_placement => 'RC',
+
+	transparent => 0,
 );
 
 $my_graph->set_title_font('../20thcent.ttf', 18);

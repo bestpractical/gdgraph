@@ -37,6 +37,8 @@ $my_graph->set(
 
 	show_values => 1,
 
+	transparent => 0,
+
 ) or warn $my_graph->error;
 
 $my_graph->set_legend( 'one', 'two', undef, 'four' );

@@ -29,6 +29,8 @@ $my_graph->set(
 	bar_spacing => 4,
 
 	types => [ qw( bars lines ) ],
+
+	transparent => 0,
 );
 
 $my_graph->set_legend( qw( one two three four five six ) );

@@ -22,7 +22,9 @@ $my_graph->set(
 	cumulate => 1,
 	dclrs => [ qw(white cyan cyan) ],
 	borderclrs => [ qw(white black black) ],
-	bar_spacing => 4
+	bar_spacing => 4,
+
+	transparent => 0,
 );
 
 $my_graph->set_legend(qw(offset increment more));

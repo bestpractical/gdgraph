@@ -23,6 +23,8 @@ $my_graph->set(
 	y_label_skip => 2,
 	box_axis => 0,
 	line_width => 3,
+
+	transparent => 0,
 );
 
 $my_graph->plot(\@data);

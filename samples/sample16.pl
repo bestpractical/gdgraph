@@ -25,6 +25,8 @@ $my_graph->set(
 	zero_axis_only => 0,
 	y_number_format => \&y_format,
 	x_label_position => 1/2,
+
+	transparent => 0,
 );
 
 my $refit = 4;

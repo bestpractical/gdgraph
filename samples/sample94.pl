@@ -24,6 +24,8 @@ $my_graph->set(
 	# approximate boundary conditions for start_angle
 	#start_angle => -85,
 	#start_angle => 15,
+
+	transparent => 0,
 );
 
 $my_graph->set_value_font(GD::Font->Giant);

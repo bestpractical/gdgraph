@@ -16,6 +16,8 @@ $my_graph->set(
 	label => 'Label',
 	axislabelclr => 'black',
 	pie_height => 36,
+
+	transparent => 0,
 );
 
 $my_graph->plot(\@data);

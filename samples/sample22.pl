@@ -14,6 +14,8 @@ $my_graph = new GD::Graph::area();
 $my_graph->set( 
 	two_axes => 1,
 	zero_axis => 1,
+
+	transparent => 0,
 );
 
 $my_graph->set_legend( 'left axis', 'right axis' );

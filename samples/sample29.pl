@@ -21,6 +21,8 @@ $my_graph->set(
 	y_label_skip => 2,
 	dclrs => ['white', 'blue'],
 	borderclrs => ['white', 'black'],
+
+	transparent => 0,
 );
 
 $my_graph->set_legend( 'empty', 'data' );

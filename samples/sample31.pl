@@ -22,6 +22,8 @@ $my_graph->set(
 	long_ticks => 1,
 	marker_size => 6,
 	markers => [ 1, 7, 5 ],
+
+	transparent => 0,
 );
 
 $my_graph->set_legend( qw( one two ) );

@@ -25,6 +25,8 @@ $my_graph->set(
 	bar_spacing => 8,
 	shadow_depth => 4,
 	shadowclr => 'dred',
+
+	transparent => 0,
 ) 
 or warn $my_graph->error;
 

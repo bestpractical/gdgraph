@@ -23,6 +23,8 @@ $my_graph->set(
 	borderclrs => $my_graph->{dclrs},
 	#cycle_clrs => 2,
 	bar_spacing => 4,
+
+	transparent => 0,
 );
 
 $my_graph->set_legend( qw(offset increment more));

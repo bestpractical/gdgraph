@@ -16,6 +16,8 @@ $my_graph->set(
 	label => 'Foo Bar',
 	# The following should prevent the 7th slice from getting a label
 	suppress_angle => 5, 
+
+	transparent => 0,
 );
 
 $my_graph->plot(\@data);

@@ -22,6 +22,8 @@ $my_graph->set(
 	bar_spacing => 3,
 
 	accent_treshold => 200,
+
+	transparent => 0,
 );
 
 $my_graph->set_legend( 'Data set 1', 'Data set 2' );

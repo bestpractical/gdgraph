@@ -19,6 +19,8 @@ $my_graph->set(
 	y_tick_number => 8,
 	y_label_skip => 2,
 	#accent_treshold => 41,
+
+	transparent => 0,
 );
 
 $my_graph->set_legend( 'one', 'two' );

@@ -21,6 +21,8 @@ $my_graph->set(
 	y_long_ticks => 1,
 	x_tick_length => 2,
 	markers => [ 1, 5 ],
+
+	transparent => 0,
 );
 
 #$my_graph->set_legend( 'data set 1', 'data set 2' );

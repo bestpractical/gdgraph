@@ -5,7 +5,7 @@
 #	Name:
 #		GD::Graph::lines.pm
 #
-# $Id: lines.pm,v 1.4 1999/12/29 12:14:40 mgjv Exp $
+# $Id: lines.pm,v 1.5 2000/01/07 13:44:42 mgjv Exp $
 #
 #==========================================================================
 
@@ -17,35 +17,6 @@ use GD;
 use GD::Graph::axestype;
 
 @GD::Graph::lines::ISA = qw( GD::Graph::axestype );
-
-my %Defaults = (
-	
-	# The width of the line to use in the lines and linespoints graphs
-	# in pixels
- 
-	line_width		=> 1,
-
-	# Set the scale of the line types
-
-	line_type_scale	=> 8,
-
-	# Which line typess to use
-
-	line_types		=> [1],
-);
-
-sub initialise
-{
-	my $self = shift;
-
-	$self->SUPER::initialise();
-
-	my $key;
-	foreach $key (keys %Defaults)
-	{
-		$self->set( $key => $Defaults{$key} );
-	}
-}
 
 # PRIVATE
 
@@ -80,12 +51,9 @@ sub pick_line_type
 	my $s = shift;
 	my $num = shift;
 
-	if ( exists $s->{line_types} )
-	{
-		return $s->{line_types}[ $num % (1 + $#{$s->{line_types}}) - 1 ];
-	}
-
-	return $num % 4 ? $num % 4 : 4;
+	ref $s->{line_types} ?
+		$s->{line_types}[ $num % (1 + $#{$s->{line_types}}) - 1 ] :
+		$num % 4 ? $num % 4 : 4
 }
 
 sub draw_line # ($xs, $ys, $xe, $ye, $type, $colour_index)

@@ -5,7 +5,7 @@
 #	Name:
 #		GD::Graph::points.pm
 #
-# $Id: points.pm,v 1.2 1999/12/11 12:50:48 mgjv Exp $
+# $Id: points.pm,v 1.3 2000/01/07 13:44:42 mgjv Exp $
 #
 #==========================================================================
 
@@ -18,29 +18,8 @@ use GD::Graph::utils qw(:all);
 
 @GD::Graph::points::ISA = qw( GD::Graph::axestype );
 
-my %Defaults = (
-
-	# The size of the marker to use in the points and linespoints graphs
-	# in pixels
- 
-	marker_size	=> 4,
-);
- 
-sub initialise
-{
-	my $s = shift;
-
-	$s->SUPER::initialise();
-
-	my $key;
-	foreach $key (keys %Defaults)
-	{
-		$s->set( $key => $Defaults{$key} );
-	}
-}
-
 # PRIVATE
-sub draw_data_set # GD::Image, \@data
+sub draw_data_set # \@data
 {
 	my $s = shift;
 	my $d = shift;
@@ -51,8 +30,7 @@ sub draw_data_set # GD::Image, \@data
 	my $dsci = $s->set_clr($s->pick_data_clr($ds));
 	my $type = $s->pick_marker($ds);
 
-	my $i;
-	for $i (0 .. $s->{numpoints}) 
+	for my $i (0 .. $s->{numpoints}) 
 	{
 		next unless (defined $d->[$i]);
 		my ($xp, $yp) = $s->val_to_pixel($i+1, $d->[$i], $ds);
@@ -67,12 +45,9 @@ sub pick_marker # number
 	my $s = shift;
 	my $num = shift;
 
-	if ( exists $s->{markers} ) 
-	{
-		return $s->{markers}[ $num % (1 + $#{$s->{markers}}) - 1 ];
-	}
-
-	return ($num % 8) || 8;
+	ref $s->{markers} ?
+		$s->{markers}[ $num % (1 + $#{$s->{markers}}) - 1 ] :
+		($num % 8) || 8;
 }
 
 # Draw a marker

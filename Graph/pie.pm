@@ -5,7 +5,7 @@
 #	Name:
 #		GD::Graph::pie.pm
 #
-# $Id: pie.pm,v 1.6 2000/01/06 11:23:42 mgjv Exp $
+# $Id: pie.pm,v 1.7 2000/01/07 13:44:42 mgjv Exp $
 #
 #==========================================================================
 
@@ -33,17 +33,39 @@ my %Defaults = (
 	# is being set in GD::Graph::pie::initialise
  
 	#   pie_height => _round(0.1*${'width'}),
+	pie_height 	=> undef,
  
 	# Do you want a 3D pie?
-	'3d'         => 1,
+	'3d'        => 1,
  
 	# The angle at which to start the first data set
 	# 0 is at the front/bottom
 	start_angle => 0,
 
 	# Angle below which a label on a pie slice is suppressed.
-	suppress_angle => 0,	# CONTRIB ryan <xomina@bitstream.net>
+	suppress_angle => 0,	# CONTRIB idea ryan <xomina@bitstream.net>
+
+	# and some public attributes without defaults
+	label		=> undef,
 );
+
+# PRIVATE
+sub _has_default { 
+	my $self = shift;
+	my $attr = shift || return;
+	exists $Defaults{$attr} || $self->SUPER::_has_default($attr);
+}
+
+sub initialise
+{
+	my $self = shift;
+	$self->SUPER::initialise();
+	while (my($key, $val) = each %Defaults)
+		{ $self->{$key} = $val }
+	$self->set( pie_height => _round(0.1 * $self->{height}) );
+	$self->set_value_font(gdTinyFont);
+	$self->set_label_font(gdSmallFont);
+}
 
 # PUBLIC methods, documented in pod
 sub plot # (\@data)
@@ -78,26 +100,6 @@ sub set_value_font # (fontname)
 
 # Inherit defaults() from GD::Graph
 
-# PRIVATE
-# called on construction by new.
-sub initialise()
-{
-	my $self = shift;
-
-	$self->SUPER::initialise();
-
-	my $key;
-	foreach $key (keys %Defaults) 
-	{
-		$self->set( $key => $Defaults{$key} );
-	}
-
-	$self->set( pie_height => _round(0.1 * $self->{height}) );
-
-	$self->set_value_font(gdTinyFont);
-	$self->set_label_font(gdSmallFont);
-}
-
 # inherit checkdata from GD::Graph
 
 # Setup the coordinate system and colours, calculate the
@@ -108,17 +110,20 @@ sub setup_coords()
 	my $s = shift;
 
 	# Make sure we're not reserving space we don't need.
-	$s->set('3d' => 0) 			if     ( $s->{pie_height} <= 0 );
-	$s->set(pie_height => 0)	unless ( $s->{'3d'} );
+	$s->{'3d'} = 0 				if     $s->{pie_height} <= 0;
+	$s->set(pie_height => 0)	unless $s->{'3d'};
+
+	my $tfh = $s->{title} ? $s->{gdta_title}->get('height') : 0;
+	my $lfh = $s->{label} ? $s->{gdta_label}->get('height') : 0;
 
 	# Calculate the bounding box for the pie, and
 	# some width, height, and centre parameters
 	$s->{bottom} = 
 		$s->{height} - $s->{pie_height} - $s->{b_margin} -
-		( $s->{lfh} ? $s->{lfh} + $s->{text_space} : 0 );
+		( $lfh ? $lfh + $s->{text_space} : 0 );
 
 	$s->{top} = 
-		$s->{t_margin} + ( $s->{tfh} ? $s->{tfh} + $s->{text_space} : 0 );
+		$s->{t_margin} + ( $tfh ? $tfh + $s->{text_space} : 0 );
 
 	$s->{left} = $s->{l_margin};
 
@@ -134,11 +139,6 @@ sub setup_coords()
 		if ( ($s->{bottom} - $s->{top}) <= 0 );
 	croak "Horizontal size too small"
 		if ( ($s->{right} - $s->{left}) <= 0 );
-
-	# set up the data colour list if it doesn't exist yet.
-	$s->set( 
-		dclrs => [qw( lred lgreen lblue lyellow lpurple cyan lorange )] 
-	) unless ( exists $s->{dclrs} );
 }
 
 # inherit open_graph from GD::Graph
@@ -153,14 +153,12 @@ sub setup_text
 		#print "'$s->{title}' at ($s->{xc},$s->{t_margin})\n";
 		$s->{gdta_title}->set(colour => $s->{tci});
 		$s->{gdta_title}->set_text($s->{title});
-		$s->set(tfh => $s->{gdta_title}->get('height'));
 	}
 
 	if ( $s->{label} ) 
 	{
 		$s->{gdta_label}->set(colour => $s->{lci});
 		$s->{gdta_label}->set_text($s->{label});
-		$s->set(lfh => $s->{gdta_title}->get('height'));
 	}
 
 	$s->{gdta_value}->set(colour => $s->{alci});

@@ -5,7 +5,7 @@
 #	Name:
 #		GD::Graph::axestype.pm
 #
-# $Id: axestype.pm,v 1.8 2000/01/06 11:23:42 mgjv Exp $
+# $Id: axestype.pm,v 1.9 2000/01/07 13:44:42 mgjv Exp $
 #
 #==========================================================================
 
@@ -17,7 +17,7 @@ use GD::Graph;
 use GD::Graph::utils qw(:all);
 use Carp;
 
-@GD::Graph::axestype::ISA = qw( GD::Graph );
+@GD::Graph::axestype::ISA = qw(GD::Graph);
 
 use constant PI => 4 * atan2(1,1);
 
@@ -87,10 +87,84 @@ my %Defaults = (
 	# Format of the numbers on the x and y axis
 	y_number_format			=> undef,
 	x_number_format			=> undef,		# CONTRIB Scott Prahl
-	
-	# data set colours
-	dclrs => [ qw( lred lgreen lblue lyellow lpurple cyan lorange )] 
+
+	# and some attributes without default values
+	x_label			=> undef,
+	y_label			=> undef,
+	y1_label		=> undef,
+	y2_label		=> undef,
+	y_min_value 	=> undef,
+	y1_min_value 	=> undef,
+	y2_min_value 	=> undef,
+	y_max_value 	=> undef,
+	y1_max_value 	=> undef,
+	y2_max_value 	=> undef,
+
+	borderclrs		=> undef,
+
+	# XXX
+	# Multiple inheritance (linespoints and mixed) finally bit me. The
+	# _has_defaults and set methods can only work correctly when the
+	# spot where the defaults are kept are in a mutual parent, which
+	# would be this. The odd implementation of SUPER doesn't help
+
+	# XXX points
+	# The size of the marker to use in the points and linespoints graphs
+	# in pixels
+	marker_size	=> 4,
+
+	# attributes with no default
+	markers => undef,
+
+	# XXX lines
+	# The width of the line to use in the lines and linespoints graphs
+	# in pixels
+	line_width		=> 1,
+
+	# Set the scale of the line types
+	line_type_scale	=> 8,
+
+	# Which line typess to use
+	line_types		=> [1],
+
+	# XXX bars
+	# Spacing between the bars
+	bar_spacing 	=> 0,
+
+	# cycle through colours per data point, not set
+	cycle_clrs		=> 0,
+
+	# colour of the shadow
+	shadowclr		=> 'dgray',
+	shadow_depth	=> 0,
+
+	# XXX mixed
+	default_type 	=> 'lines',
+	types			=> undef,
 );
+
+sub _has_default { 
+	my $self = shift;
+	my $attr = shift || return;
+	exists $Defaults{$attr} || $self->SUPER::_has_default($attr);
+}
+
+sub initialise
+{
+	my $self = shift;
+
+	$self->SUPER::initialise();
+
+	while (my($key, $val) = each %Defaults) 
+		{ $self->{$key} = $val }
+
+	$self->set_x_label_font(GD::gdSmallFont);
+	$self->set_y_label_font(GD::gdSmallFont);
+	$self->set_x_axis_font(GD::gdTinyFont);
+	$self->set_y_axis_font(GD::gdTinyFont);
+	$self->set_legend_font(GD::gdTinyFont);
+}
+
 
 #use Data::Dumper;
 
@@ -192,7 +266,7 @@ sub set_y_axis_font # (fontname)
 sub set_legend # List of legend keys
 {
 	my $self = shift;
-	$self->set( legend => [@_]);
+	$self->{legend} = [@_];
 }
 
 sub set_legend_font # (font name)
@@ -202,27 +276,6 @@ sub set_legend_font # (font name)
 }
 
 # PRIVATE
-# called on construction, by new
-# use inherited defaults
-
-sub initialise
-{
-	my $self = shift;
-
-	$self->SUPER::initialise();
-
-	my $key;
-	foreach $key (keys %Defaults) 
-	{
-		$self->set( $key => $Defaults{$key} );
-	}
-
-	$self->set_x_label_font(GD::gdSmallFont);
-	$self->set_y_label_font(GD::gdSmallFont);
-	$self->set_x_axis_font(GD::gdTinyFont);
-	$self->set_y_axis_font(GD::gdTinyFont);
-	$self->set_legend_font(GD::gdTinyFont);
-}
 
 # inherit check_data from GD::Graph
 
@@ -238,8 +291,8 @@ sub setup_coords
 	delete $s->{y_label2} unless ($s->{two_axes});
 
 	# Set some heights for text
-	$s->set( tfh => 0 ) unless ( $s->{title} );
-	$s->set( xlfh => 0 ) unless ( $s->{x_label} );
+	$s->{tfh} = 0 unless $s->{title};
+	$s->{xlfh} = 0 unless $s->{x_label};
 
 	# Make sure the y1 axis has a label if there is one set for y in
 	# general
@@ -248,8 +301,8 @@ sub setup_coords
 
 	# Set axis tick text heights and widths to 0 if they don't need to
 	# be plotted.
-	$s->set( xafh => 0, xafw => 0 ) unless ($s->{x_plot_values}); 
-	$s->set( yafh => 0, yafw => 0 ) unless ($s->{y_plot_values});
+	$s->{xafh} = 0, $s->{xafw} = 0 unless $s->{x_plot_values}; 
+	$s->{yafh} = 0, $s->{yafw} = 0 unless $s->{y_plot_values};
 
 	# Get the height of the space needed for the X axis tick text
 	$s->{x_axis_label_height} = $s->get_x_axis_label_height($data);
@@ -325,11 +378,6 @@ sub setup_coords
 
 	croak "Horizontal size too small"	
 		if ( ($s->{right} - $s->{left}) <= 0 );
-
-	# set up the data colour list if it doesn't exist yet.
-	#$s->set( 
-		#dclrs => [ qw( lred lgreen lblue lyellow lpurple cyan lorange )] 
-	#) unless ( exists $s->{dclrs} );
 
 	# More sanity checks
 	$s->{x_label_skip} = 1 		if ( $s->{x_label_skip} < 1 );
@@ -452,7 +500,7 @@ sub draw_text
 	}
 
 	# X label
-	if (exists $s->{x_label}) 
+	if (defined $s->{x_label}) 
 	{
 		$s->{gdta_x_label}->set_text($s->{x_label});
 		$s->{gdta_x_label}->set_align('bottom', 'left');
@@ -463,7 +511,7 @@ sub draw_text
 	}
 
 	# Y labels
-	if (exists $s->{y1_label}) 
+	if (defined $s->{y1_label}) 
 	{
 		$s->{gdta_y_label}->set_text($s->{y1_label});
 		$s->{gdta_y_label}->set_align('top', 'left');
@@ -473,7 +521,7 @@ sub draw_text
 			$s->{y_label_position} * $s->{gdta_y_label}->get('width');
 		$s->{gdta_y_label}->draw($tx, $ty, PI/2);
 	}
-	if ( $s->{two_axes} && exists $s->{y2_label} ) 
+	if ( $s->{two_axes} && defined $s->{y2_label} ) 
 	{
 		$s->{gdta_y_label}->set_text($s->{y2_label});
 		$s->{gdta_y_label}->set_align('bottom', 'left');

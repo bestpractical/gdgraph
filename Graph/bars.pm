@@ -5,7 +5,7 @@
 #	Name:
 #		GD::Graph::bars.pm
 #
-# $Id: bars.pm,v 1.4 2000/01/06 11:23:42 mgjv Exp $
+# $Id: bars.pm,v 1.5 2000/01/07 13:44:42 mgjv Exp $
 #
 #==========================================================================
  
@@ -19,33 +19,6 @@ use GD::Graph::colour qw(:colours);
 
 @GD::Graph::bars::ISA = qw(GD::Graph::axestype);
 
-my %Defaults = (
-	
-	# Spacing between the bars
-	bar_spacing 	=> 0,
-
-	# cycle through colours per data point, not set
-	cycle_clrs		=> 0,
-
-	# colour of the shadow
-	shadowclr		=> 'dgray',
-	shadow_depth	=> 0,
-);
-
-sub initialise
-{
-	my $self = shift;
-
-	$self->SUPER::initialise();
-
-	my $key;
-	foreach $key (keys %Defaults)
-	{
-		$self->set( $key => $Defaults{$key} );
-	}
-}
-
-# PRIVATE
 sub draw_data
 {
 	my $s = shift;
@@ -177,7 +150,7 @@ sub draw_data_set
 		# calculate left and right of bar
 		my ($l, $r);
 
-		if ($s->{mixed})
+		if (ref $s eq 'GD::Graph::mixed')
 		{
 			$l = $xp - _round($s->{x_step}/2) + $bar_s;
 			$r = $xp + _round($s->{x_step}/2) - $bar_s;

@@ -23,7 +23,8 @@ $my_graph->set(
 	bar_spacing => 8,
 	shadow_depth => 4,
 	shadowclr => 'dred',
-);
+) 
+or warn $my_graph->error;
 
 $my_graph->plot(\@data);
 save_chart($my_graph, 'sample11');

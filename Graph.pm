@@ -18,7 +18,7 @@
 #		GD::Graph::pie
 #		GD::Graph::mixed
 #
-# $Id: Graph.pm,v 1.9 2000/01/06 11:23:42 mgjv Exp $
+# $Id: Graph.pm,v 1.10 2000/01/07 13:44:41 mgjv Exp $
 #
 #==========================================================================
 
@@ -36,7 +36,7 @@ use GD;
 use GD::Text::Align;
 use Carp;
 
-$GD::Graph::prog_rcs_rev = q{$Revision: 1.9 $};
+$GD::Graph::prog_rcs_rev = q{$Revision: 1.10 $};
 $GD::Graph::prog_version = 
 	($GD::Graph::prog_rcs_rev =~ /\s+(\d*\.\d*)/) ? $1 : "0.0";
 
@@ -84,10 +84,23 @@ my %Defaults = (
 	accentclr     => 'gray',	# bar, area and pie outlines.
 	boxclr		  => undef,		# Fill colour for box axes, default: not used
 	legendclr	  => 'dblue',	# Text for the legend
+	
+	# data set colours
+	dclrs => [ qw(lred lgreen lblue lyellow lpurple cyan lorange)], 
 
 	# number of pixels to use as text spacing
 	text_space    => 8,
+
+	# These have undefined values, but are here so that the set method
+	# knows about them:
+	title		=> undef,
 );
+
+sub _has_default { 
+	my $self = shift;
+	my $attr = shift || return;
+	exists $Defaults{$attr} 
+}
 
 #
 # PUBLIC methods, documented in pod.
@@ -124,26 +137,24 @@ sub new  # ( width, height ) optional;
 
 sub set
 {
-	my $s = shift;
+	my $self = shift;
 	my %args = @_;
-
-	$s->{_set_error} = 0;
 
 	foreach (keys %args) 
 	{ 
 		# Enforce read-only attributes.
-		/^width$/i || /^height$/ and do 
+		/^width$/ || /^height$/ and do 
 		{
-			$s->Error(
-				"Attempt made to set read-only attribute '$_'-- not set");
-			$s->{_set_error} = 1;
+			$self->_error("Read-only attribute '$_' not set");
 			next;
 		};
 
-		$s->{$_} = $args{$_}; 
+		$self->{$_} = $args{$_}, next if $self->_has_default($_); 
+
+		print "Hmmm to '$_'\n";
 	}
 
-	return $s->{_set_error} ? undef : 1;
+	return $self->error ? undef : 1;
 }
 
 # Generic routine to instantiate GD::Text::Align objects for text
@@ -274,14 +285,13 @@ sub check_data # \@data
 	my $self = shift;
 	my $data = shift;
 
-	$self->set(numsets => $#$data);
-	$self->set(numpoints => $#{@$data[0]});
+	$self->{numsets} = $#$data;
+	$self->{numpoints} = $#{@$data[0]};
 
 	( $self->{numsets} < 1 || $self->{numpoints} < 0 ) and 
 		croak "GD::Graph: No Data";
 
-	my $i;
-	for $i ( 1..$self->{numsets} ) 
+	for my $i ( 1..$self->{numsets} ) 
 	{
 		croak "Data array $i: length misfit"
 			unless ( $self->{numpoints} == $#{@$data[$i]} );
@@ -423,7 +433,7 @@ sub pick_border_clr # number
 {
 	my $s = shift;
 
-	exists $s->{borderclrs} ?
+	ref $s->{borderclrs} ?
 		_rgb($s->{borderclrs}[$_[0] % @{$s->{borderclrs}} - 1]) :
 		_rgb($s->{accentclr});
 }
@@ -445,10 +455,16 @@ sub die_abstract
 
 # XXX grumble. This really needs to be fixed up.
 # Simple error handler.
-sub Error {
-  my $s = shift;
-  my $msg = shift;
-  print "GD::Graph: $msg\n";
+sub _error {
+  my $self = shift;
+  my @msgs = @_;
+  push @{$self->{_errors}}, @msgs;
+}
+
+sub error
+{
+	my $self = shift;
+	ref $self->{_errors} ? join "\n", @{$self->{_errors}} : ""
 }
 
 sub gd 

@@ -5,7 +5,7 @@
 #	Name:
 #		GD::Graph::mixed.pm
 #
-# $Id: mixed.pm,v 1.3 1999/12/29 12:14:40 mgjv Exp $
+# $Id: mixed.pm,v 1.4 2000/01/07 13:44:42 mgjv Exp $
 #
 #==========================================================================
 
@@ -31,30 +31,6 @@ use Carp;
 	GD::Graph::lines 
 	GD::Graph::points 
 );
-
-my %Defaults = (
-	default_type => 'lines',
-	mixed => 1,
-);
-
-sub initialise
-{
-	my $s = shift;
-
-	$s->SUPER::initialise();
-
-	my $key;
-	foreach $key (keys %Defaults)
-	{
-		$s->set( $key => $Defaults{$key} );
-	}
-
-	# XXX This is a bit ugly. Maybe need to do this with a loop and
-	# UNIVERSAL->can..
-	$s->GD::Graph::lines::initialise();
-	$s->GD::Graph::points::initialise();
-	$s->GD::Graph::bars::initialise();
-}
 
 sub draw_data_set # GD::Image, \@data, $ds
 {

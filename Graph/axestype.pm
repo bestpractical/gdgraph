@@ -5,13 +5,13 @@
 #   Name:
 #       GD::Graph::axestype.pm
 #
-# $Id: axestype.pm,v 1.34 2003/02/10 22:12:41 mgjv Exp $
+# $Id: axestype.pm,v 1.35 2003/02/10 23:33:40 mgjv Exp $
 #
 #==========================================================================
 
 package GD::Graph::axestype;
 
-($GD::Graph::axestype::VERSION) = '$Revision: 1.34 $' =~ /\s([\d.]+)/;
+($GD::Graph::axestype::VERSION) = '$Revision: 1.35 $' =~ /\s([\d.]+)/;
 
 use strict;
  
@@ -374,6 +374,35 @@ sub get_hotspot
     else
     {
         return @{$self->{_hotspots}};
+    }
+}
+
+sub _set_feature_coords
+{
+    my $self = shift;
+    my $feature = shift;
+    my $type = shift;
+    $self->{_feat_coords}->{$feature} = [ $type, @_ ];
+}
+
+sub _set_text_feature_coords
+{
+    my $self = shift;
+    my $feature = shift;
+    $self->_set_feature_coords($feature, "rect", @_[0,1,4,5]);
+}
+
+sub get_feature_coordinates
+{
+    my $self = shift;
+    my $feature = shift;
+    if ($feature)
+    {
+	$self->{_feat_coords}->{$feature};
+    }
+    else
+    {
+	$self->{_feat_coords};
     }
 }
 
@@ -818,52 +847,60 @@ sub draw_x_label
     my $self = shift;
     my ($tx, $ty, $a);
 
+    my @coords;	# coordinates of the label drawn
+
     return unless $self->{x_label};
 
     $self->{gdta_x_label}->set_text($self->{x_label});
     if ($self->{rotate_chart})
     {
-	$self->draw_left_label($self->{gdta_x_label}, 
+	@coords = $self->draw_left_label($self->{gdta_x_label}, 
 	                       $self->{x_label_position});
     }
     else
     {
-	$self->draw_bottom_label($self->{gdta_x_label}, 
+	@coords = $self->draw_bottom_label($self->{gdta_x_label}, 
 	                       $self->{x_label_position});
     }
+    $self->_set_text_feature_coords("x_label", @coords);
 }
 
 sub draw_y_labels
 {
     my $self = shift;
 
+    my @coords; # coordinates of the labels drawn
+
     if (defined $self->{y1_label}) 
     {
         $self->{gdta_y_label}->set_text($self->{y1_label});
 	if ($self->{rotate_chart})
 	{
-	    $self->draw_bottom_label($self->{gdta_y_label}, 
+	    @coords = $self->draw_bottom_label($self->{gdta_y_label}, 
 	                             $self->{y_label_position});
 	}
 	else
 	{
-	    $self->draw_left_label($self->{gdta_y_label}, 
+	    @coords = $self->draw_left_label($self->{gdta_y_label}, 
 	                           $self->{y_label_position});
 	}
+	$self->_set_text_feature_coords("y1_label", @coords);
+	$self->_set_text_feature_coords("y_label", @coords);
     }
     if ( $self->{two_axes} && defined $self->{y2_label} ) 
     {
         $self->{gdta_y_label}->set_text($self->{y2_label});
 	if ($self->{rotate_chart})
 	{
-	    $self->draw_top_label($self->{gdta_y_label}, 
+	    @coords = $self->draw_top_label($self->{gdta_y_label}, 
 	                          $self->{y_label_position});
 	}
 	else
 	{
-	    $self->draw_right_label($self->{gdta_y_label}, 
+	    @coords = $self->draw_right_label($self->{gdta_y_label}, 
 	                            $self->{y_label_position});
 	}
+	$self->_set_text_feature_coords("y2_label", @coords);
     }
 }
 
@@ -876,7 +913,8 @@ sub draw_text
         my $xc = $self->{left} + ($self->{right} - $self->{left})/2;
         $self->{gdta_title}->set_align('top', 'center');
         $self->{gdta_title}->set_text($self->{title});
-        $self->{gdta_title}->draw($xc, $self->{t_margin});
+        my @coords = $self->{gdta_title}->draw($xc, $self->{t_margin});
+	$self->_set_text_feature_coords("title", @coords);
     }
 
     $self->draw_x_label();
@@ -918,6 +956,8 @@ sub draw_axes
         my ($x, $y) = $self->val_to_pixel(0, 0, 1);
         $self->{graph}->line($l, $y, $r, $y, $self->{fgci});
     }
+
+    $self->_set_feature_coords("axes", "rect", $l, $b, $r, $t);
 }
 
 #

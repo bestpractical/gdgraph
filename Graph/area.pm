@@ -5,13 +5,13 @@
 #   Name:
 #       GD::Graph::area.pm
 #
-# $Id: area.pm,v 1.15 2003/02/10 22:12:41 mgjv Exp $
+# $Id: area.pm,v 1.16 2003/02/10 23:33:40 mgjv Exp $
 #
 #==========================================================================
 
 package GD::Graph::area;
  
-($GD::Graph::area::VERSION) = '$Revision: 1.15 $' =~ /\s([\d.]+)/;
+($GD::Graph::area::VERSION) = '$Revision: 1.16 $' =~ /\s([\d.]+)/;
 
 use strict;
 
@@ -50,12 +50,13 @@ sub draw_data_set
 
         my ($x, $y) = $self->val_to_pixel($i + 1, $value, $ds);
         $poly->addPt($x, $y);
-        # XXX Wish I could remember why I did this @bottom thing again,
-        # instead of just using one straight connector
+	# Need to keep track of this stuff for hotspots, and because
+	# it's the only reliable way of closing the polygon, without
+	# making odd assumptions.
         push @bottom, [$x, $bottom];
 
         # Hotspot stuff
-        # XXX needs fixing
+        # XXX needs fixing. Not used at the moment.
 	next unless defined $self->{_hotspots}->[$ds]->[$i];
         if ($i == 0)
         {

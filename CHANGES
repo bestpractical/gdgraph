@@ -1,3 +1,7 @@
+11 Feb 2003, continued after 1.37 release
+
+- Added get_feature_coordinates support.
+
 11 Feb 2003
 
 - Fixed =head1 in GD/Graph/FAQ.pod

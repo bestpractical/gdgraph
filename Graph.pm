@@ -19,7 +19,7 @@
 #       GD::Graph::pie
 #       GD::Graph::mixed
 #
-# $Id: Graph.pm,v 1.44 2003/02/10 22:12:41 mgjv Exp $
+# $Id: Graph.pm,v 1.45 2003/02/10 23:33:40 mgjv Exp $
 #
 #==========================================================================
 
@@ -31,7 +31,7 @@
 
 package GD::Graph;
 
-($GD::Graph::prog_version) = '$Revision: 1.44 $' =~ /\s([\d.]+)/;
+($GD::Graph::prog_version) = '$Revision: 1.45 $' =~ /\s([\d.]+)/;
 $GD::Graph::VERSION = '1.38';
 
 use strict;
@@ -757,6 +757,17 @@ for all points in the dataset. If the dataset is also not specified,
 returns a list of array references for each data set. 
 See L<"HOTSPOTS">.
 
+=item $graph-E<gt>get_feature_coordinates($feature_name)
+
+B<Experimental>:
+Return a coordinate specification for a certain feature in the chart.
+Currently, features that are defined are I<axes>, the coordinates of
+the rectangle within the axes; I<x_label>, I<y1_label> and
+I<y2_label>, the labels printed along the axes, with I<y_label>
+provided as an alias for I<y1_label>; and I<title> which is the title
+text box.
+See L<"HOTSPOTS">.
+
 =back
 
 
@@ -1435,16 +1446,20 @@ more restrictive behaviour).
 =head1 HOTSPOTS
 
 I<Note that this is an experimental feature, and its interface may, and
-likely will, change in the future>
+likely will, change in the future. It currently does not work for area
+charts or pie charts.>
 
-GD::Graph keeps an internal set of coordinates for each data point. This
+GD::Graph keeps an internal set of coordinates for each data point and
+for certain features of a chart, like the title and axis labels. This
 specification is very similar to the HTML image map specification, and
 in fact exists mainly for that purpose. You can get at these hotspots
-with the C<get_hotspot> method. This method accepts two optional
-arguments, the number of the dataset you're interested in, and the
-number of the point in that dataset you're interested in. When called
-with two arguments, the method returns a list of one of the following
-forms:
+with the C<get_hotspot> method for data point, and
+C<get_feature_coordinates> for the chart features. 
+
+The <get_hotspot> method accepts two optional arguments, the number of
+the dataset you're interested in, and the number of the point in that
+dataset you're interested in. When called with two arguments, the
+method returns a list of one of the following forms:
 
   'rect', x1, y1, x2, y2
   'poly', x1, y1, x2, y2, x3, y3, ....
@@ -1474,6 +1489,13 @@ turn contain references to arrays for each point.
   [
     ['line', xs, ys, xe, ye, w], ['line', xs, ys, xe, ye, w], ...
   ],...
+
+The C<get_feature> method, when called with the name of a feature,
+returns a single array reference with a type and coordinates as
+described above. When called with no arguments, a hash reference is
+returned with the keys being all the currently defined and set
+features, and the values array references with the type and
+coordinates for each of those features.
 
 =head1 ERROR HANDLING
 

@@ -5,7 +5,7 @@
 #	Name:
 #		GD::Graph::axestype.pm
 #
-# $Id: axestype.pm,v 1.5 2000/01/02 05:22:00 mgjv Exp $
+# $Id: axestype.pm,v 1.6 2000/01/02 05:37:15 mgjv Exp $
 #
 #==========================================================================
 
@@ -794,9 +794,7 @@ sub set_max_min
 	$s->{x_min}    = $s->{x_min_value}  if defined $s->{x_min_value};
 	$s->{x_max}    = $s->{x_max_value}  if defined $s->{x_max_value};
 
-	if ($s->{two_axes} and 
-		defined $subclass and 
-		($subclass eq 'bars' or $subclass eq 'area'))
+	if ($s->{two_axes})
 	{
 		# If we have two axes, we need to make sure that the zero is at
 		# the same spot.

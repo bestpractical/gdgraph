@@ -40,6 +40,10 @@ NOT REALLY BUGS
 - init_graph does too much work for pies. Needs to be split up. Very low
   priority.
 
+FIXED IN 1.22
+! two_axes only works correctly with negative numbers and zero_axis for
+  bars and area graphs.
+
 FIXED IN 1.21
 ! y_min_value doesn't automatically get adapted for bars and area if 0
   is not included in the range, but only if user sets it. If left to

@@ -5,13 +5,13 @@
 #   Name:
 #       GD::Graph::axestype.pm
 #
-# $Id: axestype.pm,v 1.38 2003/06/11 00:43:49 mgjv Exp $
+# $Id: axestype.pm,v 1.39 2003/06/16 01:27:29 mgjv Exp $
 #
 #==========================================================================
 
 package GD::Graph::axestype;
 
-($GD::Graph::axestype::VERSION) = '$Revision: 1.38 $' =~ /\s([\d.]+)/;
+($GD::Graph::axestype::VERSION) = '$Revision: 1.39 $' =~ /\s([\d.]+)/;
 
 use strict;
  
@@ -1417,6 +1417,40 @@ sub draw_data_set
 }
 
 #
+# This method corrects the minimum and maximum y values for chart
+# types that need to always include a zero point.
+# This is supposed to be called before the methods that pick
+# good-looking values.
+#
+# Input: current minimum and maximum.
+# Output: new minimum and maximum.
+#
+sub _correct_y_min_max
+{
+    my $self = shift;
+    my ($min, $max) = @_;
+
+    # Make sure bars and area always have a zero offset
+    # Only bars and areas need 
+    return ($min, $max)
+	unless $self->isa("GD::Graph::bars") or $self->isa("GD::Graph::area");
+
+    # If $min and $max on opposite end of zero axis, no work needed
+    return ($min, $max) unless ($min/$max > 0);
+
+    if ($min > 0)
+    {
+	$min = 0;
+    }
+    else
+    {
+	$max = 0;
+    }
+
+    return ($min, $max);
+}
+
+#
 # Figure out the maximum values for the vertical exes, and calculate
 # a more or less sensible number for the tops.
 #
@@ -1438,12 +1472,14 @@ sub set_max_min
                 ? $self->{min_range_2}
                 : $self->{min_range};
         (
-                $self->{y_min}[1], $self->{y_max}[1],
-                $self->{y_min}[2], $self->{y_max}[2],
-                $self->{y_tick_number}
+	    $self->{y_min}[1], $self->{y_max}[1],
+	    $self->{y_min}[2], $self->{y_max}[2],
+	    $self->{y_tick_number}
         ) = _best_dual_ends(
-                $self->{_data}->get_min_max_y(1), $min_range_1,
-                $self->{_data}->get_min_max_y(2), $min_range_2,
+                $self->_correct_y_min_max($self->{_data}->get_min_max_y(1)), 
+		    $min_range_1,
+                $self->_correct_y_min_max($self->{_data}->get_min_max_y(2)), 
+		    $min_range_2,
                 $self->{y_tick_number}
         );
     } 
@@ -1460,6 +1496,7 @@ sub set_max_min
         {
             ($y_min, $y_max) = $self->{_data}->get_min_max_y_all;
         }
+	($y_min, $y_max) = $self->_correct_y_min_max($y_min, $y_max);
         ($self->{y_min}[1], $self->{y_max}[1], $self->{y_tick_number}) =
             _best_ends($y_min, $y_max, @$self{'y_tick_number','y_min_range'});
     }
@@ -1479,22 +1516,6 @@ sub set_max_min
                 _best_ends($self->{true_x_min}, $self->{true_x_max},
                         @$self{'y_tick_number','y_min_range'});
  
-        }
-    }
-
-    # Make sure bars and area always have a zero offset
-    # This has to work for all subclasses
-    if ($self->isa("GD::Graph::bars") or $self->isa("GD::Graph::area"))
-    {
-        for my $i (1..($self->{two_axes} ? 2 : 1))
-        {
-            # If at the same side of the zero axis
-            if ($self->{y_max}[$i] && $self->{y_min}[$i]/$self->{y_max}[$i] > 0)
-            {
-                $self->{y_min}[$i] > 0 ? 
-                $self->{y_min}[$i] = 0 : 
-                $self->{y_max}[$i] = 0 ;
-            }
         }
     }
 

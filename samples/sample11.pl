@@ -21,9 +21,9 @@ for my $my_graph (GD::Graph::bars->new, GD::Graph::hbars->new)
 	x_label         => 'X Label',
 	y_label         => 'Y label',
 	title           => 'A Simple Bar Chart',
-	y_max_value     => 8,
-	y_tick_number   => 8,
-	y_label_skip    => 2,
+	#y_max_value     => 8,
+	#y_tick_number   => 8,
+	#y_label_skip    => 2,
 
 	#x_labels_vertical => 1,
 	

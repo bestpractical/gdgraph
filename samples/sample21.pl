@@ -19,9 +19,9 @@ for my $graph (GD::Graph::area->new)
 	x_label => 'X Label',
 	y_label => 'Y label',
 	title => 'An Area Graph',
-	y_max_value => 40,
-	y_tick_number => 8,
-	y_label_skip => 2,
+	#y_max_value => 40,
+	#y_tick_number => 8,
+	#y_label_skip => 2,
 	#accent_treshold => 41,
 	transparent => 0,
     );

@@ -16,8 +16,9 @@
 .SILENT:
 
 PERL = perl
-#OPTIONS = -I/home/mgjv/perl/GD1.19 -I. -I../blib/lib -Tw
 OPTIONS = -I. -I../blib/lib -w
+#OPTIONS = -I/home/mgjv/perl/GD1.19 -I. -I../blib/lib -Tw
+#OPTIONS = -I/opt/gd2/lib -I. -I../blib/lib -Tw
 
 EXT := $(shell perl $(OPTIONS) -MGD::Graph \
 		-e 'print scalar GD::Graph::export_format')

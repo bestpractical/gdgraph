@@ -80,8 +80,8 @@ $graph->set(
 
    'y_tick_number'    => 5,
    'y_number_format'  => '%d',
-   'y_max_value'      => 25,
-   'y_min_value'      => 0,
+   #'y_max_value'      => 25,
+   #'y_min_value'      => 0,
    'y_plot_values'    => 1,
    'x_plot_values'    => 1,
    'x_labels_vertical'=> 1,

@@ -4,6 +4,13 @@ GD::Graph - Frequently asked questions
 
 =head1 DESCRIPTION
 
+=head2 I get errors like "Can't call method METHOD on an undefined value". What gives?
+
+You probably had an error somewhere, most likely in the plot() method,
+and you didn't check for it. See the section on Error Handling in the
+documentation for L<GD::Graph> to find out how to deal with this sort
+of thing, and how to get more information about what the error was.
+
 =head2 I am drawing a bar chart, and the chart area is a lot smaller than the image. What is going on?
 
 As of version 1.30, GD::Graph automatically corrects the width of the
@@ -77,8 +84,8 @@ section 9, has some information on this. It is also not guaranteed that
 your script runs from the directory that it is in. It is probably better
 to include something like:
 
-use GD::Text;
-GD::Text->font_path("/path/to/my/font_dir");
+  use GD::Text;
+  GD::Text->font_path("/path/to/my/font_dir");
 
 See the GD::Text documentation for more information about font paths.
 

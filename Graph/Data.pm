@@ -5,13 +5,13 @@
 #	Name:
 #		GD::Graph::Data.pm
 #
-# $Id: Data.pm,v 1.15 2000/10/07 05:52:41 mgjv Exp $
+# $Id: Data.pm,v 1.16 2002/06/08 13:40:45 mgjv Exp $
 #
 #==========================================================================
 
 package GD::Graph::Data;
 
-$GD::Graph::Data::VERSION = '$Revision: 1.15 $' =~ /\s([\d.]+)/;
+$GD::Graph::Data::VERSION = '$Revision: 1.16 $' =~ /\s([\d.]+)/;
 
 use strict;
 use GD::Graph::Error;
@@ -695,7 +695,7 @@ Martien Verbruggen E<lt>mgjv@tradingpost.com.auE<gt>
 
 =head2 Copyright
 
-Copyright (c) 2000 Martien Verbruggen.
+(c) Martien Verbruggen.
 
 All rights reserved. This package is free software; you can redistribute
 it and/or modify it under the same terms as Perl itself.

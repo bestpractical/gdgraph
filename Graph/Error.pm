@@ -5,13 +5,13 @@
 #	Name:
 #		GD::Graph::Error.pm
 #
-# $Id: Error.pm,v 1.5 2000/10/07 05:52:41 mgjv Exp $
+# $Id: Error.pm,v 1.6 2002/06/08 13:40:45 mgjv Exp $
 #
 #==========================================================================
 
 package GD::Graph::Error;
 
-$GD::Graph::Error::VERSION = '$Revision: 1.5 $' =~ /\s([\d.]+)/;
+$GD::Graph::Error::VERSION = '$Revision: 1.6 $' =~ /\s([\d.]+)/;
 
 use strict;
 use Carp;
@@ -332,7 +332,7 @@ Martien Verbruggen E<lt>mgjv@tradingpost.com.auE<gt>
 
 =head2 Copyright
 
-Copyright (c) 2000 Martien Verbruggen.
+(c) Martien Verbruggen.
 
 All rights reserved. This package is free software; you can redistribute
 it and/or modify it under the same terms as Perl itself.

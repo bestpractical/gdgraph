@@ -28,6 +28,7 @@ $my_graph->set(
 	y_label_position => 1,
 
 	x_label_skip => 3,
+	#x_last_label_skip => 1,
 	x_tick_offset => 2,
 
 	transparent => 0,

@@ -20,7 +20,8 @@ PERL = perl
 OPTIONS = -I. -I../blib/lib -Tw
 
 EXT := \
-	$(shell perl $(OPTIONS) -MGD::Graph -e 'print GD::Graph::export_format')
+	$(shell perl $(OPTIONS) -MGD::Graph \
+		-e 'print scalar GD::Graph::export_format')
 
 SAMPLES :=  \
 		sample11 sample12 sample13 sample14 sample15 sample16 \

@@ -18,6 +18,11 @@ $my_graph->set(
 	y_max_value => 8,
 	y_tick_number => 8,
 	y_label_skip => 2,
+	
+	# shadows
+	bar_spacing => 8,
+	shadow_depth => 4,
+	shadowclr => 'dred',
 );
 
 $my_graph->plot(\@data);

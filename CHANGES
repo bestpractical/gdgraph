@@ -1,10 +1,18 @@
+06 Jan 2000
+
+- Added shadow patch from Jeremy Wadsack, changed a few things: Allow
+  negative shadows, move his code out a bit more.
+- Added color cycling patch from Jeremy. Adapted it to new code, and
+  added code to also allow cycling of colour of bar borders.
+- Documentation.
+
 05 Jan 2000
 
 - removed all references to perl version from any code. Leaving it up to
   users to find out for themselves. They'll just need to read the
   documentation.
 - Applied patch from Jeremy Wadsack fixing text sticking out of pie
-  slices causing fills to fail
+  slices causing fills to fail.
 - cleanup of code in pie.pm: draw_data, filling front of pie, and
   _get_pie_front_coords.
 

@@ -17,6 +17,8 @@ $my_graph->set(
 	y_tick_number => 8,
 	y_label_skip => 2,
 	overwrite => 1,
+	bar_spacing => 8,
+	shadow_depth => 4,
 );
 
 $my_graph->plot(\@data);

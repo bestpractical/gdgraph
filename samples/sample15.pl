@@ -20,6 +20,8 @@ $my_graph->set(
 	y_tick_number => 10,
 	y_label_skip => 2,
 	overwrite => 2,
+	borderclrs => $my_graph->{dclrs},
+	bar_spacing => 4,
 );
 
 $my_graph->set_legend( qw(offset increment more));

@@ -18,7 +18,7 @@
 #		GD::Graph::pie
 #		GD::Graph::mixed
 #
-# $Id: Graph.pm,v 1.8 2000/01/05 12:51:58 mgjv Exp $
+# $Id: Graph.pm,v 1.9 2000/01/06 11:23:42 mgjv Exp $
 #
 #==========================================================================
 
@@ -36,7 +36,7 @@ use GD;
 use GD::Text::Align;
 use Carp;
 
-$GD::Graph::prog_rcs_rev = q{$Revision: 1.8 $};
+$GD::Graph::prog_rcs_rev = q{$Revision: 1.9 $};
 $GD::Graph::prog_version = 
 	($GD::Graph::prog_rcs_rev =~ /\s+(\d*\.\d*)/) ? $1 : "0.0";
 
@@ -415,7 +415,7 @@ sub set_clr_uniq # GD::Image, r, g, b
 sub pick_data_clr # number
 {
 	my $s = shift;
-	_rgb($s->{dclrs}[$_[0] % (1+$#{$s->{dclrs}}) -1]);
+	_rgb($s->{dclrs}[$_[0] % @{$s->{dclrs}} - 1]);
 }
 
 # contrib "Bremford, Mike" <mike.bremford@gs.com>
@@ -424,7 +424,7 @@ sub pick_border_clr # number
 	my $s = shift;
 
 	exists $s->{borderclrs} ?
-		_rgb($s->{borderclrs}[$_[0] % (1+$#{$s->{borderclrs}}) -1]) :
+		_rgb($s->{borderclrs}[$_[0] % @{$s->{borderclrs}} - 1]) :
 		_rgb($s->{accentclr});
 }
 
@@ -763,14 +763,27 @@ colour marked as transparent (see also option I<bgclr>).  Default: 1.
 If set to a true value, the produced image will be interlaced.
 Default: 1.
 
-=item bgclr, fgclr, boxclr, accentclr
+=back
+
+=head2 Colours
+
+=over 4
+
+=item bgclr, fgclr, boxclr, accentclr, shadowclr
 
 Drawing colours used for the chart: background, foreground (axes and
-grid), axis box fill colour, and accent (bar, area and pie outlines).
+grid), axis box fill colour, accents (bar, area and pie outlines), and
+shadow (currently only bars.
 
 All colours should have a valid value as described in L<"COLOURS">,
 except boxclr, which can be undefined, in which case the background
 colour will be used. 
+
+=item shadow_depth
+
+Depth of a shadow, positive for right/down shadow, negative for left/up
+shadow, 0 for no shadow (default).
+Also see the C<shadowclr> and C<bar_spacing> options.
 
 =item labelclr, axislabelclr, legendclr, textclr
 
@@ -790,6 +803,30 @@ L<GD::Graph::colour> (C<S<perldoc GD::Graph::colour>> for the names available).
 
 The first (fifth, ninth) data set will be green, the next pink, etc.
 Default: [ qw(lred lgreen lblue lyellow lpurple cyan lorange) ] 
+
+=item borderclrs
+
+This controls the colours of the borders of the bars data sets. Like
+dclrs, it is a reference to an array of colour names as defined in
+L<GD::Graph::colour>.
+
+Setting the border colours to the background colour of the graph allows
+bars to "float" above the X-axis. For example (assuming your background
+is white):
+
+    $graph->set( dclrs => [ qw(white cyan cyan) ] );
+    $graph->set( borderclrs => [ qw(white black black) ] );
+
+Creates a cyan bar with a black line across the middle, ideal for showing
+ranges with the average value.
+
+=item cycle_clrs
+
+If set to a true value, bars will not have a colour from C<dclrs> per
+dataset, but per point. The colour sequence will be identical for each
+dataset. Note that this may have a weird effect if you are drawing more
+than one data set. If this is set to a value larger than 1 the border
+colour of the bars will cycle through the colours in C<borderclrs>.
 
 =back
 
@@ -1031,21 +1068,6 @@ See y_label_skip
 Number of pixels to leave open between bars. This works well in most
 cases, but on some platforms, a value of 1 will be rounded off to 0.
 Default: 0
-
-=item borderclrs
-
-This controls the colours of the borders of the bars. Like dclrs, it is a
-reference to an array of colour names as defined in
-L<GIFgraph::colour>.
-
-Setting the border colours to the background colour of the graph allows
-bars to "float" above the X-axis. For example:
-
-    $graph->set( dclrs => [ qw(white cyan cyan) ] );
-    $graph->set( bclrs => [ qw(white black black) ] );
-
-Creates a cyan bar with a black line across the middle, ideal for showing
-ranges with the average value.
 
 =back
 

@@ -5,7 +5,7 @@
 #	Name:
 #		GD::Graph::axestype.pm
 #
-# $Id: axestype.pm,v 1.7 2000/01/02 23:22:49 mgjv Exp $
+# $Id: axestype.pm,v 1.8 2000/01/06 11:23:42 mgjv Exp $
 #
 #==========================================================================
 
@@ -87,6 +87,9 @@ my %Defaults = (
 	# Format of the numbers on the x and y axis
 	y_number_format			=> undef,
 	x_number_format			=> undef,		# CONTRIB Scott Prahl
+	
+	# data set colours
+	dclrs => [ qw( lred lgreen lblue lyellow lpurple cyan lorange )] 
 );
 
 #use Data::Dumper;
@@ -324,9 +327,9 @@ sub setup_coords
 		if ( ($s->{right} - $s->{left}) <= 0 );
 
 	# set up the data colour list if it doesn't exist yet.
-	$s->set( 
-		dclrs => [ qw( lred lgreen lblue lyellow lpurple cyan lorange )] 
-	) unless ( exists $s->{dclrs} );
+	#$s->set( 
+		#dclrs => [ qw( lred lgreen lblue lyellow lpurple cyan lorange )] 
+	#) unless ( exists $s->{dclrs} );
 
 	# More sanity checks
 	$s->{x_label_skip} = 1 		if ( $s->{x_label_skip} < 1 );

@@ -5,7 +5,7 @@
 #	Name:
 #		GD::Graph::pie.pm
 #
-# $Id: pie.pm,v 1.5 2000/01/05 12:51:58 mgjv Exp $
+# $Id: pie.pm,v 1.6 2000/01/06 11:23:42 mgjv Exp $
 #
 #==========================================================================
 
@@ -429,12 +429,6 @@ sub cartesian
 		$xi + $r * cos(PI * ($phi + $ANGLE_OFFSET)/180), 
 		$yi + $cr * $r * sin(PI * ($phi + $ANGLE_OFFSET)/180)
 	);
-}
-
-sub pick_data_clr # (number)
-{
-	my $s = shift;
-	return _rgb( $s->{dclrs}[ $_[0] % (1 + $#{$s->{dclrs}}) ] );
 }
 
 1;

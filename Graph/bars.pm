@@ -5,7 +5,7 @@
 #	Name:
 #		GD::Graph::bars.pm
 #
-# $Id: bars.pm,v 1.3 1999/12/29 12:14:40 mgjv Exp $
+# $Id: bars.pm,v 1.4 2000/01/06 11:23:42 mgjv Exp $
 #
 #==========================================================================
  
@@ -15,6 +15,7 @@ use strict;
 
 use GD::Graph::axestype;
 use GD::Graph::utils qw(:all);
+use GD::Graph::colour qw(:colours);
 
 @GD::Graph::bars::ISA = qw(GD::Graph::axestype);
 
@@ -22,6 +23,13 @@ my %Defaults = (
 	
 	# Spacing between the bars
 	bar_spacing 	=> 0,
+
+	# cycle through colours per data point, not set
+	cycle_clrs		=> 0,
+
+	# colour of the shadow
+	shadowclr		=> 'dgray',
+	shadow_depth	=> 0,
 );
 
 sub initialise
@@ -77,15 +85,25 @@ sub draw_data_overwrite
 		my $bottom = $zero;
 		my ($xp, $t);
 
+		# CONTRIB Jeremy Wadsack, shadows
+		my $bsd = $s->{shadow_depth} and
+			my $bsci = $s->set_clr(_rgb($s->{shadowclr}));
+			
 		my $j;
 		for $j (1 .. $s->{numsets}) 
 		{
 			next unless (defined $d->[$j][$i]);
 
 			# get data colour
-			my $dsci = $s->set_clr($s->pick_data_clr($j));
+			# CONTRIB Jeremy Wadsack
+			#
+			# cycle_clrs option sets the color based on the point, 
+			# not the dataset.
+			my $dsci = $s->set_clr($s->pick_data_clr(
+				$s->{cycle_clrs} ? $i : $j));
 			# contrib "Bremford, Mike" <mike.bremford@gs.com>
-			my $brci = $s->set_clr($s->pick_border_clr($j));
+			my $brci = $s->set_clr($s->pick_border_clr(
+				$s->{cycle_clrs} > 1 ? $i : $j));
 
 			# get coordinates of top and center of bar
 			($xp, $t) = $s->val_to_pixel($i + 1, $d->[$j][$i], $j);
@@ -101,12 +119,17 @@ sub draw_data_overwrite
 			if ($d->[$j][$i] >= 0)
 			{
 				# positive value
+				
+				$g->filledRectangle($l+$bsd, $t+$bsd, $r+$bsd, $bottom, $bsci)
+					if $bsd;
 				$g->filledRectangle($l, $t, $r, $bottom, $dsci);
 				$g->rectangle($l, $t, $r, $bottom, $brci);
 			}
 			else
 			{
 				# negative value
+				$g->filledRectangle($l+$bsd, $bottom, $r+$bsd, $t+$bsd, $bsci)
+					if $bsd;
 				$g->filledRectangle($l, $bottom, $r, $t, $dsci);
 				$g->rectangle($l, $bottom, $r, $t, $brci);
 			}
@@ -130,10 +153,23 @@ sub draw_data_set
 	# contrib "Bremford, Mike" <mike.bremford@gs.com>
 	my $brci = $s->set_clr($s->pick_border_clr($ds));
 
+	# CONTRIB Jeremy Wadsack, shadows
+	my $bsd = $s->{shadow_depth} and
+		my $bsci = $s->set_clr(_rgb($s->{shadowclr}));
+
 	my $i;
 	for $i (0 .. $s->{numpoints}) 
 	{
 		next unless (defined $d->[$i]);
+
+		# CONTRIB Jeremy Wadsack
+		#
+		# cycle_clrs option sets the color based on the point, 
+		# not the dataset.
+		$dsci = $s->set_clr($s->pick_data_clr($i))
+			if $s->{cycle_clrs};
+		$brci = $s->set_clr($s->pick_data_clr($i))
+			if $s->{cycle_clrs} > 1;
 
 		# get coordinates of top and center of bar
 		my ($xp, $t) = $s->val_to_pixel($i + 1, $d->[$i], $ds);
@@ -162,12 +198,16 @@ sub draw_data_set
 		if ($d->[$i] >= 0)
 		{
 			# positive value
+			$g->filledRectangle($l+$bsd, $t+$bsd, $r+$bsd, $s->{zeropoint}, 
+				$bsci) if $bsd;
 			$g->filledRectangle($l, $t, $r, $s->{zeropoint}, $dsci );
 			$g->rectangle($l, $t, $r, $s->{zeropoint}, $brci);
 		}
 		else
 		{
 			# negative value
+			$g->filledRectangle($l+$bsd, $s->{zeropoint}, $r+$bsd, $t+$bsd, 
+				$bsci) if $bsd;
 			$g->filledRectangle($l, $s->{zeropoint}, $r, $t, $dsci);
 			$g->rectangle($l, $s->{zeropoint}, $r, $t, $brci);
 		}

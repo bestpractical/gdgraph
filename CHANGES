@@ -1,3 +1,8 @@
+24 Feb 2003
+
+- How come I never noticed this before? Right axis was disappearing
+  when r_margin was zero.
+
 22 Feb 2003
 
 - Added patch by Ben Tilly from RT ticket 203 (manually, and much too

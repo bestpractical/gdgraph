@@ -34,7 +34,7 @@ foreach my $sgroup (sort keys %titles)
 	    {
 		print HTML Tr(
 		    td(a({href => "$sgroup$num.pl"},"$sgroup$num.pl")),
-		    td(img({src => "$img"}))
+		    td(img({src => "$img", border => 0}))
 		    );
 	    }
 	}

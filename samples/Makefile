@@ -16,7 +16,7 @@
 .SILENT:
 
 PERL = perl
-#OPTIONS = -I/home/mgjv/perl/GD1.19 -I. -I../lib -Tw
+#OPTIONS = -I/home/mgjv/perl/GD1.19 -I. -I../blib/lib -Tw
 OPTIONS = -I. -I../blib/lib -Tw
 
 EXT := \

@@ -5,13 +5,13 @@
 #	Name:
 #		GD::Graph::mixed.pm
 #
-# $Id: mixed.pm,v 1.8 2000/03/18 06:01:43 mgjv Exp $
+# $Id: mixed.pm,v 1.9 2000/04/30 03:09:30 mgjv Exp $
 #
 #==========================================================================
 
 package GD::Graph::mixed;
  
-$GD::Graph::mixed::VERSION = '$Revision: 1.8 $' =~ /\s([\d.]+)/;
+$GD::Graph::mixed::VERSION = '$Revision: 1.9 $' =~ /\s([\d.]+)/;
 
 use strict;
  
@@ -38,7 +38,18 @@ sub initialise
 {
 	my $self = shift;
 	$self->SUPER::initialise();
-	$self->set(correct_width => 1);
+}
+
+sub correct_width
+{
+	my $self = shift;
+
+	return $self->{correct_width} if defined $self->{correct_width};
+
+	for my $type ($self->{default_type}, @{$self->{types}})
+	{
+		return 1 if $type eq 'bars';
+	}
 }
 
 sub draw_data_set

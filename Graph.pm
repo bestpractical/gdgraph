@@ -18,7 +18,7 @@
 #		GD::Graph::pie
 #		GD::Graph::mixed
 #
-# $Id: Graph.pm,v 1.24 2000/04/15 08:59:36 mgjv Exp $
+# $Id: Graph.pm,v 1.25 2000/04/30 03:09:30 mgjv Exp $
 #
 #==========================================================================
 
@@ -30,7 +30,7 @@
 
 package GD::Graph;
 
-$GD::Graph::prog_version = '$Revision: 1.24 $' =~ /\s([\d.]+)/;
+$GD::Graph::prog_version = '$Revision: 1.25 $' =~ /\s([\d.]+)/;
 $GD::Graph::VERSION = '1.30';
 
 use strict;
@@ -1005,7 +1005,13 @@ width of the graph will be recalculated to make sure that each data
 point is exactly an integer number of pixels wide. You probably never
 want to fiddle with this.
 
-Default: 1 for bar and mixed charts, 0 for others.
+When this value is true, you will need to make sure that the number of
+data points is smaller than the number of pixels in the plotting area of
+the chart. If you get errors saying that your horizontal size if too
+small, you may need to manually switch this off, or consider using
+something else than a bar type for your chart.
+
+Default: 1 for bar, calculated at runtime for mixed charts, 0 for others.
 
 =back
 

@@ -5,13 +5,13 @@
 #	Name:
 #		GD::Graph::axestype.pm
 #
-# $Id: axestype.pm,v 1.21 2000/04/15 08:59:36 mgjv Exp $
+# $Id: axestype.pm,v 1.22 2000/04/30 03:09:30 mgjv Exp $
 #
 #==========================================================================
 
 package GD::Graph::axestype;
 
-$GD::Graph::axestype::VERSION = '$Revision: 1.21 $' =~ /\s([\d.]+)/;
+$GD::Graph::axestype::VERSION = '$Revision: 1.22 $' =~ /\s([\d.]+)/;
 
 use strict;
  
@@ -80,7 +80,8 @@ my %Defaults = (
 	# always drawn with a nice integer number of pixels?
 	#
 	# The GD::Graph::bars::initialise sub will switch this on.
-	correct_width		=> 0,
+	# Do not set this to anything else than undef!
+	correct_width		=> undef,
 
 	# XXX The following two need to get better defaults. Maybe computed.
 	# Draw the zero axis in the graph in case there are negative values
@@ -145,7 +146,7 @@ my %Defaults = (
 	# Set the scale of the line types
 	line_type_scale	=> 8,
 
-	# Which line typess to use
+	# Which line types to use
 	line_types		=> [1],
 
 	# XXX bars
@@ -344,7 +345,7 @@ sub _setup_boundaries
 			($self->{y2_label} ? $self->{ylfh} + $self->{text_space} : 0)
 		);
 
-	if ($self->{correct_width} && !$self->{x_tick_number})
+	if ($self->correct_width && !$self->{x_tick_number})
 	{
 		# Make sure we have a nice integer number of pixels
 		$self->{r_margin} += ($self->{right} - $self->{left}) %
@@ -362,6 +363,14 @@ sub _setup_boundaries
 
 	return $self;
 }
+
+# This method should return 1 if the width of the graph needs to be
+# corrected to whole integers, and 0 if not. The default behaviour is to
+# not correct the width. Individual classes should override this by
+# setting the $self->{correct_width} attribute in their initialise
+# method. Only in complex cases (see mixed.pm) should this method be
+# overridden
+sub correct_width { $_[0]->{correct_width} }
 
 sub setup_coords
 {

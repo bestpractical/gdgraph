@@ -18,7 +18,7 @@
 #		GD::Graph::pie
 #		GD::Graph::mixed
 #
-# $Id: Graph.pm,v 1.34 2000/10/07 05:52:41 mgjv Exp $
+# $Id: Graph.pm,v 1.35 2000/10/10 11:31:58 mgjv Exp $
 #
 #==========================================================================
 
@@ -30,8 +30,8 @@
 
 package GD::Graph;
 
-$GD::Graph::prog_version = '$Revision: 1.34 $' =~ /\s([\d.]+)/;
-$GD::Graph::VERSION = '1.33';
+$GD::Graph::prog_version = '$Revision: 1.35 $' =~ /\s([\d.]+)/;
+$GD::Graph::VERSION = '1.34';
 
 use strict;
 use GD;
@@ -1236,7 +1236,8 @@ graphs.  This should be a reference to an array of numbers:
 
 Available markers are: 1: filled square, 2: open square, 3: horizontal
 cross, 4: diagonal cross, 5: filled diamond, 6: open diamond, 7:
-filled circle, 8: open circle.
+filled circle, 8: open circle, 9: horizontal line, 10: vertical line.
+Note that the last two are not part of the default list.
 
 Default: [1,2,3,4,5,6,7,8]
 

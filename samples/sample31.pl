@@ -21,7 +21,7 @@ $my_graph->set(
 	legend_placement => 'RC',
 	long_ticks => 1,
 	marker_size => 6,
-	markers => [ 1, 7, 5 ],
+	markers => [ 9, 10, 1, 7, 5 ],
 
 	transparent => 0,
 );

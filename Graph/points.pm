@@ -5,13 +5,13 @@
 #	Name:
 #		GD::Graph::points.pm
 #
-# $Id: points.pm,v 1.10 2000/10/07 04:06:22 mgjv Exp $
+# $Id: points.pm,v 1.11 2000/10/10 11:31:58 mgjv Exp $
 #
 #==========================================================================
 
 package GD::Graph::points;
 
-$GD::Graph::points::VERSION = '$Revision: 1.10 $' =~ /\s([\d.]+)/;
+$GD::Graph::points::VERSION = '$Revision: 1.11 $' =~ /\s([\d.]+)/;
 
 use strict;
  
@@ -81,7 +81,7 @@ sub marker_coordinates
 	);
 }
 
-sub marker # $xp, $yp, type (1-7), $colourindex
+sub marker # $xp, $yp, $type, $colourindex
 {
 	my $self = shift;
 	my ($xp, $yp, $mtype, $mclr) = @_;
@@ -93,59 +93,68 @@ sub marker # $xp, $yp, type (1-7), $colourindex
 
 		($mtype == 1) && do 
 		{ # Square, filled
-			$self->{graph}->filledRectangle( $l, $t, $r, $b, $mclr );
+			$self->{graph}->filledRectangle($l, $t, $r, $b, $mclr);
 			last MARKER;
 		};
 		($mtype == 2) && do 
 		{ # Square, open
-			$self->{graph}->rectangle( $l, $t, $r, $b, $mclr );
+			$self->{graph}->rectangle($l, $t, $r, $b, $mclr);
 			last MARKER;
 		};
 		($mtype == 3) && do 
 		{ # Cross, horizontal
-			$self->{graph}->line( $l, $yp, $r, $yp, $mclr );
-			$self->{graph}->line( $xp, $t, $xp, $b, $mclr );
+			$self->{graph}->line($l, $yp, $r, $yp, $mclr);
+			$self->{graph}->line($xp, $t, $xp, $b, $mclr);
 			last MARKER;
 		};
 		($mtype == 4) && do 
 		{ # Cross, diagonal
-			$self->{graph}->line( $l, $b, $r, $t, $mclr );
-			$self->{graph}->line( $l, $t, $r, $b, $mclr );
+			$self->{graph}->line($l, $b, $r, $t, $mclr);
+			$self->{graph}->line($l, $t, $r, $b, $mclr);
 			last MARKER;
 		};
 		($mtype == 5) && do 
 		{ # Diamond, filled
-			$self->{graph}->line( $l, $yp, $xp, $t, $mclr );
-			$self->{graph}->line( $xp, $t, $r, $yp, $mclr );
-			$self->{graph}->line( $r, $yp, $xp, $b, $mclr );
-			$self->{graph}->line( $xp, $b, $l, $yp, $mclr );
-			$self->{graph}->fillToBorder( $xp, $yp, $mclr, $mclr );
+			$self->{graph}->line($l, $yp, $xp, $t, $mclr);
+			$self->{graph}->line($xp, $t, $r, $yp, $mclr);
+			$self->{graph}->line($r, $yp, $xp, $b, $mclr);
+			$self->{graph}->line($xp, $b, $l, $yp, $mclr);
+			$self->{graph}->fillToBorder($xp, $yp, $mclr, $mclr);
 			last MARKER;
 		};
 		($mtype == 6) && do 
 		{ # Diamond, open
-			$self->{graph}->line( $l, $yp, $xp, $t, $mclr );
-			$self->{graph}->line( $xp, $t, $r, $yp, $mclr );
-			$self->{graph}->line( $r, $yp, $xp, $b, $mclr );
-			$self->{graph}->line( $xp, $b, $l, $yp, $mclr );
+			$self->{graph}->line($l, $yp, $xp, $t, $mclr);
+			$self->{graph}->line($xp, $t, $r, $yp, $mclr);
+			$self->{graph}->line($r, $yp, $xp, $b, $mclr);
+			$self->{graph}->line($xp, $b, $l, $yp, $mclr);
 			last MARKER;
 		};
 		($mtype == 7) && do 
 		{ # Circle, filled
-			$self->{graph}->arc( $xp, $yp, 2 * $self->{marker_size},
-						 2 * $self->{marker_size}, 0, 360, $mclr );
-			$self->{graph}->fillToBorder( $xp, $yp, $mclr, $mclr );
+			$self->{graph}->arc($xp, $yp, 2 * $self->{marker_size},
+						 2 * $self->{marker_size}, 0, 360, $mclr);
+			$self->{graph}->fillToBorder($xp, $yp, $mclr, $mclr);
 			last MARKER;
 		};
 		($mtype == 8) && do 
 		{ # Circle, open
-			$self->{graph}->arc( $xp, $yp, 2 * $self->{marker_size},
-						 2 * $self->{marker_size}, 0, 360, $mclr );
+			$self->{graph}->arc($xp, $yp, 2 * $self->{marker_size},
+						 2 * $self->{marker_size}, 0, 360, $mclr);
+			last MARKER;
+		};
+		($mtype == 9) && do
+		{ # Horizontal line
+			$self->{graph}->line($l, $yp, $r, $yp, $mclr);
+			last MARKER;
+		};
+		($mtype == 10) && do
+		{ # vertical line
+			$self->{graph}->line($xp, $t, $xp, $b, $mclr);
 			last MARKER;
 		};
 	}
 }
-
 
 sub draw_legend_marker
 {

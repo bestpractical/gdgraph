@@ -5,13 +5,13 @@
 #   Name:
 #       GD::Graph::axestype.pm
 #
-# $Id: axestype.pm,v 1.40 2003/06/16 02:04:12 mgjv Exp $
+# $Id: axestype.pm,v 1.41 2003/06/19 06:28:47 mgjv Exp $
 #
 #==========================================================================
 
 package GD::Graph::axestype;
 
-($GD::Graph::axestype::VERSION) = '$Revision: 1.40 $' =~ /\s([\d.]+)/;
+($GD::Graph::axestype::VERSION) = '$Revision: 1.41 $' =~ /\s([\d.]+)/;
 
 use strict;
  
@@ -1449,7 +1449,7 @@ sub _correct_y_min_max
 	unless $self->isa("GD::Graph::bars") or $self->isa("GD::Graph::area");
 
     # If $min and $max on opposite end of zero axis, no work needed
-    return ($min, $max) unless ($min/$max > 0);
+    return ($min, $max) if $max == 0 or $min/$max < 0;
 
     if ($min > 0)
     {

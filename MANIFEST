@@ -17,6 +17,7 @@ Graph/utils.pm
 Graph/Data.pm
 Graph/Error.pm
 Graph/FAQ.pod
+t/axestype.t
 t/colour.t
 t/data.t
 t/data.csv

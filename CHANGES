@@ -1,3 +1,9 @@
+19 June 2003
+
+- Fixed another division by 0 problem, introduced in 1.41
+- Added test t/axestype.pm, which now tests for division by 0 error.
+- Released 1.42
+
 17 June 2003
 
 - Removed file BUGS from distribution. Too much work to keep up to
@@ -6,6 +12,7 @@
   Test.pm.
 - Made GD::Graph::Data::read() work with file handles under Perl
   5.005.
+- Released 1.41
 
 16 June 2003
 

@@ -1,5 +1,7 @@
 17 June 2003
 
+- Removed file BUGS from distribution. Too much work to keep up to
+  date. Use rt.cpan.org, or email.
 - Fixed skip() calls in tests to work with ancient versions of
   Test.pm.
 - Made GD::Graph::Data::read() work with file handles under Perl

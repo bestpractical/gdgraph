@@ -7,16 +7,14 @@ INSTALLATION
 
 Requirements:
 
-	perl 5.005
+	perl 5.6.0
 	GD >= 1.19 (recommended >= 1.23)
 	GD::Text::Align (part of the GDTextUtils package)
 
-It is very likely that it runs on 5.004, but I haven't tested it, and I
-won't support it, simply because I don't have the platforms to test it
-on. 5.005 has been available since July 1998, and there is not really
-any excuse anymore to run anything older (5.6.0 is out! Get it!).  It is
-also possible that it works with older versions of GD.  Again, I have
-not tested it.
+GD::Graph will not work with Perl 5.004. It most likely works with
+5.005 (except for some odd problems with GD::Graph::Data::read(),
+which seem to be related to some obscure 5.005_03 bug, which I have
+not been able to track down), but I will no longer actively support it.
 
 to install:
 
@@ -24,8 +22,8 @@ to install:
 	make
 	make install
 
-There are no tests. The samples directory contains examples which also
-function as a test suite. To see the samples:
+The tests are of limited value. The samples directory contains
+examples which also function as a test suite. To see the samples:
 
 	make samples
 	(use viewer to see samples/sample*.png or .gif)
@@ -49,13 +47,14 @@ before installation.
 
 TESTED PLATFORMS
 
-I have discontinued this list, because it is too hard to maintain. There
-is hardly any code in the module that could provide problems with
-inter-platform portability, but you never know. I will always test the
-modules against the latest stable perl (5.6.0 right now) and one older
-version (5.005_03). I will not explicitly test against older versions of
-Perl. I normally test against the newest version of GD, and one version
-of the pre-PNG days (1.19). All of this happens on Linux.
+I have discontinued this list, because it is too hard to maintain.
+There is hardly any code in the module that could provide problems
+with inter-platform portability, but you never know. I will always
+test the modules against the latest stable perl (5.8.0 right now) and
+at least one older version (5.6.1). I will not explicitly test against
+older versions of Perl. I normally test against the newest version of
+GD, the last pre-2.0 version (1.41), and one version of the pre-PNG
+days (1.19). All of this happens on Linux.
 
 AUTHOR
 
@@ -66,6 +65,10 @@ FIRST PNG PORT as Chart::PNGgraph
 
 Steve Bonds
 sbonds@agora.rdrop.com
+
+MOST IMPORTANT CHANGES SINCE VERSION 1.34
+
+See file CHANGES
 
 MOST IMPORTANT CHANGES FOR VERSION 1.34
 
@@ -136,17 +139,19 @@ MOST IMPORTANT CHANGES SINCE VERSION 0.91
   for details
 - See file CHANGES for more
 
-TODO
-
-- 3d look for graphs
-- logarithmic scaling
-- numerical X axes (halfway there)
-
 BUG FIXES IN THIS VERSION
 
-See file BUGS
+See file CHANGES
 
-NOTES FOR WIN32 and Mac
+REPORTING BUGS
+
+Please use rt.cpan.org to report any bugs with GD::Graph or GD::Text.
+Alternatively, you can email me, but I prefer it if you use the RT
+interface. When reporting a bug, please include the version of the
+module distribution you use, as well as your Perl version and platform
+(perl -V output will do).
+
+NOTES FOR WIN32 and Mac (pre OSX)
 
 These modules _should_ work on all platforms.
 

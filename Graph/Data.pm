@@ -5,7 +5,7 @@
 #	Name:
 #		GD::Graph::Data.pm
 #
-# $Id: Data.pm,v 1.1 2000/02/07 13:41:55 mgjv Exp $
+# $Id: Data.pm,v 1.2 2000/02/08 12:36:05 mgjv Exp $
 #
 #==========================================================================
 
@@ -25,7 +25,14 @@ use GD::Graph::Data;
 
 This module encapsulates the data structure that is needed for GD::Graph
 and friends. An object of this class contains a list of X values, and a
-number of lists of corresponding Y values.
+number of lists of corresponding Y values. This only really makes sense
+if the Y values are numerical, but you can basically store anything.
+Undefined values have a special meaning to GD::Graph, so they are
+treated with care when stored.
+
+Many of the methods of this module are intended for internal use by
+GD::Graph and the module itself, and will most likely not be useful to
+you. Many won't even I<seem> useful to you...
 
 =head1 EXAMPLES
 
@@ -34,10 +41,32 @@ number of lists of corresponding Y values.
 
   my $data = GD::Graph::Data->new();
 
-  XXX MORE
+  $data->read(file => '/data/sales.dat', delimiter => ',');
+  $data = $data->copy(wanted => [2, 4, 5]);
+
+  # Add the newer figures from the database
+  use DBI;
+  # do DBI things, like connecting to the database, statement
+  # preparation and execution
+
+  while (@row = $sth->fetchrow_array)
+  {
+	  $data->add_point(@row);
+  }
 
   my $chart = GD::Graph::bars->new();
   my $gd = $chart->plot($data);
+
+or for quick changes to legacy code
+
+  # Legacy code builds array like this
+  @data = ( [qw(Jan Feb Mar)], [1, 2, 3], [5, 4, 3], [6, 3, 7] );
+
+  # And we quickly need to do some manipulations on that
+  my $data = GD::Graph::Data->new();
+  $data->copy_from(\@data);
+
+  # And now do all the new stuff that's wanted.
 
 =head1 METHODS
 
@@ -55,21 +84,6 @@ sub new
 	bless $self => $class;
 }
 
-=head1 $data->reset
-
-Reset the data container. Get rid of all data.
-
-=cut
-
-sub reset
-{
-	my $self = shift;
-	my $class = ref($self);
-	$self = [];
-	bless $self => $class;
-}
-
-# $data->set_value(nd, np, nvalue)
 sub _set_value
 {
 	my $self = shift;
@@ -79,21 +93,22 @@ sub _set_value
 	# Make sure we have empty arrays in between
 	if ($nd > $self->num_sets)
 	{
-		# XXX do this with splice
+		# XXX maybe do this with splice
 		for ($self->num_sets .. $nd - 1)
 		{
 			push @{$self}, [];
 		}
 	}
 	$self->[$nd][$np] = $val;
+
+	return 1;
 }
 
 =head2 $data->set_x($np, $value);
 
 Set the X value of point I<$np> to I<$value>. Points are numbered
-starting with 0. You probably will never need this.
-
-Returns I<$np> on success, undef on failure.
+starting with 0. You probably will never need this. Returns undef on
+failure.
 
 =cut
 
@@ -103,13 +118,27 @@ sub set_x
 	$self->_set_value(0, @_);
 }
 
+=head2 $data->get_x($np)
+
+Get the X value of point I<$np>. See L<"set_x">.
+
+=cut
+
+sub get_x
+{
+	my $self = shift;
+	my $np   = shift;
+
+	return unless defined $np;
+
+	$self->[0][$np];
+}
+
 =head2 $data->set_y($nd, $np, $value);
 
-Set the Y value of point I<$np> of data set I<$nd> to I<$value>. Points
+Set the Y value of point I<$np> in data set I<$nd> to I<$value>. Points
 are numbered starting with 0, data sets are numbered starting with 1.
-You probably will never need this.
-
-Returns I<np> on success, undef on failure.
+You probably will never need this. Returns undef on failure.
 
 =cut
 
@@ -120,31 +149,62 @@ sub set_y
 	$self->_set_value(@_);
 }
 
-=head1 $data->add_point($X, $Y1, $Y2 ...)
+=head2 $data->get_y($nd, $np)
 
-Adds a point to the data set. The number of arguments to this call
-should be the same on each call. It is only valid to call this method if
-each Y value list has exactly the same length as the X value list at all
-times, otherwise results can be quite unpredictable.
+Get the Y value of point I<$np> in data set I<$nd>. See L<"set_y">.
 
-Returns undef on failure. 
+=cut
+
+sub get_y
+{
+	my $self = shift;
+	my $nd   = shift;
+	my $np   = shift;
+
+	return if $nd < 1 || $nd > $self->num_sets;
+	return unless defined $np;
+
+	$self->[$nd][$np];
+}
+
+=head2 $data->add_point($X, $Y1, $Y2 ...)
+
+Adds a point to the data set. The base for the addition is the current
+number of X values. This means that if you have a data set with the
+following contents:
+
+  (X1,  X2)
+  (Y11, Y12)
+  (Y21)
+  (Y31, Y32, Y33, Y34)
+
+that a C<$data->add_point(Xx, Y1x, Y2x, Y3x, Y4x)> will result in
+
+  (X1,    X2,    Xx )
+  (Y11,   Y12,   Y1x)
+  (Y21,   undef, Y2x)
+  (Y31,   Y32,   Y3x,  Y34)
+  (undef, undef, Y4x)
+
+In other words: beware how you use this. As long as you make sure that
+all data sets are of equal length, this method is safe to use.
 
 =cut
 
 sub add_point
 {
 	my $self = shift;
-	return if (@_ != $self->num_sets + 1);
+	#return if (@_ != $self->num_sets + 1);
 	my $point = $self->num_points;
 
 	for (my $ds = 0; $ds < @_; $ds++)
 	{
 		$self->_set_value($ds, $point, $_[$ds]);
 	}
-	return $self->num_points;
+	return 1;
 }
 
-=head1 $data->num_sets
+=head2 $data->num_sets
 
 Returns the number of data sets.
 
@@ -153,27 +213,29 @@ Returns the number of data sets.
 sub num_sets
 {
 	my $self = shift;
-	return @{$self} - 1;
+	@{$self} - 1;
 }
 
-=head1 $data->num_points
+=head2 $data->num_points
 
-Returns a list with its first element the number of X values, and the
-subsequent elements the number of respective Y values for each data set.
-In scalar context returns the number of X points that have an X value
-set.
+In list context, returns a list with its first element the number of X
+values, and the subsequent elements the number of respective Y values
+for each data set. In scalar context returns the number of points
+that have an X value set, i.e. the number of data sets that would result
+from a call to C<make_strict>.
 
 =cut
 
 sub num_points
 {
 	my $self = shift;
+	return unless @{$self};
 	wantarray ?
 		map { scalar @{$_} } @{$self} :
 		scalar @{$self->[0]}
 }
 
-=head1 $data->x_values
+=head2 $data->x_values
 
 Return a list of all the X values.
 
@@ -182,12 +244,12 @@ Return a list of all the X values.
 sub x_values
 {
 	my $self = shift;
-	return @{$self->[0]};
+	@{$self->[0]};
 }
 
-=head1 $data->y_values($ds)
+=head2 $data->y_values($nd)
 
-Return a list of the Y values for data set I<$ds>. Data sets are
+Return a list of the Y values for data set I<$nd>. Data sets are
 numbered from 1.
 
 =cut
@@ -195,12 +257,27 @@ numbered from 1.
 sub y_values
 {
 	my $self = shift;
-	my $ds   = shift;
-	return if $ds < 1 || $ds > $self->num_sets;
-	return @{$self->[$ds]};
+	my $nd   = shift;
+
+	return if $nd < 1 || $nd > $self->num_sets;
+
+	@{$self->[$nd]};
 }
 
-=head1 $data->make_strict
+=head2 $data->reset
+
+Reset the data container. Get rid of all data.
+
+=cut
+
+sub reset
+{
+	my $self = shift;
+	@{$self} = ();
+	return 1;
+}
+
+=head2 $data->make_strict
 
 Make all data set lists the same length as the X list by truncating data
 sets that are too long, and filling data sets that are too short with
@@ -229,14 +306,56 @@ sub make_strict
 			splice @{$data_set}, $short;
 		}
 	}
+	return 1;
 }
 
-=head1 $data->copy_from(\@data)
+=head2 $data->cumulate
+
+The B<cumulate> parameter will summarise the Y value sets as follows:
+that the first Y value list will be unchanged, the second will contain a
+sum of the first and second, the third will contain the sum of first,
+second and third, and so on.  Returns undef on failure.
+
+Note: Any non-numerical Y values will be treated as 0. But you really
+shouldn't be using this to store that sort of Y data. This is mainly for
+internal use by GD::Graph, but if you can find a use for it, you're
+welcome.
+
+=cut
+
+sub cumulate
+{
+	my $self = shift;
+
+	# For all the sets, starting at the last one, ending just 
+	# before the first
+	for (my $ds = $self->num_sets; $ds > 1; $ds--)
+	{
+		# For each point in the set
+		for my $point (0 .. $#{$self->[$ds]})
+		{
+			# Add the value for each point in lower sets to this one
+			for my $i (1 .. $ds - 1)
+			{
+				# If neither are defined, we want to preserve the
+				# undefinedness of this point. If we don't do this, then
+				# the mathematical operation will force undef to be a 0.
+				next if 
+					! defined $self->[$ds][$point] &&
+					! defined $self->[$i][$point];
+
+				$self->[$ds][$point] += $self->[$i][$point];
+			}
+		}
+	}
+	return 1;
+}
+
+=head2 $data->copy_from(\@data)
 
 Copy an 'old' style GD::Graph data structure or another GD::Graph::Data
-object into this object.
-
-Returns undef on failure.
+object into this object. This will remove the current data. Returns undef
+on failure.
 
 =cut
 
@@ -255,31 +374,29 @@ sub copy_from
 		push @{$self}, [@{$data_set}];
 	}
 
-	return $self->num_points;
+	return 1;
 }
 
-=head1 $data->copy(wanted = $array_ref, strict => boolean)
+=head2 $data->copy(I<arguments>)
 
-Returns a copy of the object, or undef on failure.
+Returns a copy of the object, or undef on failure. Possible arguments
+are:
 
-If B<wanted> is present and a reference to an array, then the elements of
-that array will be taken to be the numbers of the data sets you want to
-copy. For example, if you want data sets 1, 3 and 6, you'd do
+B<wanted>. If this is present and a reference to an array, then the
+elements of that array will be taken to be the numbers of the data sets
+you want to copy. For example, if you want data sets 1, 3 and 6, you'd
+do
 
   $new_data = $data->copy(wanted => [1, 3, 6]);
 
-If the B<strict> parameter is present and set to a true value, returns a
-copy of the object, but with all the data sets 'levelled' to the
-contents of the X values list. This means that it will discard any Y
-values that do not have a corresponding X value (see
-L<"make_strict">). 
+B<strict>. if this parameter is present and set to a true value, returns
+a copy of the object, but with all the data sets 'levelled' to the
+contents of the X values list (see L<"make_strict">). 
 
   $new_data = $data->copy(strict => 1);
 
-The B<cumulate> parameter will return a copy with the Y values
-summarised. This means that the first Y value list will be unchanged,
-but the second will contain a sum of the first and second, the third
-will contain the sum of first, second and third, and so on.
+B<cumulate>. This parameter will return a copy with the Y values
+summarised (see L<"cumulate">).
 
   $new_data = $data->copy(cumulate => 1);
 
@@ -288,28 +405,97 @@ will contain the sum of first, second and third, and so on.
 sub copy
 {
 	my $self = shift;
-	my $origin = $self;
 
 	return if (@_ && @_ % 2);
 	my %args = @_;
+
+	my $origin = $self;
 
 	if ($args{wanted} && ref($args{wanted}) eq 'ARRAY')
 	{
 		$origin = [];
 		push @{$origin}, [$self->x_values];
-		my $i = 1;
 		for my $w (@{$args{wanted}})
 		{
-			# XXX Fix this when cop_from is fixed
 			push @{$origin}, [$self->y_values($w)];
-			#$origin->[$i++] = [$self->y_values($w)];
 		}
 	}
 
 	my $new = $self->new();
 	$new->copy_from($origin);
 	$new->make_strict if $args{strict};
+	$new->cumulate if $args{cumulate};
 	return $new;
+}
+
+=head2 $data->read(I<arguments>)
+
+Read a data set from a file. This will remove the current data. returns
+undef on failure. This method uses the standard module 
+Text::ParseWords to parse lines. If you don't have this for some odd
+reason, don't use this method, or your program will die.
+
+B<Data file format>: The default data file format is tab separated data
+(which can be changed with the delimiter argument). Comment lines are
+any lines that start with a #. In the following example I have replaced
+literal tabs with <tab> for clarity
+
+  # This is a comment, and will be ignored
+  Jan<tab>12<tab>24
+  Feb<tab>13<tab>37
+  # March is missing
+  Mar<tab><tab>
+  Apr<tab>9<tab>18
+
+Valid arguments are:
+
+I<file>, mandatory. The file name of the file to read from.
+
+  $data->read(file => '/data/foo.dat');
+
+I<no_comment>. Give this a true value if you don't want lines with an
+initial # to be skipped.
+
+  $data->read(file => '/data/foo.dat', no_comment => 1);
+
+I<delimiter>. A regular expression that will become the delimiter
+instead of a single tab.
+
+  $data->read(file => '/data/foo.dat', delimiter => '\s+');
+  $data->read(file => '/data/foo.dat', delimiter => qr/\s+/);
+
+=cut
+
+sub read
+{
+	my $self = shift;
+	local(*DAT);
+
+	return if (@_ && @_ % 2);
+	my %args = @_;
+
+	return unless $args{file};
+
+	my $delim = $args{delimiter} || qr/\t/;
+
+	# The following will die if these modules are not present, as
+	# documented.
+	require Text::ParseWords;
+	import  Text::ParseWords;
+
+	$self->reset;
+
+	open(DAT, $args{file}) or return;
+	while(<DAT>)
+	{
+		chomp;
+		next if /^#/ && !$args{no_comment};
+		my @fields = parse_line($delim, 1, $_);
+		next unless @fields;
+		print join(':', @fields), "\n";
+		$self->add_point(@fields);
+	}
+	return 1;
 }
 
 =head1 NOTES

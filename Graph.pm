@@ -18,7 +18,7 @@
 #		GD::Graph::pie
 #		GD::Graph::mixed
 #
-# $Id: Graph.pm,v 1.7 2000/01/03 05:32:08 mgjv Exp $
+# $Id: Graph.pm,v 1.8 2000/01/05 12:51:58 mgjv Exp $
 #
 #==========================================================================
 
@@ -36,7 +36,7 @@ use GD;
 use GD::Text::Align;
 use Carp;
 
-$GD::Graph::prog_rcs_rev = q{$Revision: 1.7 $};
+$GD::Graph::prog_rcs_rev = q{$Revision: 1.8 $};
 $GD::Graph::prog_version = 
 	($GD::Graph::prog_rcs_rev =~ /\s+(\d*\.\d*)/) ? $1 : "0.0";
 
@@ -1238,6 +1238,10 @@ it and/or modify it under the same terms as Perl itself.
 
 =head2 Acknowledgements
 
+Thanks to Steve Bonds for releasing Chart::PNGgraph, and keeping the
+code alive when GD reached version 1.20, and I didn't have time to do
+something about it.
+
 Thanks to the following people for contributing code, or sending me
 fixes:
 Dave Belcher,
@@ -1248,7 +1252,8 @@ brian d foy,
 Ari Jolma,
 Honza Pazdziora,
 Scott Prahl,
-Vegard Vesterheim.
+Vegard Vesterheim,
+Jeremy Wadsack.
 
 And some people whose real name I don't know, and whose email address
 I'd rather not publicise without their consent.

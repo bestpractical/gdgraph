@@ -30,11 +30,14 @@ SAMPLES :=  \
 		sample51 sample52 sample53 sample54 sample55 \
 		sample61 sample62 \
 		sample71 \
-		sample91 sample92 sample93
+		sample91 sample92 sample93 sample94
 
 IMAGES := $(SAMPLES:%=%.$(EXT))
 
 all: $(IMAGES)
+	echo ""
+	echo These samples are both examples and test cases. Therefore
+	echo some of them might look slightly unrealistic.
 
 %.$(EXT): %.pl
 	$(PERL) $(OPTIONS) $<

@@ -1,9 +1,7 @@
 # This -*- perl -*- script makes the Makefile
-# $Id: Makefile.PL,v 1.4 2000/01/02 23:00:53 mgjv Exp $
+# $Id: Makefile.PL,v 1.5 2000/01/05 12:51:58 mgjv Exp $
  
 #--- Distribution section ---
- 
-BEGIN { require 5.005 }
  
 use ExtUtils::MakeMaker;
 use Config;

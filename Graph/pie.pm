@@ -5,13 +5,15 @@
 #	Name:
 #		GD::Graph::pie.pm
 #
-# $Id: pie.pm,v 1.4 1999/12/29 12:14:40 mgjv Exp $
+# $Id: pie.pm,v 1.5 2000/01/05 12:51:58 mgjv Exp $
 #
 #==========================================================================
 
 package GD::Graph::pie;
 
 use strict;
+
+use constant PI => 4 * atan2(1,1);
 
 use GD;
 use GD::Graph;
@@ -272,41 +274,58 @@ sub draw_data # (\@data, GD::Image)
 
 		$s->{graph}->fillToBorder($xe, $ye, $ac, $dc);
 
-		$s->put_slice_label($xe, $ye, $data->[0][$i])
-			if ($slice_angle > $s->{suppress_angle});
-
 		# If it's 3d, colour the front ones as well
-		# if one slice is very large (>180 deg) then
-		# we will need to fill it twice.  sbonds.
+		#
+		# if one slice is very large (>180 deg) then we will need to
+		# fill it twice.  sbonds.
+		#
+		# Independently noted and fixed by Jeremy Wadsack, in a slightly
+		# different way.
 		if ( $s->{'3d'} ) 
 		{
-			my $fills = $s->_get_pie_front_coords($pa, $pb);
-			my ($xe, $ye);
-
-			if (defined($fills->[0])) 
+			foreach my $fill ($s->_get_pie_front_coords($pa, $pb)) 
 			{
-				my $fill_num;
-				foreach  $fill_num (0..$#{ $fills }) 
-				{
-					($xe, $ye) = @{ $fills->[$fill_num] };
-					$s->{graph}->fillToBorder($xe, 
-						$ye + $s->{pie_height}/2, 
-					$ac, $dc);
-				}
+				$s->{graph}->fillToBorder(
+					$fill->[0], $fill->[1] + $s->{pie_height}/2, $ac, $dc);
 			}
 		}
 	}
+
+	# CONTRIB Jeremy Wadsack
+	#
+	# Large text, sticking out over the pie edge, could cause 3D pies to
+	# fill improperly: Drawing the text for a given slice before the
+	# next slice was drawn and filled could make the slice boundary
+	# disappear, causing the fill colour to flow out.  With this
+	# implementation, all the text is on top of the pie.
+
+	$pb = $s->{start_angle};
+	for $i (0 .. $s->{numpoints} ) 
+	{
+		next unless $data->[0][$i];
+
+		my $pa = $pb;
+		$pb += my $slice_angle = 360 * $data->[1][$i]/$total;
+
+		next if ($slice_angle <= $s->{suppress_angle});
+
+		my ($xe, $ye) = 
+			cartesian(
+				3 * $s->{w}/8, ($pa+$pb)/2,
+				$s->{xc}, $s->{yc}, $s->{h}/$s->{w}
+			);
+
+		$s->put_slice_label($xe, $ye, $data->[0][$i]);
+	}
+
 } #GD::Graph::pie::draw_data
 
 sub _get_pie_front_coords # (angle 1, angle 2)
 {
 	my $s = shift;
-	my $unlevelled_pa = shift;
-	my $unlevelled_pb = shift;
-	my $pa = level_angle($unlevelled_pa);
-	my $pb = level_angle($unlevelled_pb);
+	my $pa = level_angle(shift);
+	my $pb = level_angle(shift);
 	my @fills = ();
-	my ($x, $y);
 
 	if (in_front($pa))
 	{
@@ -319,14 +338,23 @@ sub _get_pie_front_coords # (angle 1, angle 2)
 			# sbonds.
 			if ($pa > $pb ) 
 			{
-				($x, $y) = cartesian(
-					$s->{w}/2, ($pa+$ANGLE_OFFSET)/2,
+				# This takes care of the left bit on the front
+				# Since we know exactly where we are, and in which
+				# direction this works, we can just get the coordinates
+				# for $pa.
+				my ($x, $y) = cartesian(
+					$s->{w}/2, $pa,
 					$s->{xc}, $s->{yc}, $s->{h}/$s->{w}
 				);
 
-				push @fills, [ $x, $y ];
-				# Reset $pa to the right edge of the front arc.
-				$pa = level_angle(0-$ANGLE_OFFSET);
+				# and move one pixel to the left, but only if we don't
+				# fall out of the pie!.
+				push @fills, [$x - 1, $y]
+					if $x - 1 > $s->{xc} - $s->{w}/2;
+
+				# Reset $pa to the right edge of the front arc, to do
+				# the right bit on the front.
+				$pa = level_angle(-$ANGLE_OFFSET);
 			}
 		}
 		else
@@ -349,26 +377,26 @@ sub _get_pie_front_coords # (angle 1, angle 2)
 		}
 	}
 
-	($x, $y) = cartesian(
-		$s->{w}/2, ($pa+$pb)/2,
+	my ($x, $y) = cartesian(
+		$s->{w}/2, ($pa + $pb)/2,
 		$s->{xc}, $s->{yc}, $s->{h}/$s->{w}
 	);
 
-	push @fills, [ $x, $y ];
+	push @fills, [$x, $y];
 
-	return \@fills;
+	return @fills;
 }
 
 # return true if this angle is on the front of the pie
-
 sub in_front # (angle)
 {
 	my $a = level_angle( shift );
 	( $a > ($ANGLE_OFFSET - 180) && $a < $ANGLE_OFFSET ) ? 1 : 0;
 }
 
+# XXX Ugh! I need to fix this. See the GD::Text module for better ways
+# of doing this.
 # return a value for angle between -180 and 180
-
 sub level_angle # (angle)
 {
 	my $a = shift;
@@ -383,6 +411,8 @@ sub put_slice_label # (GD:Image)
 	my $self = shift;
 	my ($x, $y, $label) = @_;
 
+	return unless defined $label;
+
 	$self->{gdta_value}->set_text($label);
 	$self->{gdta_value}->draw($x, $y);
 }
@@ -394,11 +424,10 @@ sub put_slice_label # (GD:Image)
 sub cartesian
 {
 	my ($r, $phi, $xi, $yi, $cr) = @_; 
-	my $PI=4*atan2(1, 1);
 
 	return (
-		$xi + $r * cos($PI * ($phi + $ANGLE_OFFSET)/180), 
-		$yi + $cr * $r * sin($PI * ($phi + $ANGLE_OFFSET)/180)
+		$xi + $r * cos(PI * ($phi + $ANGLE_OFFSET)/180), 
+		$yi + $cr * $r * sin(PI * ($phi + $ANGLE_OFFSET)/180)
 	);
 }
 

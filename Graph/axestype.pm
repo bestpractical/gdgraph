@@ -5,13 +5,13 @@
 #   Name:
 #       GD::Graph::axestype.pm
 #
-# $Id: axestype.pm,v 1.44 2003/07/01 05:04:10 mgjv Exp $
+# $Id: axestype.pm,v 1.45 2004/01/14 23:09:06 mgjv Exp $
 #
 #==========================================================================
 
 package GD::Graph::axestype;
 
-($GD::Graph::axestype::VERSION) = '$Revision: 1.44 $' =~ /\s([\d.]+)/;
+($GD::Graph::axestype::VERSION) = '$Revision: 1.45 $' =~ /\s([\d.]+)/;
 
 use strict;
  
@@ -1622,15 +1622,18 @@ sub _best_ends
 
     my ($best_min, $best_max, $best_num) = ($min, $max, 1);
 
-    # mgjv - Sometimes, for odd values, and only one data set, this will be
-    # necessary _after_ the previous step, not before. Data sets of one
-    # long with negative values were causing infinite loops later on.
+    # Check that min and max are not the same, and not 0
+    if ($max == $min) 
+    { 
+	($min, $max) = ($min) ? ($min * 0.5, $min * 1.5) : (-1,1) 
+    }
+    
+    # mgjv - Sometimes, for odd values, and only one data set, this
+    # will be necessary _after_ the previous two steps, not before.
+    # Data sets of one long with negative values were causing infinite
+    # loops later on.
     ($min, $max) = ($max, $min) if ($min > $max);
 
-    # Check that min and max are not the same, and not 0
-    ($min, $max) = ($min) ? ($min * 0.5, $min * 1.5) : (-1,1)
-        if ($max == $min);
-    
     my @n = ref($n_ref) ? @$n_ref : $n_ref;
 
     if (@n <= 0)
@@ -1643,7 +1646,7 @@ sub _best_ends
     }
 
     my $best_fit = 1e30;
-    my $range = $max - $min;
+    my $range = abs($max - $min);
 
     # create array of interval sizes
     my $s = 1;

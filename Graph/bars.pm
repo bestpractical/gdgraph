@@ -5,7 +5,7 @@
 #	Name:
 #		GD::Graph::bars.pm
 #
-# $Id: bars.pm,v 1.7 2000/01/27 11:12:11 mgjv Exp $
+# $Id: bars.pm,v 1.8 2000/02/07 13:41:55 mgjv Exp $
 #
 #==========================================================================
  
@@ -23,7 +23,6 @@ sub draw_data
 {
 	my $s = shift;
 	my $d = shift;
-	my $g = $s->{graph};
 
 	if ( $s->{overwrite} ) 
 	{
@@ -35,7 +34,7 @@ sub draw_data
 	}
 
 	# redraw the 'zero' axis
-	$g->line( 
+	$s->{graph}->line( 
 		$s->{left}, $s->{zeropoint}, 
 		$s->{right}, $s->{zeropoint}, 
 		$s->{fgci} );
@@ -116,7 +115,7 @@ sub draw_data_overwrite
 			}
 		}
 	}
- }
+}
 
 sub draw_data_set
 {

@@ -1,11 +1,11 @@
 #==========================================================================
-#			   Copyright (c) 1995-1998 Martien Verbruggen
+#			   Copyright (c) 1995-2000 Martien Verbruggen
 #--------------------------------------------------------------------------
 #
 #	Name:
 #		GD::Graph::area.pm
 #
-# $Id: area.pm,v 1.5 2000/01/27 11:13:32 mgjv Exp $
+# $Id: area.pm,v 1.6 2000/02/07 13:41:55 mgjv Exp $
 #
 #==========================================================================
 
@@ -59,7 +59,7 @@ sub draw_data_set  # GD::Image, \@data, $ds
 	$g->polygon($poly, $brci);
 
 	# Draw the accent lines
-	if (($s->{right} - $s->{left})/($s->{numpoints} + 1)>
+	if (($s->{right} - $s->{left})/($s->{numpoints} + 1) > 
 			$s->{accent_treshold})
 	{
 		for $i (1 .. ($s->{numpoints} - 1)) 

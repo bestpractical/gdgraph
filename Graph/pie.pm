@@ -5,7 +5,7 @@
 #	Name:
 #		GD::Graph::pie.pm
 #
-# $Id: pie.pm,v 1.9 2000/02/13 03:55:43 mgjv Exp $
+# $Id: pie.pm,v 1.10 2000/02/13 04:26:15 mgjv Exp $
 #
 #==========================================================================
 
@@ -68,18 +68,18 @@ sub initialise
 }
 
 # PUBLIC methods, documented in pod
-sub plot # (\@data)
+sub plot
 {
 	my $self = shift;
 	my $data = shift;
 
-	$self->init_graph($self->{graph});
-	$self->check_data($data);
-	$self->setup_text();
-	$self->setup_coords();
-	$self->draw_text();
-	$self->draw_pie($self->{graph});
-	$self->draw_data($data, $self->{graph});
+	$self->check_data($data) 		or return;
+	$self->init_graph() 			or return;
+	$self->setup_text()				or return;
+	$self->setup_coords() 			or return;
+	$self->draw_text()				or return;
+	$self->draw_pie()				or return;
+	$self->draw_data()				or return;
 
 	return $self->{graph};
 }
@@ -107,38 +107,39 @@ sub set_value_font # (fontname)
 
 sub setup_coords()
 {
-	my $s = shift;
+	my $self = shift;
 
 	# Make sure we're not reserving space we don't need.
-	$s->{'3d'} = 0 				if     $s->{pie_height} <= 0;
-	$s->set(pie_height => 0)	unless $s->{'3d'};
+	$self->{'3d'} = 0 			if     $self->{pie_height} <= 0;
+	$self->set(pie_height => 0)	unless $self->{'3d'};
 
-	my $tfh = $s->{title} ? $s->{gdta_title}->get('height') : 0;
-	my $lfh = $s->{label} ? $s->{gdta_label}->get('height') : 0;
+	my $tfh = $self->{title} ? $self->{gdta_title}->get('height') : 0;
+	my $lfh = $self->{label} ? $self->{gdta_label}->get('height') : 0;
 
 	# Calculate the bounding box for the pie, and
 	# some width, height, and centre parameters
-	$s->{bottom} = 
-		$s->{height} - $s->{pie_height} - $s->{b_margin} -
-		( $lfh ? $lfh + $s->{text_space} : 0 );
+	$self->{bottom} = 
+		$self->{height} - $self->{pie_height} - $self->{b_margin} -
+		( $lfh ? $lfh + $self->{text_space} : 0 );
+	$self->{top} = 
+		$self->{t_margin} + ( $tfh ? $tfh + $self->{text_space} : 0 );
 
-	$s->{top} = 
-		$s->{t_margin} + ( $tfh ? $tfh + $s->{text_space} : 0 );
+	return $self->_set_error('Vertical size too small') 
+		if $self->{bottom} - $self->{top} <= 0;
 
-	$s->{left} = $s->{l_margin};
+	$self->{left} = $self->{l_margin};
+	$self->{right} = $self->{width} - $self->{r_margin};
 
-	$s->{right} = $s->{width} - $s->{r_margin};
+	return $self->_set_error('Horizontal size too small')
+		if $self->{right} - $self->{left} <= 0;
 
-	( $s->{w}, $s->{h} ) = 
-		( $s->{right}-$s->{left}, $s->{bottom}-$s->{top} );
+	$self->{w} = $self->{right}  - $self->{left};
+	$self->{h} = $self->{bottom} - $self->{top};
 
-	( $s->{xc}, $s->{yc} ) = 
-		( ($s->{right}+$s->{left})/2, ($s->{bottom}+$s->{top})/2 );
+	$self->{xc} = ($self->{right}  + $self->{left})/2; 
+	$self->{yc} = ($self->{bottom} + $self->{top})/2;
 
-	croak "Vertical size too small" 
-		if ( ($s->{bottom} - $s->{top}) <= 0 );
-	croak "Horizontal size too small"
-		if ( ($s->{right} - $s->{left}) <= 0 );
+	return $self;
 }
 
 # inherit open_graph from GD::Graph
@@ -146,95 +147,93 @@ sub setup_coords()
 # Setup the parameters for the text elements
 sub setup_text
 {
-	my $s = shift;
+	my $self = shift;
 
-	if ( $s->{title} ) 
+	if ( $self->{title} ) 
 	{
 		#print "'$s->{title}' at ($s->{xc},$s->{t_margin})\n";
-		$s->{gdta_title}->set(colour => $s->{tci});
-		$s->{gdta_title}->set_text($s->{title});
+		$self->{gdta_title}->set(colour => $self->{tci});
+		$self->{gdta_title}->set_text($self->{title});
 	}
 
-	if ( $s->{label} ) 
+	if ( $self->{label} ) 
 	{
-		$s->{gdta_label}->set(colour => $s->{lci});
-		$s->{gdta_label}->set_text($s->{label});
+		$self->{gdta_label}->set(colour => $self->{lci});
+		$self->{gdta_label}->set_text($self->{label});
 	}
 
-	$s->{gdta_value}->set(colour => $s->{alci});
+	$self->{gdta_value}->set(colour => $self->{alci});
+
+	return $self;
 }
 
 # Put the text on the canvas.
 sub draw_text # (GD::Image)
 {
-	my $s = shift;
+	my $self = shift;
 
-	$s->{gdta_title}->draw($s->{xc}, $s->{t_margin}) 
-		if $s->{title}; 
-
-	$s->{gdta_label}->draw($s->{xc}, $s->{height} - $s->{b_margin})
-		if $s->{label};
+	$self->{gdta_title}->draw($self->{xc}, $self->{t_margin}) 
+		if $self->{title}; 
+	$self->{gdta_label}->draw($self->{xc}, $self->{height} - $self->{b_margin})
+		if $self->{label};
+	
+	return $self;
 }
 
 # draw the pie, without the data slices
-sub draw_pie # (GD::Image)
+sub draw_pie
 {
-	my $s = shift;
-	my $g = $s->{graph};
+	my $self = shift;
 
-	my $left = $s->{xc} - $s->{w}/2;
+	my $left = $self->{xc} - $self->{w}/2;
 
-	$s->{graph}->arc(
-		$s->{xc}, $s->{yc}, 
-		$s->{w}, $s->{h},
-		0, 360, $s->{acci}
+	$self->{graph}->arc(
+		$self->{xc}, $self->{yc}, 
+		$self->{w}, $self->{h},
+		0, 360, $self->{acci}
 	);
 
-	$s->{graph}->arc(
-		$s->{xc}, $s->{yc} + $s->{pie_height}, 
-		$s->{w}, $s->{h},
-		0, 180, $s->{acci}
-	) if ( $s->{'3d'} );
+	$self->{graph}->arc(
+		$self->{xc}, $self->{yc} + $self->{pie_height}, 
+		$self->{w}, $self->{h},
+		0, 180, $self->{acci}
+	) if ( $self->{'3d'} );
 
-	$s->{graph}->line(
-		$left, $s->{yc},
-		$left, $s->{yc} + $s->{pie_height}, 
-		$s->{acci}
+	$self->{graph}->line(
+		$left, $self->{yc},
+		$left, $self->{yc} + $self->{pie_height}, 
+		$self->{acci}
 	);
 
-	$s->{graph}->line(
-		$left + $s->{w}, $s->{yc},
-		$left + $s->{w}, $s->{yc} + $s->{pie_height}, 
-		$s->{acci}
+	$self->{graph}->line(
+		$left + $self->{w}, $self->{yc},
+		$left + $self->{w}, $self->{yc} + $self->{pie_height}, 
+		$self->{acci}
 	);
+
+	return $self;
 }
 
 # Draw the data slices
 
-sub draw_data # (\@data, GD::Image)
+sub draw_data
 {
-	my $s = shift;
-	my $data = shift;
+	my $self = shift;
 
 	my $total = 0;
-	my $j = 1; 						# for now, only one pie..
+	my @values = $self->{_data}->y_values(1);	# for now, only one pie..
+	$total += $_ for (@values);
 
-	my $i;
-	for $i (0 .. $s->{_data}->num_points - 1) 
-	{ 
-		$total += $data->[$j][$i]; 
-	}
-	croak "no Total" unless $total;
+	return $self->_set_error("Pie data total is <= 0") 
+		unless $total > 0;
 
-	my $ac = $s->{acci};			# Accent colour
-	my $pb = $s->{start_angle};
+	my $ac = $self->{acci};			# Accent colour
+	my $pb = $self->{start_angle};
 
-	my $val = 0;
-
-	for $i (0 .. $s->{_data}->num_points - 1) 
+	for (my $i = 0; $i < @values; $i++)
 	{
 		# Set the data colour
-		my $dc = $s->set_clr_uniq($s->pick_data_clr($i + 1));
+		my $dc = $self->set_clr_uniq($self->pick_data_clr($i + 1));
 
 		# Set the angles of the pie slice
 		# Angle 0 faces down, positive angles are clockwise 
@@ -248,29 +247,29 @@ sub draw_data # (\@data, GD::Image)
 		# $pa/$pb include the start_angle (so if start_angle
 		# is 90, there will be no pa/pb < 90.
 		my $pa = $pb;
-		$pb += my $slice_angle = 360 * $data->[1][$i]/$total;
+		$pb += my $slice_angle = 360 * $values[$i]/$total;
 
 		# Calculate the end points of the lines at the boundaries of
 		# the pie slice
 		my ($xe, $ye) = cartesian(
-				$s->{w}/2, $pa, 
-				$s->{xc}, $s->{yc}, $s->{h}/$s->{w}
+				$self->{w}/2, $pa, 
+				$self->{xc}, $self->{yc}, $self->{h}/$self->{w}
 			);
 
-		$s->{graph}->line($s->{xc}, $s->{yc}, $xe, $ye, $ac);
+		$self->{graph}->line($self->{xc}, $self->{yc}, $xe, $ye, $ac);
 
 		# Draw the lines on the front of the pie
-		$s->{graph}->line($xe, $ye, $xe, $ye + $s->{pie_height}, $ac)
-			if ( in_front($pa) && $s->{'3d'} );
+		$self->{graph}->line($xe, $ye, $xe, $ye + $self->{pie_height}, $ac)
+			if in_front($pa) && $self->{'3d'};
 
 		# Make an estimate of a point in the middle of the pie slice
 		# And fill it
 		($xe, $ye) = cartesian(
-				3 * $s->{w}/8, ($pa+$pb)/2,
-				$s->{xc}, $s->{yc}, $s->{h}/$s->{w}
+				3 * $self->{w}/8, ($pa+$pb)/2,
+				$self->{xc}, $self->{yc}, $self->{h}/$self->{w}
 			);
 
-		$s->{graph}->fillToBorder($xe, $ye, $ac, $dc);
+		$self->{graph}->fillToBorder($xe, $ye, $ac, $dc);
 
 		# If it's 3d, colour the front ones as well
 		#
@@ -279,12 +278,12 @@ sub draw_data # (\@data, GD::Image)
 		#
 		# Independently noted and fixed by Jeremy Wadsack, in a slightly
 		# different way.
-		if ( $s->{'3d'} ) 
+		if ($self->{'3d'}) 
 		{
-			foreach my $fill ($s->_get_pie_front_coords($pa, $pb)) 
+			foreach my $fill ($self->_get_pie_front_coords($pa, $pb)) 
 			{
-				$s->{graph}->fillToBorder(
-					$fill->[0], $fill->[1] + $s->{pie_height}/2, $ac, $dc);
+				$self->{graph}->fillToBorder(
+					$fill->[0], $fill->[1] + $self->{pie_height}/2, $ac, $dc);
 			}
 		}
 	}
@@ -297,30 +296,32 @@ sub draw_data # (\@data, GD::Image)
 	# disappear, causing the fill colour to flow out.  With this
 	# implementation, all the text is on top of the pie.
 
-	$pb = $s->{start_angle};
-	for $i (0 .. $s->{_data}->num_points - 1) 
+	$pb = $self->{start_angle};
+	for (my $i = 0; $i < @values; $i++)
 	{
-		next unless $data->[0][$i];
+		next unless $values[$i];
 
 		my $pa = $pb;
-		$pb += my $slice_angle = 360 * $data->[1][$i]/$total;
+		$pb += my $slice_angle = 360 * $values[$i]/$total;
 
-		next if ($slice_angle <= $s->{suppress_angle});
+		next if $slice_angle <= $self->{suppress_angle};
 
 		my ($xe, $ye) = 
 			cartesian(
-				3 * $s->{w}/8, ($pa+$pb)/2,
-				$s->{xc}, $s->{yc}, $s->{h}/$s->{w}
+				3 * $self->{w}/8, ($pa+$pb)/2,
+				$self->{xc}, $self->{yc}, $self->{h}/$self->{w}
 			);
 
-		$s->put_slice_label($xe, $ye, $data->[0][$i]);
+		$self->put_slice_label($xe, $ye, $self->{_data}->get_x($i));
 	}
+
+	return $self;
 
 } #GD::Graph::pie::draw_data
 
 sub _get_pie_front_coords # (angle 1, angle 2)
 {
-	my $s = shift;
+	my $self = shift;
 	my $pa = level_angle(shift);
 	my $pb = level_angle(shift);
 	my @fills = ();
@@ -341,14 +342,14 @@ sub _get_pie_front_coords # (angle 1, angle 2)
 				# direction this works, we can just get the coordinates
 				# for $pa.
 				my ($x, $y) = cartesian(
-					$s->{w}/2, $pa,
-					$s->{xc}, $s->{yc}, $s->{h}/$s->{w}
+					$self->{w}/2, $pa,
+					$self->{xc}, $self->{yc}, $self->{h}/$self->{w}
 				);
 
 				# and move one pixel to the left, but only if we don't
 				# fall out of the pie!.
 				push @fills, [$x - 1, $y]
-					if $x - 1 > $s->{xc} - $s->{w}/2;
+					if $x - 1 > $self->{xc} - $self->{w}/2;
 
 				# Reset $pa to the right edge of the front arc, to do
 				# the right bit on the front.
@@ -376,8 +377,8 @@ sub _get_pie_front_coords # (angle 1, angle 2)
 	}
 
 	my ($x, $y) = cartesian(
-		$s->{w}/2, ($pa + $pb)/2,
-		$s->{xc}, $s->{yc}, $s->{h}/$s->{w}
+		$self->{w}/2, ($pa + $pb)/2,
+		$self->{xc}, $self->{yc}, $self->{h}/$self->{w}
 	);
 
 	push @fills, [$x, $y];
@@ -386,10 +387,10 @@ sub _get_pie_front_coords # (angle 1, angle 2)
 }
 
 # return true if this angle is on the front of the pie
-sub in_front # (angle)
+sub in_front
 {
-	my $a = level_angle( shift );
-	( $a > ($ANGLE_OFFSET - 180) && $a < $ANGLE_OFFSET ) ? 1 : 0;
+	my $a = level_angle(shift);
+	return $a > ($ANGLE_OFFSET - 180) && $a < $ANGLE_OFFSET;
 }
 
 # XXX Ugh! I need to fix this. See the GD::Text module for better ways
@@ -404,7 +405,7 @@ sub level_angle # (angle)
 }
 
 # put the slice label on the pie
-sub put_slice_label # (GD:Image)
+sub put_slice_label
 {
 	my $self = shift;
 	my ($x, $y, $label) = @_;
@@ -426,7 +427,7 @@ sub cartesian
 	return (
 		$xi + $r * cos(PI * ($phi + $ANGLE_OFFSET)/180), 
 		$yi + $cr * $r * sin(PI * ($phi + $ANGLE_OFFSET)/180)
-	);
+	)
 }
 
 1;

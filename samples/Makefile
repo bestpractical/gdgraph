@@ -28,7 +28,7 @@ SAMPLES :=  \
 		sample21 sample22 sample23 \
 		sample31 \
 		sample41 sample42\
-		sample51 sample52 sample53 sample54 sample55 \
+		sample51 sample52 sample53 sample54 sample55 sample56 \
 		sample61 sample62 \
 		sample71 \
 		sample91 sample92 sample93 sample94
@@ -55,5 +55,6 @@ clean:
 sample14.$(EXT): logo.$(EXT)
 sample42.$(EXT): sample42.dat
 sample54.$(EXT): sample54.dat
+sample56.$(EXT): sample54.dat
 sample53.$(EXT): rgb.txt
 

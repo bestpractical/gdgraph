@@ -18,7 +18,7 @@
 #		GD::Graph::pie
 #		GD::Graph::mixed
 #
-# $Id: Graph.pm,v 1.23 2000/03/18 06:01:43 mgjv Exp $
+# $Id: Graph.pm,v 1.24 2000/04/15 08:59:36 mgjv Exp $
 #
 #==========================================================================
 
@@ -30,7 +30,7 @@
 
 package GD::Graph;
 
-$GD::Graph::prog_version = '$Revision: 1.23 $' =~ /\s([\d.]+)/;
+$GD::Graph::prog_version = '$Revision: 1.24 $' =~ /\s([\d.]+)/;
 $GD::Graph::VERSION = '1.30';
 
 use strict;
@@ -1289,6 +1289,7 @@ Dave Belcher,
 Steve Bonds,
 Mike Bremford,
 Damon Brodie,
+Gary Deschaines
 brian d foy,
 Edwin Hildebrand,
 Ari Jolma,

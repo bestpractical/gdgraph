@@ -1,7 +1,7 @@
 use GD::Graph::lines;
 require 'save.pl';
 
-print STDERR "Processing sample 5-4\n";
+print STDERR "Processing sample 5-6 (experimental)\n";
 
 @data = read_data("sample54.dat") 
 	or die "Cannot read data from sample54.dat";
@@ -18,22 +18,26 @@ $my_graph->set(
 	y_tick_number => 8,
 	y_label_skip => 4,
 
-	x_tick_number => 'auto',
+	x_tick_number => 14,
+	x_min_value => 100,
+	x_max_value => 800,
+	x_ticks     => 1,
+	x_tick_length => -4,
+	x_long_ticks => 1,
 	x_label_skip => 2,
+	x_tick_offset => 2,
 
 	box_axis => 0,
 	line_width => 2,
 	x_label_position => 1/2,
 	r_margin => 15,
 
-	x_labels_vertical => 1,
-
 	transparent => 0,
 );
 
-$my_graph->set_legend('Thanks to Scott Prahl');
+$my_graph->set_legend('Thanks to Scott Prahl and Gary Deschaines');
 $my_graph->plot(\@data);
-save_chart($my_graph, 'sample54');
+save_chart($my_graph, 'sample56');
 
 
 sub read_data
@@ -59,4 +63,3 @@ sub read_data
 
 	return @d;
 }
-

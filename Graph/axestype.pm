@@ -5,13 +5,13 @@
 #	Name:
 #		GD::Graph::axestype.pm
 #
-# $Id: axestype.pm,v 1.20 2000/04/15 07:54:25 mgjv Exp $
+# $Id: axestype.pm,v 1.21 2000/04/15 08:59:36 mgjv Exp $
 #
 #==========================================================================
 
 package GD::Graph::axestype;
 
-$GD::Graph::axestype::VERSION = '$Revision: 1.20 $' =~ /\s([\d.]+)/;
+$GD::Graph::axestype::VERSION = '$Revision: 1.21 $' =~ /\s([\d.]+)/;
 
 use strict;
  
@@ -410,7 +410,7 @@ sub setup_coords
 	{
 		my $delta = ($s->{right} - $s->{left})/($s->{x_max} - $s->{x_min});
 		# 'True' numerical X axis addition # From: Gary Deschaines
- 		if ( defined( $s->{x_min_value} ) && defined( $s->{x_max_value} ) )
+ 		if (defined($s->{x_min_value}) && defined($s->{x_max_value}))
  		{
  			$s->{x_offset} = $s->{left};
  			$s->{x_step} = $delta;
@@ -771,12 +771,11 @@ sub draw_x_ticks_number
  		else
  		{
 			$value = ($self->{_data}->num_points - 1)
-						* ($self->{x_values}[$i] - $self->{true_x_min});
+						* ($self->{x_values}[$i] - $self->{true_x_min})
+						/ ($self->{true_x_max} - $self->{true_x_min});
  			($x, $y) = $self->val_to_pixel($value + 1, 0, 1);
  		}
 
-		print "$i, $label: $x, $y ($self->{x_ticks}, $self->{x_long_ticks})\n";
-		my $label = $self->{x_labels}[$i];
 		$y = $self->{bottom} unless $self->{zero_axis_only};
 
 		if ($self->{x_ticks})
@@ -804,17 +803,11 @@ sub draw_x_ticks_number
 			}
 		}
 
-		if (defined($self->{x_min_value}) && defined($self->{x_max_value}))
-		{
-			next if ($i - 1) % $self->{x_label_skip};
-		}
-		else
-		{
-			next if ($i - 1) % $self->{x_label_skip} && 
-				$i != $self->{x_tick_number};
-		}
+		# If we have to skip labels, we'll do it here.
+		# Make sure to always draw the last one.
+		next if $i % $self->{x_label_skip} && $i != $self->{x_tick_number};
 
-		$self->{gdta_x_axis}->set_text($label);
+		$self->{gdta_x_axis}->set_text($self->{x_labels}[$i]);
 
 		if ($self->{x_labels_vertical})
 		{
@@ -925,13 +918,10 @@ sub set_max_min
 		}
 		else
 		{
-			$self->{x_min_value} = $self->{x_max_value} = undef;
-
 			($self->{true_x_min}, $self->{true_x_max}) = 
 				$self->{_data}->get_min_max_x;
-
 			($self->{x_min}, $self->{x_max}, $self->{x_tick_number}) =
-				_best_ends( $self->{true_x_min}, $self->{true_x_max}, 
+				_best_ends($self->{true_x_min}, $self->{true_x_max}, 
 							$self->{x_tick_number});
 		}
 	}
@@ -976,9 +966,6 @@ sub set_max_min
 		# the same spot.
 		# And we need to change the number of ticks on the axes
 
-		#print "beg: $_ $s->{y_min}[$_] - $s->{y_max}[$_]\n" for (1..2);
-		#print "tck: $s->{y_tick_number}\n";
-
 		my $l_range = $self->{y_max}[1] - $self->{y_min}[1];
 		my $r_range = $self->{y_max}[2] - $self->{y_min}[2];
 
@@ -999,11 +986,6 @@ sub set_max_min
 			$self->{y_min}[2] = $l_bot * $r_range;
 			$self->{y_tick_number} *= 1 + abs $r_top - $l_top;
 		}
-
-		#print "$l_top - $l_bot - $r_top - $r_bot\n";
-
-		#print "end: $_ $s->{y_min}[$_] - $s->{y_max}[$_]\n" for (1..2);
-		#print "tck: $s->{y_tick_number}\n";
 	}
 
 	# Check to see if we have sensible values
@@ -1126,8 +1108,8 @@ sub val_to_pixel	# ($x, $y, $i) in real coords ($Dataspace),
  	}
  	else
  	{
-		$ret_x = ($self->{x_tick_number} ? $self->{x_offset} : $self->{left}) 
-			+ $x * $self->{x_step};
+		$ret_x = ($self->{x_tick_number} ? $self->{x_offset} : 
+			$self->{left}) + $x * $self->{x_step};
 	}
 	my $ret_y = $self->{bottom} - ($y - $y_min) * $y_step;
 

@@ -5,13 +5,13 @@
 #	Name:
 #		GD::Graph::bars.pm
 #
-# $Id: bars.pm,v 1.19 2000/05/06 23:23:41 mgjv Exp $
+# $Id: bars.pm,v 1.20 2000/10/07 04:06:22 mgjv Exp $
 #
 #==========================================================================
  
 package GD::Graph::bars;
 
-$GD::Graph::bars::VERSION = '$Revision: 1.19 $' =~ /\s([\d.]+)/;
+$GD::Graph::bars::VERSION = '$Revision: 1.20 $' =~ /\s([\d.]+)/;
 
 use strict;
 
@@ -113,9 +113,10 @@ sub draw_data_set
 			$self->{graph}->filledRectangle(
 				$l + $bsd, $t + $bsd, $r + $bsd, $bottom, $bsci
 			) if $bsd;
-			$self->{graph}->filledRectangle($l, $t, $r, $bottom, $dsci);
+			$self->{graph}->filledRectangle($l, $t, $r, $bottom, $dsci)
+				if defined $dsci;
 			$self->{graph}->rectangle($l, $t, $r, $bottom, $brci) 
-				if $r - $l > $self->{accent_treshold};
+				if defined $brci && $r - $l > $self->{accent_treshold};
 
 			$self->{_hotspots}->[$ds]->[$i] = ['rect', $l, $t, $r, $bottom]
 		}
@@ -125,9 +126,10 @@ sub draw_data_set
 			$self->{graph}->filledRectangle(
 				$l + $bsd, $bottom, $r + $bsd, $t + $bsd, $bsci
 			) if $bsd;
-			$self->{graph}->filledRectangle($l, $bottom, $r, $t, $dsci);
+			$self->{graph}->filledRectangle($l, $bottom, $r, $t, $dsci)
+				if defined $dsci;
 			$self->{graph}->rectangle($l, $bottom, $r, $t, $brci) 
-				if $r - $l > $self->{accent_treshold};
+				if defined $brci && $r - $l > $self->{accent_treshold};
 
 			$self->{_hotspots}->[$ds]->[$i] = ['rect', $l, $bottom, $r, $t]
 		}

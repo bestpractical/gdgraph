@@ -5,13 +5,13 @@
 #	Name:
 #		GD::Graph::axestype.pm
 #
-# $Id: axestype.pm,v 1.27 2000/05/29 10:28:45 mgjv Exp $
+# $Id: axestype.pm,v 1.28 2000/10/07 04:06:22 mgjv Exp $
 #
 #==========================================================================
 
 package GD::Graph::axestype;
 
-$GD::Graph::axestype::VERSION = '$Revision: 1.27 $' =~ /\s([\d.]+)/;
+$GD::Graph::axestype::VERSION = '$Revision: 1.28 $' =~ /\s([\d.]+)/;
 
 use strict;
  
@@ -1394,6 +1394,7 @@ sub draw_legend_marker # data_set_number, x, y
 	my $g = $s->{graph};
 
 	my $ci = $s->set_clr($s->pick_data_clr($n));
+	return unless defined $ci;
 
 	$y += int($s->{lg_el_height}/2 - $s->{legend_marker_height}/2);
 

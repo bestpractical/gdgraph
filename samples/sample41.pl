@@ -26,6 +26,7 @@ $my_graph->set(
 	skip_undef => 1,
 
 	transparent => 0,
+
 ) or warn $my_graph->error;
 
 $my_graph->set_legend( 'data set 1', 'data set 2' );

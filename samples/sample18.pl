@@ -70,25 +70,22 @@ $graph->set(
    'long_ticks'       => 1,
    'tick_length'      => 0,
    'x_ticks'          => 0,
-   'x_label_position' => '.5',     # centered x label
-   'y_label_position' => '.5',     # centered y label
-   'cumulate'         => 1,        # stacked x data
+   'x_label_position' => .5,
+   'y_label_position' => .5,
+   'cumulate'         => 1,
 
-   'bgclr'            => 'white',  # makes background transparent
+   'bgclr'            => 'white',
    'transparent'      => 0,
-   'interlaced'       => 1,        # show like venetian blind opens
+   'interlaced'       => 1,
 
-								   # number of ticks on y axis
    'y_tick_number'    => 5,
-   'y_number_format'  => '%d',     # integer y tick values
-								   # min & max adjusted to make tick
+   'y_number_format'  => '%d',
    'y_max_value'      => 25,
    'y_min_value'      => 0,
-
-   'y_plot_values'    => 1,        # display tick values
-   'x_plot_values'    => 1,        # display tick values
-   'x_labels_vertical'=> 1,        # display tick values vertically
-   'zero_axis'        => 1,        # show line at y value =0
+   'y_plot_values'    => 1,
+   'x_plot_values'    => 1,
+   'x_labels_vertical'=> 1,
+   'zero_axis'        => 1,
 );
 
 $graph->plot(\@data);

@@ -9,14 +9,14 @@
 #		Package of colour manipulation routines, to be used 
 #		with GD::Graph.
 #
-# $Id: colour.pm,v 1.6 2000/03/18 07:43:05 mgjv Exp $
+# $Id: colour.pm,v 1.7 2000/10/07 04:06:22 mgjv Exp $
 #
 #==========================================================================
 
  
 package GD::Graph::colour;
 
-$GD::Graph::colour::VERSION = '$Revision: 1.6 $' =~ /\s([\d.]+)/;
+$GD::Graph::colour::VERSION = '$Revision: 1.7 $' =~ /\s([\d.]+)/;
 
 =head1 NAME
 
@@ -135,7 +135,7 @@ my %warned_clrs = ();
 # return the RGB values of the colour name
 sub _rgb 
 { 
-	my $clr = shift;
+	my $clr = shift or return;
 
 	# Try adding the colour if it doesn't exist yet. It may be of a
 	# parseable form

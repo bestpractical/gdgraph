@@ -1,18 +1,14 @@
-use GD::Graph::area;
-require 'save.pl';
+#!/usr/bin/perl -w
 
-# CONTRIB Edwin Hildebrand.
-#
-# See changes in bars.pm: Check for bar height rounding errors when 
-# stacking bars.
+use GD::Graph::area;
 
 print STDERR "Processing sample 2-3\n";
 
 @dat = qw(
-	991006 991007 991114 991117 991118 991119 991120 
-	991121 991122 991123 991124 991125 991126 991127 
-	991128 991129 991130 991201 991204 991205 991206 
-	991207 991208
+        991006 991007 991114 991117 991118 991119 991120
+        991121 991122 991123 991124 991125 991126 991127
+        991128 991129 991130 991201 991204 991205 991206
+        991207 991208
 );
 
 @sub = qw(0 0 0 0 0 0 0 0 1 1 1 1 2 3 1 1 1 1 2 2 6 8 8);
@@ -49,9 +45,9 @@ push(@data,\@sld);
 
 # setup legend labels
 @legend = qw(
-	Submitted Deferred Rejected Opened Assigned Work
-	Finished Verified Configured Tested Reviewed
-	Closed-CO Closed Sealed
+        Submitted Deferred Rejected Opened Assigned Work
+        Finished Verified Configured Tested Reviewed
+        Closed-CO Closed Sealed
 );
 
 # get graph object
@@ -62,35 +58,53 @@ $graph->set_legend(@legend);
 
 # set graph options
 $graph->set(
-   'dclrs'            => [ qw(lblue lyellow blue yellow lgreen lred
-						      green red purple orange pink dyellow) ],
+   'dclrs'            => [ qw(lblue lyellow blue yellow lgreen lred green red purple orange pink dyellow) ],
    'title'            => "States by Time",
    'x_label'          => "Time",
    'y_label'          => "# OF thingies",
    'long_ticks'       => 1,
    'tick_length'      => 0,
    'x_ticks'          => 0,
-   'x_label_position' => .5,
-   'y_label_position' => .5,
+   'x_label_position' => '.5',     # centered x label
+   'y_label_position' => '.5',     # centered y label
 
-   'cumulate'         => 2,
+   'cumulate'         => 2,        # stacked x data
 
-   'bgclr'            => 'white',
-   'transparent'      => 0,
+   'bgclr'            => 'white',  # makes background transparent
+   'transparent'      => 1,
+   'interlaced'       => 1,        # show like venetian blind opens
 
    'y_tick_number'    => 5,
-   'y_number_format'  => '%d',
+   'y_number_format'  => '%d',     # integer y tick values
+
    'y_max_value'      => 25,
    'y_min_value'      => 0,
-   'y_plot_values'    => 1,
-   'x_plot_values'    => 1,
-   'x_labels_vertical'=> 1,
-   'zero_axis'        => 1,
-   'lg_cols'          => 7,
+
+   'y_plot_values'    => 1,        # display tick values
+   'x_plot_values'    => 1,        # display tick values
+   'x_labels_vertical'=> 1,        # display tick values vertically
+   'zero_axis'        => 1,        # show line at y value =0
+   'lg_cols'          => 7,        # num legend columns
 
    'accent_treshold'  => 100_000,
 );
 
-$graph->plot(\@data);
-save_chart($graph, 'sample23');
+open(OUT, ">transparency.png") or die $!;
+print OUT $graph->plot(\@data)->png;
+close(OUT);
 
+use GD;
+
+my $im = GD::Image->new(100,100);
+my $white =  $im->colorAllocate(255,255,255);
+my $black = $im->colorAllocate(0,0,0);
+my $red = $im->colorAllocate(255,0,0);
+my $blue = $im->colorAllocate(0,0,255);
+
+$im->transparent($white);
+$im->rectangle(0,0,99,99,$black);
+$im->arc(50,50,95,75,0,360,$blue);
+$im->fill(50,50,$red);
+open(OUT, ">transparency-gd.png") or die $!;
+print OUT $im->png;
+close(OUT);

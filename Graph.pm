@@ -18,7 +18,7 @@
 #		GD::Graph::pie
 #		GD::Graph::mixed
 #
-# $Id: Graph.pm,v 1.32 2000/05/29 10:28:45 mgjv Exp $
+# $Id: Graph.pm,v 1.33 2000/10/07 04:06:22 mgjv Exp $
 #
 #==========================================================================
 
@@ -30,7 +30,7 @@
 
 package GD::Graph;
 
-$GD::Graph::prog_version = '$Revision: 1.32 $' =~ /\s([\d.]+)/;
+$GD::Graph::prog_version = '$Revision: 1.33 $' =~ /\s([\d.]+)/;
 $GD::Graph::VERSION = '1.33';
 
 use strict;
@@ -380,6 +380,7 @@ sub put_logo
 sub set_clr # GD::Image, r, g, b
 {
 	my $self = shift; 
+	return unless @_;
 	my $i;
 
 	# Check if this colour already exists on the canvas
@@ -390,6 +391,9 @@ sub set_clr # GD::Image, r, g, b
 
 		# XXX if this fails, we should use colorClosest.
 		# All of this could potentially be done by using colorResolve
+		# The problem is that colorResolve doesn't return an error
+		# condition (-1) if it can't allocate a color. Instead it always
+		# returns 0.
 	} 
 	return $i;
 }
@@ -402,6 +406,7 @@ sub set_clr # GD::Image, r, g, b
 sub set_clr_uniq # GD::Image, r, g, b
 {
 	my $self = shift; 
+	return unless @_;
 	$self->{graph}->colorAllocate(@_); 
 }
 
@@ -810,6 +815,11 @@ L<GD::Graph::colour> (S<C<perldoc GD::Graph::colour>> for the names available).
     $graph->set( dclrs => [ qw(green pink blue cyan) ] );
 
 The first (fifth, ninth) data set will be green, the next pink, etc.
+
+A colour can be C<undef>, in which case the data set will not be drawn.
+This can be useful for cumulative bar sets where you want certain data
+series (often the first one) not to show up, which can be used to
+emulate error bars (see examples 1-7 and 6-3 in the distribution).
 Default: [ qw(lred lgreen lblue lyellow lpurple cyan lorange) ] 
 
 =item borderclrs
@@ -817,16 +827,7 @@ Default: [ qw(lred lgreen lblue lyellow lpurple cyan lorange) ]
 This controls the colours of the borders of the bars data sets. Like
 dclrs, it is a reference to an array of colour names as defined in
 L<GD::Graph::colour>.
-
-Setting the border colours to the background colour of the graph allows
-bars to "float" above the X-axis. For example (assuming your background
-is white):
-
-    $graph->set( dclrs => [ qw(white cyan cyan) ] );
-    $graph->set( borderclrs => [ qw(white black black) ] );
-
-Creates a cyan bar with a black line across the middle, ideal for showing
-ranges with the average value.
+Setting a border colour to C<undef> means the border will not be drawn.
 
 =item cycle_clrs
 

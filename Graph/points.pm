@@ -5,13 +5,13 @@
 #	Name:
 #		GD::Graph::points.pm
 #
-# $Id: points.pm,v 1.9 2000/04/30 08:32:38 mgjv Exp $
+# $Id: points.pm,v 1.10 2000/10/07 04:06:22 mgjv Exp $
 #
 #==========================================================================
 
 package GD::Graph::points;
 
-$GD::Graph::points::VERSION = '$Revision: 1.9 $' =~ /\s([\d.]+)/;
+$GD::Graph::points::VERSION = '$Revision: 1.10 $' =~ /\s([\d.]+)/;
 
 use strict;
  
@@ -85,6 +85,7 @@ sub marker # $xp, $yp, type (1-7), $colourindex
 {
 	my $self = shift;
 	my ($xp, $yp, $mtype, $mclr) = @_;
+	return unless defined $mclr;
 
 	my ($l, $r, $b, $t) = $self->marker_coordinates($xp, $yp);
 

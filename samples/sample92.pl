@@ -17,7 +17,7 @@ $my_graph->set(
 	dclrs 			=> [ 'lblue' ],
 	accentclr 		=> 'lgray',
 
-	transparent => 0,
+	transparent 	=> 0,
 );
 
 $my_graph->set_title_font('../20thcent.ttf', 18);

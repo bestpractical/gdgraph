@@ -5,13 +5,13 @@
 #	Name:
 #		GD::Graph::area.pm
 #
-# $Id: area.pm,v 1.11 2000/04/30 08:32:38 mgjv Exp $
+# $Id: area.pm,v 1.12 2000/10/07 04:06:22 mgjv Exp $
 #
 #==========================================================================
 
 package GD::Graph::area;
  
-$GD::Graph::area::VERSION = '$Revision: 1.11 $' =~ /\s([\d.]+)/;
+$GD::Graph::area::VERSION = '$Revision: 1.12 $' =~ /\s([\d.]+)/;
 
 use strict;
 
@@ -82,11 +82,14 @@ sub draw_data_set
 	}
 
 	# Draw a filled and a line polygon
-	$self->{graph}->filledPolygon($poly, $dsci);
-	$self->{graph}->polygon($poly, $brci);
+	$self->{graph}->filledPolygon($poly, $dsci)
+		if defined $dsci;
+	$self->{graph}->polygon($poly, $brci)
+		if defined $brci;
 
 	# Draw the accent lines
-	if (($self->{right} - $self->{left})/@values > $self->{accent_treshold})
+	if (defined $brci &&
+	   ($self->{right} - $self->{left})/@values > $self->{accent_treshold})
 	{
 		for (my $i = 1; $i < @values - 1; $i++)
 		{

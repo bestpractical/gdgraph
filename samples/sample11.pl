@@ -14,19 +14,19 @@ my $data = GD::Graph::Data->new([
 my $my_graph = GD::Graph::bars->new();
 
 $my_graph->set( 
-	x_label => 'X Label',
-	y_label => 'Y label',
-	title => 'A Simple Bar Chart',
-	y_max_value => 8,
-	y_tick_number => 8,
-	y_label_skip => 2,
-	
-	# shadows
-	bar_spacing => 8,
-	shadow_depth => 4,
-	shadowclr => 'dred',
+    x_label         => 'X Label',
+    y_label         => 'Y label',
+    title           => 'A Simple Bar Chart',
+    y_max_value     => 8,
+    y_tick_number   => 8,
+    y_label_skip    => 2,
+    
+    # shadows
+    bar_spacing     => 8,
+    shadow_depth    => 4,
+    shadowclr       => 'dred',
 
-	transparent => 0,
+    transparent     => 0,
 ) 
 or warn $my_graph->error;
 

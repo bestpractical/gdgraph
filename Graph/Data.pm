@@ -5,11 +5,14 @@
 #	Name:
 #		GD::Graph::Data.pm
 #
-# $Id: Data.pm,v 1.7 2000/02/15 12:47:31 mgjv Exp $
+# $Id: Data.pm,v 1.8 2000/02/16 11:24:05 mgjv Exp $
 #
 #==========================================================================
 
 package GD::Graph::Data;
+
+$GD::Graph::Data::VERSION = 
+	(q($Revision: 1.8 $) =~ /\s(\d+\.\d+)/ ? $1 : "0.0");
 
 use strict;
 

@@ -1,5 +1,9 @@
 UNRESOLVED BUGS
 
+- Reported by Michael Ho (see bug_test/scale_off.pl)
+  Heuristics to determine default values for y axis can be terribly
+  wrong in certain circumstances.
+
 ? mgjv -
   Hotspots stuff needs a lot of thought. Currently linespoints graphs
   will end up with whichever hotspot was drawn last, which is probably

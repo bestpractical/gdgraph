@@ -5,12 +5,15 @@
 #	Name:
 #		GD::Graph::mixed.pm
 #
-# $Id: mixed.pm,v 1.5 2000/02/13 12:35:49 mgjv Exp $
+# $Id: mixed.pm,v 1.6 2000/02/16 12:45:32 mgjv Exp $
 #
 #==========================================================================
 
 package GD::Graph::mixed;
  
+$GD::Graph::mixed::VERSION = 
+	(q($Revision: 1.6 $) =~ /\s([\d.]+)/ ? $1 : "0.0");
+
 use strict;
  
 use GD::Graph::axestype;
@@ -32,7 +35,7 @@ use Carp;
 	GD::Graph::points 
 );
 
-sub draw_data_set # GD::Image, \@data, $ds
+sub draw_data_set
 {
 	my $self = shift;
 	my $ds   = $_[0];
@@ -49,14 +52,14 @@ sub draw_data_set # GD::Image, \@data, $ds
 	# default_type, and warn the user
 	if ($@)
 	{
-		warn "Set $ds, unknown type $type, assuming $self->{default_type}\n";
+		carp "Set $ds, unknown type $type, assuming $self->{default_type}";
 
 		$rc = eval '$self->GD::Graph::'.
 			$self->{default_type}.'::draw_data_set(@_)';
 	}
 
 	# If even that fails, we bail out
-	croak "Set $ds: unknown default type $self->{default_type}\n" if $@;
+	croak "Set $ds: unknown default type $self->{default_type}" if $@;
 
 	return $rc;
 }
@@ -74,4 +77,4 @@ sub draw_legend_marker
 		$self->{default_type}.'::draw_legend_marker(@_)' if $@;
 }
 
-1;
+"Just another true value";

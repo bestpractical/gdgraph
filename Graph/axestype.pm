@@ -5,11 +5,14 @@
 #	Name:
 #		GD::Graph::axestype.pm
 #
-# $Id: axestype.pm,v 1.14 2000/02/14 13:10:59 mgjv Exp $
+# $Id: axestype.pm,v 1.15 2000/02/16 12:45:32 mgjv Exp $
 #
 #==========================================================================
 
 package GD::Graph::axestype;
+
+$GD::Graph::axestype::VERSION = 
+	(q($Revision: 1.15 $) =~ /\s([\d.]+)/ ? $1 : "0.0");
 
 use strict;
  
@@ -175,7 +178,7 @@ sub initialise
 }
 
 # PUBLIC
-sub plot # (\@data)
+sub plot
 {
 	my $self = shift;
 	my $data = shift;
@@ -1197,4 +1200,4 @@ sub draw_legend_marker # data_set_number, x, y
 	);
 }
 
-1;
+"Just another true value";

@@ -1,20 +1,23 @@
 #==========================================================================
-#			   Copyright (c) 1995-1998 Martien Verbruggen
+#			   Copyright (c) 1995-2000 Martien Verbruggen
 #--------------------------------------------------------------------------
 #
 #	Name:
 #		GD::Graph::Data.pm
 #
-# $Id: Data.pm,v 1.8 2000/02/16 11:24:05 mgjv Exp $
+# $Id: Data.pm,v 1.9 2000/02/16 12:45:32 mgjv Exp $
 #
 #==========================================================================
 
 package GD::Graph::Data;
 
 $GD::Graph::Data::VERSION = 
-	(q($Revision: 1.8 $) =~ /\s(\d+\.\d+)/ ? $1 : "0.0");
+	(q($Revision: 1.9 $) =~ /\s([\d.]+)/ ? $1 : "0.0");
 
 use strict;
+use GD::Graph::Error;
+
+@GD::Graph::Data::ISA = qw( GD::Graph::Error );
 
 =head1 NAME
 
@@ -83,17 +86,7 @@ Create a new GD::Graph::Data object.
 
 =cut
 
-use vars qw( $Debug );
-
-#
-# Since we can't store any attributes in our objects, we'll keep a class
-# hash with the stringified object references as keys.
-#
-# There is also place for an entry with the class as name, so that class
-# errors can be dealt with.
-#
-my %Errors;
-
+# Error constants
 use constant ERR_ILL_DATASET	=> 'Illegal dataset number';
 use constant ERR_ILL_POINT		=> 'Illegal point number';
 use constant ERR_NO_DATASET		=> 'No data sets set';
@@ -112,7 +105,7 @@ sub new
 sub DESTROY
 {
 	my $self = shift;
-	delete $Errors{$self};
+	$self->clear_errors();
 }
 
 sub _set_value
@@ -247,7 +240,7 @@ sub _get_min_max
 	return ($min, $max);
 }
 
-=head $data->get_min_max_x
+=head2 $data->get_min_max_x
 
 Returns a list of the minimum and maximum x value or the
 empty list on failure.
@@ -429,7 +422,7 @@ sub reset
 {
 	my $self = shift;
 	@{$self} = () if ref($self);
-	delete $Errors{$self};
+	$self->clear_errors();
 	return $self;
 }
 
@@ -677,110 +670,20 @@ sub read
 
 Returns a list of all the errors that the current object has
 accumulated. In scalar context, returns the last error. If called as a
-class method it works at a class level. This is handy when a constructor
-fails, for example:
+class method it works at a class level.
 
-  my $data = GD::Graph::Data->new()    or die GD::Graph::Data->error;
-  $data->read(file => '/foo/bar.data') or die $data->error;
-
-or if you really are only interested in the last error:
-
-  $data->read(file => '/foo/bar.data') or die scalar $data->error;
-
-This implementation does not clear the error list, so if you don't die
-on errors, you will need to make sure to never ask for anything but the
-last error (put this in scalar context).
-
-Errors are more verbose about where the errors originated if the
-$GD::Graph::Data::Debug variable is set to a true value, and even more
-verbose if this value is larger than 5.
+This method is inherited, see L<GD::Graph::Error> for more information.
 
 =cut
-
-# Move errors from an object into the class
-sub _move_errors
-{
-	my $self = shift;
-	my $class = __PACKAGE__;
-	push @{$Errors{$class}}, @{$Errors{$self}};
-	return;
-}
-
-sub _set_error
-{
-	my $self = shift;
-	return unless @_;
-
-	my %error = (
-		messages => "@_",
-		caller   => [caller],
-	);
-	my $lvl = 1;
-	while (my @c = caller($lvl))
-	{
-		$error{whence} = [@c[0..2]];
-		$lvl++;
-	}
-	push @{$Errors{$self}}, \%error;
-	return;
-}
-
-sub error
-{
-	my $self = shift;
-	return unless exists $Errors{$self};
-	my $error = $Errors{$self};
-
-	my @return;
-
-	@return = 
-		map { 
-			"$_->{messages}" .
-			($Debug ? " at $_->{whence}[1] line $_->{whence}[2]" : '') .
-			($Debug > 2 ? " => $_->{caller}[0]($_->{caller}[2])" : '') .
-			"\n"
-		} 
-		@$error;
-
-	wantarray && @return > 1 and  
-		$return[-1] =~ s/\n/\n\t/ or
-		$return[-1] =~ s/\n//;
-
-	return wantarray ? @return : $return[-1];
-}
 
 =head2 $data->has_error() OR GD::Graph::Data->has_error()
 
 Returns true if the object (or class) has errors pending, false if not.
+In some cases (see L<"copy">) this is the best way to check for errors.
 
-This allows you to do things like:
-
-  $data->read(file => '/foo/bar.data');
-  while (my @foo = $sth->fetchrow_array)
-  {
-	  $data->add_point(@foo);
-  }
-  $data->set_x(12, 'Foo');
-  die "ACK!:\n", $data->error if $data->has_error;
-
-And in some cases (see L<"copy">) this is indeed the only way to
-check for errors.
+This method is inherited, see L<GD::Graph::Error> for more information.
 
 =cut
-
-sub has_error
-{
-	my $self = shift;
-	exists $Errors{$self};
-}
-
-sub _dump
-{
-	my $self = shift;
-	require Data::Dumper;
-	my $dd = Data::Dumper->new([$self], ['me']);
-	$dd->Dumpxs;
-}
 
 =head1 NOTES
 
@@ -796,16 +699,16 @@ Martien Verbruggen <mgjv@comdyn.com.au>
 
 =head2 Copyright
 
-GD::Graph: Copyright (c) 1999 Martien Verbruggen.
+Copyright (c) 2000 Martien Verbruggen.
 
 All rights reserved. This package is free software; you can redistribute
 it and/or modify it under the same terms as Perl itself.
 
 =head1 SEE ALSO
 
-L<GD::Graph>
+L<GD::Graph>, L<GD::Graph::Error>
 
 =cut
 
-"Just another true value"
+"Just another true value";
 

@@ -5,11 +5,14 @@
 #	Name:
 #		GD::Graph::points.pm
 #
-# $Id: points.pm,v 1.5 2000/02/13 12:35:49 mgjv Exp $
+# $Id: points.pm,v 1.6 2000/02/16 12:45:32 mgjv Exp $
 #
 #==========================================================================
 
 package GD::Graph::points;
+
+$GD::Graph::points::VERSION = 
+	(q($Revision: 1.6 $) =~ /\s([\d.]+)/ ? $1 : "0.0");
 
 use strict;
  
@@ -56,7 +59,7 @@ sub pick_marker # number
 
 # Draw a marker
 
-sub marker # $graph, $xp, $yp, type (1-7), $colourindex
+sub marker # $xp, $yp, type (1-7), $colourindex
 {
 	my $self = shift;
 	my ($xp, $yp, $mtype, $mclr) = @_;
@@ -148,4 +151,4 @@ sub draw_legend_marker
 	$self->{marker_size} = $old_ms;
 }
 
-1;
+"Just another true value";

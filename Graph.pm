@@ -18,7 +18,7 @@
 #		GD::Graph::pie
 #		GD::Graph::mixed
 #
-# $Id: Graph.pm,v 1.18 2000/02/15 12:47:31 mgjv Exp $
+# $Id: Graph.pm,v 1.19 2000/02/16 12:45:32 mgjv Exp $
 #
 #==========================================================================
 
@@ -30,18 +30,19 @@
 
 package GD::Graph;
 
-use strict;
+$GD::Graph::prog_version = 
+	(q($Revision: 1.19 $) =~ /\s([\d.]+)/ ? $1 : "0.0");
 
+$GD::Graph::VERSION = '1.30';
+
+use strict;
 use GD;
 use GD::Text::Align;
 use GD::Graph::Data;
+use GD::Graph::Error;
 use Carp;
 
-$GD::Graph::prog_rcs_rev = q{$Revision: 1.18 $};
-$GD::Graph::prog_version = 
-	($GD::Graph::prog_rcs_rev =~ /\s+(\d*\.\d*)/) ? $1 : "0.0";
-
-$GD::Graph::VERSION = '1.30';
+@GD::Graph::Data::ISA = qw( GD::Graph::Error );
 
 # Some tools and utils
 use GD::Graph::colour qw(:colours);
@@ -415,17 +416,46 @@ sub die_abstract
 }
 
 sub _set_error {
-  my $self = shift;
-  my @caller = caller;
-  push @{$self->{_errors}}, "($caller[0]:$caller[2]) @_" if @_;
-  return;
+	my $self = shift;
+	return unless @_;
+
+	my %error = (
+		messages => "@_",
+		caller   => [caller],
+	);
+	my $lvl = 1;
+	while (my @c = caller($lvl))
+	{
+		$error{whence} = [@c[0..2]];
+		$lvl++;
+	}
+	push @{$self->{_errors}}, \%error;
+	return;
 }
 
 sub error
 {
 	my $self = shift;
 	return unless exists $self->{_errors};
-	wantarray ? @{$self->{_errors}} : $self->{_errors}->[-1];
+
+	my $error = $self->{_errors};
+
+	my @return;
+
+	@return = 
+		map { 
+			"$_->{messages}" .
+			($Debug ? " at $_->{whence}[1] line $_->{whence}[2]" : '') .
+			($Debug > 2 ? " => $_->{caller}[0]($_->{caller}[2])" : '') .
+			"\n"
+		} 
+		@$error;
+
+	wantarray && @return > 1 and  
+		$return[-1] =~ s/\n/\n\t/ or
+		$return[-1] =~ s/\n//;
+
+	return wantarray ? @return : $return[-1];
 }
 
 sub gd 
@@ -448,7 +478,7 @@ sub can_do_ttf
 	return GD::Text->can_do_ttf;
 }
 
-$GD::Graph::VERSION;
+"Just another true value";
 
 __END__
 

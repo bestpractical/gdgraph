@@ -5,11 +5,14 @@
 #	Name:
 #		GD::Graph::bars.pm
 #
-# $Id: bars.pm,v 1.12 2000/02/14 13:10:59 mgjv Exp $
+# $Id: bars.pm,v 1.13 2000/02/16 12:45:32 mgjv Exp $
 #
 #==========================================================================
  
 package GD::Graph::bars;
+
+$GD::Graph::bars::VERSION = 
+	(q($Revision: 1.13 $) =~ /\s([\d.]+)/ ? $1 : "0.0");
 
 use strict;
 
@@ -127,4 +130,4 @@ sub draw_data_set
 	return $ds;
 }
 
-1;
+"Just another true value";

@@ -5,11 +5,14 @@
 #	Name:
 #		GD::Graph::pie.pm
 #
-# $Id: pie.pm,v 1.10 2000/02/13 04:26:15 mgjv Exp $
+# $Id: pie.pm,v 1.11 2000/02/16 12:45:32 mgjv Exp $
 #
 #==========================================================================
 
 package GD::Graph::pie;
+
+$GD::Graph::pie::VERSION = 
+	(q($Revision: 1.11 $) =~ /\s([\d.]+)/ ? $1 : "0.0");
 
 use strict;
 
@@ -168,7 +171,7 @@ sub setup_text
 }
 
 # Put the text on the canvas.
-sub draw_text # (GD::Image)
+sub draw_text
 {
 	my $self = shift;
 
@@ -430,4 +433,4 @@ sub cartesian
 	)
 }
 
-1;
+"Just another true value";

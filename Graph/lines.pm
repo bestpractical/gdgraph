@@ -5,11 +5,14 @@
 #	Name:
 #		GD::Graph::lines.pm
 #
-# $Id: lines.pm,v 1.7 2000/02/13 12:35:49 mgjv Exp $
+# $Id: lines.pm,v 1.8 2000/02/16 12:45:32 mgjv Exp $
 #
 #==========================================================================
 
 package GD::Graph::lines;
+
+$GD::Graph::lines::VERSION = 
+	(q($Revision: 1.8 $) =~ /\s([\d.]+)/ ? $1 : "0.0");
 
 use strict;
  
@@ -20,7 +23,7 @@ use GD::Graph::axestype;
 
 # PRIVATE
 
-sub draw_data_set # GD::Image, \@data
+sub draw_data_set
 {
 	my $self = shift;
 	my $ds = shift;
@@ -146,4 +149,4 @@ sub draw_legend_marker # (data_set_number, x, y)
 	);
 }
 
-1;
+"Just another true value";

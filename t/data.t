@@ -10,7 +10,7 @@ my @data = (
 
 my $data = GD::Graph::Data->new() or die GD::Graph::Data->error;
 
-$GD::Graph::Data::Debug = 1;
+$GD::Graph::Error::Debug = 5;
 
 #$data->get_min_max_x or warn $data->error;
 $data->get_min_max_x;

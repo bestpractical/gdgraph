@@ -1,3 +1,8 @@
+16 Feb 2000
+
+- Added Error class
+- Added $VERSION to each module
+
 15 Feb 2000
 
 - Fixed bug in can_do_ttf. Can now _really_ be called as static or

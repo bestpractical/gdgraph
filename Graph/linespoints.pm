@@ -5,12 +5,15 @@
 #	Name:
 #		GD::Graph::linespoints.pm
 #
-# $Id: linespoints.pm,v 1.4 2000/02/13 12:35:49 mgjv Exp $
+# $Id: linespoints.pm,v 1.5 2000/02/16 12:45:32 mgjv Exp $
 #
 #==========================================================================
 
 package GD::Graph::linespoints;
  
+$GD::Graph::linespoints::VERSION = 
+	(q($Revision: 1.5 $) =~ /\s([\d.]+)/ ? $1 : "0.0");
+
 use strict;
  
 use GD::Graph::axestype;
@@ -41,4 +44,4 @@ sub draw_legend_marker
 	$self->GD::Graph::lines::draw_legend_marker(@_);
 }
 
-1;
+"Just another true value";

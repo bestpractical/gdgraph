@@ -5,12 +5,15 @@
 #	Name:
 #		GD::Graph::area.pm
 #
-# $Id: area.pm,v 1.8 2000/02/13 12:35:49 mgjv Exp $
+# $Id: area.pm,v 1.9 2000/02/16 12:45:32 mgjv Exp $
 #
 #==========================================================================
 
 package GD::Graph::area;
  
+$GD::Graph::area::VERSION = 
+	(q($Revision: 1.9 $) =~ /\s([\d.]+)/ ? $1 : "0.0");
+
 use strict;
 
 use GD::Graph::axestype;
@@ -79,4 +82,4 @@ sub draw_data_set
 	return $ds
 }
  
-1;
+"Just another true value";

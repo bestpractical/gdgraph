@@ -9,12 +9,15 @@
 #		Package of colour manipulation routines, to be used 
 #		with GD::Graph.
 #
-# $Id: colour.pm,v 1.3 1999/12/29 12:14:40 mgjv Exp $
+# $Id: colour.pm,v 1.4 2000/02/16 12:45:32 mgjv Exp $
 #
 #==========================================================================
 
  
 package GD::Graph::colour;
+
+$GD::Graph::colour::VERSION = 
+	(q($Revision: 1.4 $) =~ /\s([\d.]+)/ ? $1 : "0.0");
 
 use vars qw( @EXPORT_OK %EXPORT_TAGS );
 use strict;
@@ -22,11 +25,6 @@ require Exporter;
 use Carp;
 
 @GD::Graph::colour::ISA = qw( Exporter );
-
-$GD::Graph::colour::prog_name    = 'GD::Graph::colour.pm';
-$GD::Graph::colour::prog_rcs_rev = '$Revision: 1.3 $';
-$GD::Graph::colour::prog_version = 
-	($GD::Graph::colour::prog_rcs_rev =~ /\s+(\d*\.\d*)/) ? $1 : "0.0";
 
 @EXPORT_OK = qw( 
 	_rgb _luminance _hue 
@@ -83,26 +81,20 @@ sub sorted_colour_list
 	return (sort by_luminance keys %RGB)[0 .. $n-1];
 	# return (sort by_hue keys %rgb)[0..$n-1];
 
-	sub by_luminance 
-	{ 
-		_luminance(@{$RGB{$b}}) <=> _luminance(@{$RGB{$a}}); 
-	}
-	sub by_hue 
-	{ 
-		_hue(@{$RGB{$b}}) <=> _hue(@{$RGB{$a}}); 
-	}
+	sub by_luminance { _luminance(@{$RGB{$b}}) <=> _luminance(@{$RGB{$a}}) }
+	sub by_hue       { _hue(@{$RGB{$b}}) <=> _hue(@{$RGB{$a}}) }
 }
 
 # return the luminance of the colour (RGB)
 sub _luminance 
 { 
-	(0.212671 * $_[0] + 0.715160 * $_[1] + 0.072169 * $_[2])/0xFF; 
+	(0.212671 * $_[0] + 0.715160 * $_[1] + 0.072169 * $_[2])/0xFF
 }
 
 # return the hue of the colour (RGB)
 sub _hue 
 { 
-	($_[0] + $_[1] + $_[2])/(3 * 0xFF); 
+	($_[0] + $_[1] + $_[2])/(3 * 0xFF) 
 }
 
 my %warned_clrs = ();
@@ -123,10 +115,7 @@ sub _rgb
 	@{$rgb_ref};
 }
 
-sub version 
-{
-	return $GD::Graph::colour::prog_version;
-}
+sub version { $GD::Graph::colour::VERSION }
 
 sub dump_colours
 {
@@ -186,8 +175,7 @@ sub read_rgb($) # (filename)
 	return $n;
 }
 
-$GD::Graph::colour::prog_name;
-
+"Just another true value";
 
 __END__
 

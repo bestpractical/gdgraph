@@ -23,7 +23,6 @@ t/data.t
 t/error.t
 t/use.t
 Dustismo.LICENSE
-Dustismo_Roman.ttf
 Dustismo_Sans.ttf
 samples/sample11.pl
 samples/sample12.pl

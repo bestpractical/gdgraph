@@ -1,5 +1,5 @@
 use GD::Graph::pie;
-use GD;
+use strict;
 require 'save.pl';
 
 # Test for very large slices that wrap around, and for text that
@@ -7,12 +7,12 @@ require 'save.pl';
 
 print STDERR "Processing sample94\n";
 
-@data = ( 
+my @data = ( 
     ["Oversized label", "label", undef],
     [3, 2.5, 23]
 );
 
-$my_graph = new GD::Graph::pie( 250, 200 );
+my $my_graph = new GD::Graph::pie( 250, 200 );
 
 $my_graph->set( 
 	title => 'A Pie Chart',

@@ -89,6 +89,26 @@ to include something like:
 
 See the GD::Text documentation for more information about font paths.
 
+=head2 I'm trying to use GD's builtin fonts, but it's not working.
+
+Most likely, you are using the font short name, like gdGiantFont or
+gdMediumBoldFont, and you have not put a C<use GD> in your program.
+This is needed, because these short names need to be exported into
+your name space by the GD library:
+
+  use GD;
+  # ...
+  $graph->set_x_axis_font(gdMediumBoldFont);
+
+If you don't want to include the GD library, you can use the
+longer alternative names (which is what I'd recommend anyway):
+
+  $graph1->set_x_axis_font(GD::Font->MediumBold);
+
+If you C<use strict> then you will actually get an error message if
+you try to use the short names without including the GD module.
+
+Also see the L<GD::Text> documentation for this information.
 
 =head1 AUTHOR
 

@@ -5,13 +5,13 @@
 #	Name:
 #		GD::Graph::bars.pm
 #
-# $Id: bars.pm,v 1.15 2000/03/18 06:01:43 mgjv Exp $
+# $Id: bars.pm,v 1.16 2000/03/18 10:58:39 mgjv Exp $
 #
 #==========================================================================
  
 package GD::Graph::bars;
 
-$GD::Graph::bars::VERSION = '$Revision: 1.15 $' =~ /\s([\d.]+)/;
+$GD::Graph::bars::VERSION = '$Revision: 1.16 $' =~ /\s([\d.]+)/;
 
 use strict;
 
@@ -70,7 +70,7 @@ sub draw_data_set
 
 		my $bottom = $self->_get_bottom($ds, $i);
 		$value = $self->{_data}->get_y_cumulative($ds, $i)
-			if ($self->{overwrite} == 2);
+			if ($self->{cumulate});
 
 		# CONTRIB Jeremy Wadsack
 		#

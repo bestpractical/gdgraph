@@ -5,13 +5,13 @@
 #	Name:
 #		GD::Graph::axestype.pm
 #
-# $Id: axestype.pm,v 1.18 2000/03/18 06:01:43 mgjv Exp $
+# $Id: axestype.pm,v 1.19 2000/03/18 10:58:39 mgjv Exp $
 #
 #==========================================================================
 
 package GD::Graph::axestype;
 
-$GD::Graph::axestype::VERSION = '$Revision: 1.18 $' =~ /\s([\d.]+)/;
+$GD::Graph::axestype::VERSION = '$Revision: 1.19 $' =~ /\s([\d.]+)/;
 
 use strict;
  
@@ -792,7 +792,8 @@ sub draw_data
 {
 	my $self = shift;
 
-	# The drawing of 'overwrite == 2' sets needs to be done in reverse,
+	# XXX is this comment still pertinent?
+	# The drawing of 'cumulated' sets needs to be done in reverse,
 	# for area and bar charts. This is mainly because of backward
 	# compatibility
 
@@ -834,7 +835,17 @@ sub set_max_min
 	} 
 	else 
 	{
-		my ($y_min, $y_max) = $self->{_data}->get_min_max_y_all;
+		my ($y_min, $y_max);
+		if ($self->{cumulate})
+		{
+			my $data_set = $self->{_data}->copy();
+			$data_set->cumulate;
+			($y_min, $y_max) = $data_set->get_min_max_y($data_set->num_sets);
+		}
+		else
+		{
+			($y_min, $y_max) = $self->{_data}->get_min_max_y_all;
+		}
 		($self->{y_min}[1], $self->{y_max}[1], $self->{y_tick_number}) =
 			_best_ends($y_min, $y_max, $self->{y_tick_number});
 	}
@@ -1007,7 +1018,7 @@ sub _get_bottom
 	my ($ds, $np) = @_;
 	my $bottom = $self->{zeropoint};
 
-	if ($self->{overwrite} == 2 && $ds > 1)
+	if ($self->{cumulate} && $ds > 1)
 	{
 		my $pvalue = $self->{_data}->get_y_cumulative($ds - 1, $np);
 		(undef, $bottom) = $self->val_to_pixel($np + 1, $pvalue, $ds);

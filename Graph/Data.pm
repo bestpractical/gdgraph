@@ -5,13 +5,13 @@
 #	Name:
 #		GD::Graph::Data.pm
 #
-# $Id: Data.pm,v 1.11 2000/03/18 06:01:43 mgjv Exp $
+# $Id: Data.pm,v 1.12 2000/03/18 10:58:39 mgjv Exp $
 #
 #==========================================================================
 
 package GD::Graph::Data;
 
-$GD::Graph::Data::VERSION = '$Revision: 1.11 $' =~ /\s([\d.]+)/;
+$GD::Graph::Data::VERSION = '$Revision: 1.12 $' =~ /\s([\d.]+)/;
 
 use strict;
 use GD::Graph::Error;
@@ -270,7 +270,7 @@ sub get_min_max_y
 	$self->_get_min_max($nd);
 }
 
-=head2 $data->get_min_max_y_all
+=head2 $data->get_min_max_y_all()
 
 Returns a list of the minimum and maximum y value in all data sets or the
 empty list on failure.
@@ -457,7 +457,7 @@ sub make_strict
 	return $self;
 }
 
-=head2 $data->cumulate(preserver_undef => boolean)
+=head2 $data->cumulate(preserve_undef => boolean)
 
 The B<cumulate> parameter will summarise the Y value sets as follows:
 the first Y value list will be unchanged, the second will contain a
@@ -577,7 +577,7 @@ sub copy_from
 	return $self;
 }
 
-=head2 $data->copy(I<arguments>)
+=head2 $data->copy()
 
 Returns a copy of the object, or undef on failure.
 
@@ -586,9 +586,6 @@ Returns a copy of the object, or undef on failure.
 sub copy
 {
 	my $self = shift;
-
-	return $self->_set_error(ERR_ARGS_NO_HASH) if (@_ && @_ % 2);
-	my %args = @_;
 
 	my $new = $self->new();
 	$new->copy_from($self);

@@ -20,6 +20,8 @@ Graph/Error.pm
 Graph/FAQ.pod
 t/colour.t
 t/data.t
+t/data.csv
+t/data.tab
 t/error.t
 t/use.t
 Dustismo.LICENSE

@@ -1,8 +1,8 @@
-# $Id: data.t,v 1.12 2003/02/10 02:09:46 mgjv Exp $
+# $Id: data.t,v 1.13 2003/05/30 00:38:05 mgjv Exp $
 use Test;
 use strict;
 
-BEGIN { plan tests => 28 }
+BEGIN { plan tests => 37 }
 
 use GD::Graph::Data;
 ok(1);
@@ -85,12 +85,63 @@ ok($data2);
 ok($data2->isa("GD::Graph::Data"));
 ok(Dumper($data2), Dumper($data));
 
-__END__
-# TODO
-# tests for data file reading
+my $file;
 
-$data->read(file => '/tmp/foo.dat', delimiter => qr/\s+/) or 
-        die $data->error;
-die $data->error if $data->error;
+# Read tab-separated file
+#
+$file =	    -f 'data.tab'   ? 'data.tab'  :
+	    -f 't/data.tab' ? 't/data.tab':
+	    undef;
 
-# Should compare $data2 to $data with Data::Dumper.
+$data = GD::Graph::Data->new();
+$rc = $data->read(file => $file);
+ok(ref $rc, "GD::Graph::Data", "Couldn't read input data.tab input file");
+
+if (!defined $rc)
+{
+    skip 1 for 1..2;
+}
+else
+{
+    ok($data->num_sets(), 5);
+    ok(scalar $data->num_points(), 4);
+}
+
+# Read comma-separated file
+#
+$file =	    -f 'data.csv'   ? 'data.csv'  :
+	    -f 't/data.csv' ? 't/data.csv':
+	    undef;
+
+$data = GD::Graph::Data->new();
+$rc = $data->read(file => $file, delimiter => qr/,/);
+ok(ref $rc, "GD::Graph::Data", "Couldn't read input data.csv input file");
+
+if (!defined $rc)
+{
+    skip 1 for 1..2;
+}
+else
+{
+    ok($data->num_sets(), 5);
+    ok(scalar $data->num_points(), 4);
+}
+
+# Read from DATA
+#
+# Skip first line of DATA
+<DATA>;
+$data = GD::Graph::Data->new();
+$rc = $data->read(file => \*DATA, delimiter => qr/,/);
+# TODO This test cannot fail, because I don't check whether DATA is an
+# open file handle in read().
+ok(ref $rc, "GD::Graph::Data", "Couldn't read from DATA file handle");
+
+ok($data->num_sets(), 3);
+ok(scalar $data->num_points(), 2);
+
+__DATA__
+We will skip this line
+# And from here on, things should be normal for input files
+A,1,2,3
+B,1,2,3

@@ -9,14 +9,14 @@
 #       Package of colour manipulation routines, to be used 
 #       with GD::Graph.
 #
-# $Id: colour.pm,v 1.8 2002/06/09 03:15:16 mgjv Exp $
+# $Id: colour.pm,v 1.9 2003/02/10 22:12:41 mgjv Exp $
 #
 #==========================================================================
 
  
 package GD::Graph::colour;
 
-$GD::Graph::colour::VERSION = '$Revision: 1.8 $' =~ /\s([\d.]+)/;
+($GD::Graph::colour::VERSION) = '$Revision: 1.9 $' =~ /\s([\d.]+)/;
 
 =head1 NAME
 

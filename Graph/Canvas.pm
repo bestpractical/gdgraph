@@ -5,7 +5,7 @@
 #	Name:
 #		GD::Graph::Canvas.pm
 #
-# $Id: Canvas.pm,v 1.4 2000/10/07 05:52:41 mgjv Exp $
+# $Id: Canvas.pm,v 1.5 2003/02/10 22:12:41 mgjv Exp $
 #
 #==========================================================================
 
@@ -38,7 +38,7 @@ exercise anyway).
 
 package GD::Graph::Canvas;
 
-$GD::Graph::Canvas::VERSION = '$Revision: 1.4 $' =~ /\s([\d.]+)/;
+($GD::Graph::Canvas::VERSION) = '$Revision: 1.5 $' =~ /\s([\d.]+)/;
 
 use strict;
 

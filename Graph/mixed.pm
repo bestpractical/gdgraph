@@ -5,13 +5,13 @@
 #   Name:
 #       GD::Graph::mixed.pm
 #
-# $Id: mixed.pm,v 1.11 2002/06/12 10:14:20 mgjv Exp $
+# $Id: mixed.pm,v 1.12 2003/02/10 22:12:41 mgjv Exp $
 #
 #==========================================================================
 
 package GD::Graph::mixed;
  
-$GD::Graph::mixed::VERSION = '$Revision: 1.11 $' =~ /\s([\d.]+)/;
+($GD::Graph::mixed::VERSION) = '$Revision: 1.12 $' =~ /\s([\d.]+)/;
 
 use strict;
  

@@ -5,13 +5,13 @@
 #   Name:
 #       GD::Graph::Data.pm
 #
-# $Id: Data.pm,v 1.17 2002/06/09 03:15:15 mgjv Exp $
+# $Id: Data.pm,v 1.18 2003/02/10 22:12:41 mgjv Exp $
 #
 #==========================================================================
 
 package GD::Graph::Data;
 
-$GD::Graph::Data::VERSION = '$Revision: 1.17 $' =~ /\s([\d.]+)/;
+($GD::Graph::Data::VERSION) = '$Revision: 1.18 $' =~ /\s([\d.]+)/;
 
 use strict;
 use GD::Graph::Error;

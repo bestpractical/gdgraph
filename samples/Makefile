@@ -23,7 +23,7 @@ EXT := \
 	$(shell perl $(OPTIONS) -MGD::Graph -e 'print GD::Graph::export_format')
 
 SAMPLES :=  \
-		sample11 sample12 sample13 sample14 sample15 sample16 
+		sample11 sample12 sample13 sample14 sample15 sample16 \
 		sample17 sample18 \
 		sample21 sample22 \
 		sample31 \

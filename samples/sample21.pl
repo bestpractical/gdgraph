@@ -18,6 +18,7 @@ $my_graph->set(
 	y_max_value => 40,
 	y_tick_number => 8,
 	y_label_skip => 2,
+	#accent_treshold => 41,
 );
 
 $my_graph->set_legend( 'one', 'two' );

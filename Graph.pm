@@ -18,7 +18,7 @@
 #		GD::Graph::pie
 #		GD::Graph::mixed
 #
-# $Id: Graph.pm,v 1.12 2000/01/27 05:11:05 mgjv Exp $
+# $Id: Graph.pm,v 1.13 2000/01/27 11:12:11 mgjv Exp $
 #
 #==========================================================================
 
@@ -36,11 +36,11 @@ use GD;
 use GD::Text::Align;
 use Carp;
 
-$GD::Graph::prog_rcs_rev = q{$Revision: 1.12 $};
+$GD::Graph::prog_rcs_rev = q{$Revision: 1.13 $};
 $GD::Graph::prog_version = 
 	($GD::Graph::prog_rcs_rev =~ /\s+(\d*\.\d*)/) ? $1 : "0.0";
 
-$GD::Graph::VERSION = '1.22';
+$GD::Graph::VERSION = '1.23';
 
 # Some tools and utils
 use GD::Graph::colour qw(:colours);
@@ -855,7 +855,8 @@ colour of the bars will cycle through the colours in C<borderclrs>.
 
 Not really a colour, but it does control a visual aspect: Accents on
 bars are only drawn when the width of a bar is larger than this number
-of pixels. 
+of pixels. Accents inside areas are only drawn when the horizontal
+distance between points is larger than this number.
 Default 4
 
 =back

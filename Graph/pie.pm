@@ -5,7 +5,7 @@
 #	Name:
 #		GD::Graph::pie.pm
 #
-# $Id: pie.pm,v 1.7 2000/01/07 13:44:42 mgjv Exp $
+# $Id: pie.pm,v 1.8 2000/01/27 11:12:11 mgjv Exp $
 #
 #==========================================================================
 
@@ -231,10 +231,10 @@ sub draw_data # (\@data, GD::Image)
 
 	my $val = 0;
 
-	for $i ( 0..$s->{numpoints} ) 
+	for $i (0 .. $s->{numpoints}) 
 	{
 		# Set the data colour
-		my $dc = $s->set_clr_uniq($s->pick_data_clr($i));
+		my $dc = $s->set_clr_uniq($s->pick_data_clr($i + 1));
 
 		# Set the angles of the pie slice
 		# Angle 0 faces down, positive angles are clockwise 

@@ -21,6 +21,7 @@ $my_graph->set(
 	y_label_skip => 2,
 	overwrite => 2,
 	borderclrs => $my_graph->{dclrs},
+	#cycle_clrs => 2,
 	bar_spacing => 4,
 );
 

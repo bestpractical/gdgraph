@@ -2,6 +2,14 @@
 
 - Added patch from Hildebrand, which allows non-drawing of accents on
   bars with accent_treshold option
+- Fixed rounding problems with overwrite == 2, alert from Hildebrand,
+  also a patch supplied which couldn't be used because of other code
+  changes related to sample17
+- Added sample18, supplied by Hildebrand as illustration of rounding
+  problem.
+- Fixed off-by one error in pick_data_color whenever color pick is based
+  on point instead of data set (cycle_clrs and pie)
+- Added accent_treshold option to area charts
 
 09 Jan 2000
 

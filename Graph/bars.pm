@@ -5,7 +5,7 @@
 #	Name:
 #		GD::Graph::bars.pm
 #
-# $Id: bars.pm,v 1.6 2000/01/27 05:11:05 mgjv Exp $
+# $Id: bars.pm,v 1.7 2000/01/27 11:12:11 mgjv Exp $
 #
 #==========================================================================
  
@@ -52,18 +52,29 @@ sub draw_data_overwrite
 
 	my $zero = $s->{zeropoint};
 
+	# CONTRIB Jeremy Wadsack, shadows
+	my $bsd = $s->{shadow_depth} and
+		my $bsci = $s->set_clr(_rgb($s->{shadowclr}));
+		
 	for my $i (0 .. $s->{numpoints}) 
 	{
 		my $bottom = $zero;
 		my ($xp, $t);
 
-		# CONTRIB Jeremy Wadsack, shadows
-		my $bsd = $s->{shadow_depth} and
-			my $bsci = $s->set_clr(_rgb($s->{shadowclr}));
-			
-		for my $j (1 .. $s->{numsets}) 
+		my $total = 0;
+		for my $j (1 .. $s->{numsets})
 		{
-			next unless (defined $d->[$j][$i]);
+			next unless defined $d->[$j][$i];
+
+			# ALERT from Edwin Hildebrand, including patch. His patch
+			# inapplicable, because of change in behaviour of colors
+			# (as in sample17) This fixed problems with sample18.
+			#
+			# Instead of using rounded values to offset bars for
+			# overwrite == 2, well keep track a bit more exactly.
+			(undef, $bottom) = $s->val_to_pixel($i + 1, $total, $j)
+				if $s->{overwrite} == 2;
+			$total += $d->[$j][$i];
 
 			# get data colour
 			# CONTRIB Jeremy Wadsack
@@ -71,26 +82,23 @@ sub draw_data_overwrite
 			# cycle_clrs option sets the color based on the point, 
 			# not the dataset.
 			my $dsci = $s->set_clr($s->pick_data_clr(
-				$s->{cycle_clrs} ? $i : $j));
+				$s->{cycle_clrs} ? $i + 1 : $j));
 			# contrib "Bremford, Mike" <mike.bremford@gs.com>
 			my $brci = $s->set_clr($s->pick_border_clr(
-				$s->{cycle_clrs} > 1 ? $i : $j));
+				$s->{cycle_clrs} > 1 ? $i + 1 : $j));
 
 			# get coordinates of top and center of bar
-			($xp, $t) = $s->val_to_pixel($i + 1, $d->[$j][$i], $j);
-
+			($xp, $t) = $s->{overwrite} == 2 ?
+				$s->val_to_pixel($i + 1, $total, $j) :
+				$s->val_to_pixel($i + 1, $d->[$j][$i], $j);
+			
 			# calculate left and right of bar
 			my $l = $xp - _round($s->{x_step}/2) + $bar_s;
 			my $r = $xp + _round($s->{x_step}/2) - $bar_s;
 
-			# calculate new top
-			$t -= ($zero - $bottom) if ($s->{overwrite} == 2);
-
-			# draw the bar
-			if ($d->[$j][$i] >= 0)
+			if ($t <= $bottom)
 			{
 				# positive value
-				
 				$g->filledRectangle($l+$bsd, $t+$bsd, $r+$bsd, $bottom, $bsci)
 					if $bsd;
 				$g->filledRectangle($l, $t, $r, $bottom, $dsci);
@@ -106,9 +114,6 @@ sub draw_data_overwrite
 				$g->rectangle($l, $bottom, $r, $t, $brci)
 					if ($r - $l > $s->{accent_treshold});
 			}
-
-			# reset $bottom to the top
-			$bottom = $t if ($s->{overwrite} == 2);
 		}
 	}
  }
@@ -138,9 +143,9 @@ sub draw_data_set
 		#
 		# cycle_clrs option sets the color based on the point, 
 		# not the dataset.
-		$dsci = $s->set_clr($s->pick_data_clr($i))
+		$dsci = $s->set_clr($s->pick_data_clr($i + 1))
 			if $s->{cycle_clrs};
-		$brci = $s->set_clr($s->pick_data_clr($i))
+		$brci = $s->set_clr($s->pick_data_clr($i + 1))
 			if $s->{cycle_clrs} > 1;
 
 		# get coordinates of top and center of bar

@@ -1,5 +1,5 @@
 # This -*- perl -*- script makes the Makefile
-# $Id: Makefile.PL,v 1.9 2000/10/07 05:52:41 mgjv Exp $
+# $Id: Makefile.PL,v 1.10 2002/06/21 08:20:46 mgjv Exp $
  
 #--- Distribution section ---
  
@@ -10,25 +10,25 @@ my @clean = qw(*.old *.save tags);
 push @clean, map { "*/$_" } @clean;
  
 WriteMakefile(
-		'VERSION_FROM'		=> 'Graph.pm',	#finds $VERSION
-		'DISTNAME'  		=> 'GDGraph',
-		'NAME'				=> 'GD::Graph',
+        'VERSION_FROM'      => 'Graph.pm',  #finds $VERSION
+        'DISTNAME'          => 'GDGraph',
+        'NAME'              => 'GD::Graph',
 
-		($] >= 5.005 ?
-			('ABSTRACT'		=> 'Produces charts with GD',
-			 'AUTHOR'		=> 'Martien Verbruggen <mgjv@tradingpost.com.au>',
-			):()
-		),
+        ($] >= 5.005 ?
+            ('ABSTRACT'     => 'Produces charts with GD',
+             'AUTHOR'       => 'Martien Verbruggen <mgjv@tradingpost.com.au>',
+            ):()
+        ),
 
-		'PREREQ_PM'			=> { 
-			'GD' => '1.18', 
-			'GD::Text::Align' => undef,
-		},
+        'PREREQ_PM'         => { 
+            'GD' => '1.18', 
+            'GD::Text::Align' => undef,
+        },
  
-        'dist'    			=> {
-			'COMPRESS' 		=> 'gzip -9f',
-			'SUFFIX'   		=> 'gz', 
-		},
+        'dist'              => {
+            'COMPRESS'      => 'gzip -9f',
+            'SUFFIX'        => 'gz', 
+        },
 
         'clean'   => { 'FILES' => join(" ", @clean), },
 );

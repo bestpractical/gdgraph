@@ -5,13 +5,13 @@
 #   Name:
 #       GD::Graph::area.pm
 #
-# $Id: area.pm,v 1.13 2002/06/09 03:15:15 mgjv Exp $
+# $Id: area.pm,v 1.14 2002/06/21 08:20:46 mgjv Exp $
 #
 #==========================================================================
 
 package GD::Graph::area;
  
-$GD::Graph::area::VERSION = '$Revision: 1.13 $' =~ /\s([\d.]+)/;
+$GD::Graph::area::VERSION = '$Revision: 1.14 $' =~ /\s([\d.]+)/;
 
 use strict;
 
@@ -56,6 +56,7 @@ sub draw_data_set
 
         # Hotspot stuff
         # XXX needs fixing
+	next unless defined $self->{_hotspots}->[$ds]->[$i];
         if ($i == 0)
         {
             $self->{_hotspots}->[$ds]->[$i] = ["poly", 
@@ -94,7 +95,8 @@ sub draw_data_set
         for (my $i = 1; $i < @values - 1; $i++)
         {
             my $value = $values[$i];
-            next unless defined $value;
+	    ## XXX Why don't I need this line?
+            ##next unless defined $value;
 
             my ($x, $y) = $poly->getPt($i);
             my $bottom = $bottom[$i]->[1];

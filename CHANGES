@@ -1,3 +1,13 @@
+12 Jun 2002 - 21 Jun 2002
+
+- Fixed various bugs: 
+  - Area charts don't allow undefined variables, die on hotspot code
+  - allow "0.00" to be equal to 0 when determining min and max values
+    for axes
+  - fixed shadows for cumulative bars
+
+- Preparation for release 1.35
+
 9 Jun 2002
 
 - I just realised this file is severely out of date. I'll only keep

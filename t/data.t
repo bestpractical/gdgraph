@@ -1,4 +1,4 @@
-# $Id: data.t,v 1.14 2003/06/16 22:52:30 mgjv Exp $
+# $Id: data.t,v 1.15 2003/06/17 01:24:36 mgjv Exp $
 use Test;
 use strict;
 
@@ -99,7 +99,7 @@ ok(ref $rc, "GD::Graph::Data", "Couldn't read input data.tab input file");
 
 if (!defined $rc)
 {
-    skip(1) for 1..2;
+    skip(1, "data.tab not read") for 1..2;
 }
 else
 {
@@ -119,7 +119,7 @@ ok(ref $rc, "GD::Graph::Data", "Couldn't read input data.csv input file");
 
 if (!defined $rc)
 {
-    skip(1) for 1..2;
+    skip(1, "data.csv not read") for 1..2;
 }
 else
 {

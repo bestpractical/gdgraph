@@ -1,3 +1,8 @@
+17 June 2003
+
+- Fixed skip() calls in tests to work with ancient versions of
+  Test.pm.
+
 16 June 2003
 
 - Fixed when zero axis inclusion is done for bar and are charts.

@@ -5,13 +5,13 @@
 #   Name:
 #       GD::Graph::axestype.pm
 #
-# $Id: axestype.pm,v 1.32 2002/06/09 03:15:15 mgjv Exp $
+# $Id: axestype.pm,v 1.33 2002/06/11 11:38:12 mgjv Exp $
 #
 #==========================================================================
 
 package GD::Graph::axestype;
 
-$GD::Graph::axestype::VERSION = '$Revision: 1.32 $' =~ /\s([\d.]+)/;
+$GD::Graph::axestype::VERSION = '$Revision: 1.33 $' =~ /\s([\d.]+)/;
 
 use strict;
  
@@ -1518,7 +1518,7 @@ sub _best_ends
     my ($best_min, $best_max, $best_num) = ($min, $max, 1);
 
     # Check that min and max are not the same, and not 0
-    ($min, $max) = ($min) ? ($min * 0.5, $min * 1.5) : (-1,1) 
+    ($min, $max) = ($min != 0) ? ($min * 0.5, $min * 1.5) : (-1,1) 
         if ($max == $min);
     # mgjv - Sometimes, for odd values, and only one data set, this will be
     # necessary _after_ the previous step, not before. Data sets of one

@@ -1,5 +1,151 @@
 UNRESOLVED BUGS
 
+- From rt.cpan.org
+
+Subject: Bug in shadow handling with cumulative bar charts  
+  
+  
+Using GDGraph 1.33 installed via PPM with ActivePerl build 630 (perl v5.6.1) on
+Windows 2000. When drawing cumulative bar charts (GD::Graph::bars with the cumulate => 1 option)
+and using shadows (shadow_depth => -4), shadows are misplaced. Running the attached script generates a PNG file where the shadow covers part of the
+lower (red) bars, but the upper (green) bars are on top of the shadow.  Thus, the
+green bars seem to stick out above the red bars.  Using the attached code, look at
+the border between the red and green sections for ASP and CFML at the right of the
+bar.  Without shadows, the red and green bars are the same width.  With shadows, the
+green bar is wider. I hope this information is helpful. Tom Hukins <tom@eborcom.com> Download (untitled) 746b
+  
+#!/usr/bin/perl 
+use strict;
+use warnings; 
+use GD::Graph::bars (); 
+
+my @data = (
+    [qw(ASP Perl Ruby CFML Java)],
+    [qw(4 9 7 2 5)],
+    [qw(2 6 7 2 5)]
+); my
+$graph = GD::Graph::bars->new(400, 300);
+$graph->set(
+    x_label => 'Language',
+    y_label => 'Coolness',
+    y_max_value=> 20,
+    title=> 'How cool is your language?',
+    bar_spacing=> 1,
+    transparent=> 0,
+    shadow_depth=> -4,
+    cumulate => 1
+); 
+my $gd = $graph->plot(\@data);
+my $png = $gd->png;
+
+open FOO, ">cumbug.png" or die $!;
+binmode FOO;
+print FOO $png;
+
+- from rt.cpan.org
+
+Subject: two_axis graphs ranges poorly chosen  
+  
+When you let GD::Graph dynamically pick ranges for a 2-axis graph, you
+can get a very large number of ticks and a range choice that makes
+rather little sense. If you go to http://www.perlmonks.org/index.pl?node_id=138068 and
+hit "d/l code" at the bottom of the page you will find a patch that fixes
+this.
+
+see two_axis_range.patch
+
+- from rt.cpan.org
+
+
+Subject: GD::Graph to fails when plotting graphs flatlined at '0.00'  
+  
+  
+Hi, I think i've discovered a small 'bug' in GD::Graph::axestype If i try and plot a graph that is flatlined at  '0.00'  (quotes important), i get the
+error: Illegal division by zero at /home/shahsag/my_tree/links/cpan/lib/GD/Graph/axestype.pm
+line 1176 I've tracked the problem down to a line of code right at the begining of the
+_best_ends method in axestype.pm where you try and specfically deal with the case
+where $max and $min are equal and at zero. Unfortunately this code doesn't seem to cover the case where $max = '0.00' and $min =
+'0.00'. I attach a small test script with some comments that might make things a little
+clearer. Would you be willing to produce a fix for this and release a new version of GD::Graph
+onto CPAN? The version of perl i am using is 5.6.1.
+The version of GD::Graph is 1.33.
+The OSes that i've seen this on are: Solaris 2.6 and 8 on SPARC fyi: The reason why i can't easily switch from using '0.00' to 0.00 is that i'm
+getting the graph data from another cpan module (StatsView::Graph) and it feels like
+a change to axestype.pm might be the neatest solution. Sagar Download (untitled) 1k
+  
+  
+#!/usr/bin/perl
+use strict;
+use warnings;
+use GD::Graph::lines; 
+my($graph, $image, $margin, @data, $filename); 
+$filename = "/tmp/gd_graph_axis_bug.png";
+$margin = 5;
+$graph = GD::Graph::lines::->new(700 ,450); 
+
+$graph->set(
+    x_label           => 'Time (Local Time)',
+    y_label           => 'Values',
+    title             => "Hello World",
+    line_width        => 1,
+    box_axis          => 0,
+    x_label_skip      =>  30,     #changed
+    x_label_position  => 1/2,
+    x_labels_vertical => 1,
+    bgclr             => "white",
+    transparent       => 0,
+    t_margin          => $margin,
+    b_margin          => $margin,
+    l_margin          => $margin,
+    r_margin          => $margin,
+   ); 
+
+@data = (
+ [ '1', '2', '3', '4', '5', ],
+ [ '0.00', '0.00', '0.00', '0.00', '0.00', ],
+);
+#
+# If you change all the '0.00' to  0.00 then there is no error
+# but you do get a graph where the Y axis starts from a negative
+# number (i suppose so that the line doesn't co-incide with the x
+# axis)
+#
+# See end of script for an explanation of the cause
+$image = eval {
+$graph->plot(\@data);
+};
+if($@ or !defined $image) {
+die("PLOT FAILED: $@\n");
+} 
+print "READY TO WRITE IMAGE: $filename\n"; 
+open(IMG, ">", $filename) or die("Unable to open $filename : $!");
+binmode IMG;
+print IMG $image->png;
+close IMG; 
+
+# GD::Graph::axestype   : line #1149-1150
+#
+# if $min = 0.00, and $max = 0.00, executing the following code
+#CODE:($min, $max) = ($min) ? ($min * 0.5, $min * 1.5) : (-1,1)
+#CODE:if ($max == $min);
+#
+# results in  $min = -1, $max = 1
+#
+#
+# if $min = '0.00', and $max = '0.00', executing the following code
+#CODE:($min, $max) = ($min) ? ($min * 0.5, $min * 1.5) : (-1,1)
+#CODE:if ($max == $min);
+#
+# results in  $min = 0, $max = 0
+#
+# Which later causes a division by zero error!!
+#
+#
+# So essentially the problem is down to the fact that    0.00 and
+# '0.00' are the same when you treat them as numbers, but not as
+# booleans
+#
+
 - From: Eric White <ewhite@ssc.wisc.edu>
   My question concerns the fact that when I create bar graphs
   with GD::Graph and set cumulate = 1 and show_values = 1 the

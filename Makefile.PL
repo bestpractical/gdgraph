@@ -1,14 +1,17 @@
 # This -*- perl -*- script makes the Makefile
-# $Id: Makefile.PL,v 1.12 2003/05/29 23:56:29 mgjv Exp $
+# $Id: Makefile.PL,v 1.13 2003/06/16 01:26:07 mgjv Exp $
  
 #--- Distribution section ---
  
 use ExtUtils::MakeMaker;
 use Config;
  
+#use ExtUtils::Manifest;
+#ExtUtils::Manifest::skipcheck();
+ 
 my @clean = qw(*.old *.save tags);
 push @clean, map { "*/$_" } @clean;
- 
+
 WriteMakefile(
         'VERSION_FROM'  => 'Graph.pm',  #finds $VERSION
         'DISTNAME'      => 'GDGraph',
@@ -43,6 +46,16 @@ samples: all
 tags:
 	ptags lib/GD/*.pm lib/GD/Graph/*.pm
 )
+}
+
+sub MY::libscan
+{
+    my ($self, $path) = @_;
+    return if
+	$path =~ m:(^|/)\..+\.swp$:	    or
+	$path =~ m:(^|/)\.#.+\d$:	    or
+	$path =~ m:\b(RCS|CVS|SCCS)\b:	    ;
+    return $path;
 }
 
 print <<END;

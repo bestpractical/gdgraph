@@ -1,0 +1,11 @@
+# vim swap files
+\..+.swp$
+
+# CVS work files and directories
+CVS/
+\.#.+\d$
+.cvsignore
+
+# sample output
+samples/sample..\.png$
+samples/sample..-h\.png$

@@ -18,7 +18,7 @@
 #		GD::Graph::pie
 #		GD::Graph::mixed
 #
-# $Id: Graph.pm,v 1.35 2000/10/10 11:31:58 mgjv Exp $
+# $Id: Graph.pm,v 1.36 2000/10/23 12:21:05 mgjv Exp $
 #
 #==========================================================================
 
@@ -30,7 +30,7 @@
 
 package GD::Graph;
 
-$GD::Graph::prog_version = '$Revision: 1.35 $' =~ /\s([\d.]+)/;
+$GD::Graph::prog_version = '$Revision: 1.36 $' =~ /\s([\d.]+)/;
 $GD::Graph::VERSION = '1.34';
 
 use strict;
@@ -396,6 +396,23 @@ sub set_clr # GD::Image, r, g, b
 		# returns 0.
 	} 
 	return $i;
+}
+
+# Set a temporary colour that can be used with fillToBorder
+sub _set_tmp_clr
+{
+	my $self = shift; 
+	# XXX Error checks!
+	$self->{graph}->colorAllocate(0,0,0);
+}
+
+# Remove the temporary colour
+sub _rm_tmp_clr
+{
+	my $self = shift; 
+	return unless @_;
+	# XXX Error checks?
+	$self->{graph}->colorDeallocate(shift);
 }
 
 # Set a colour, disregarding wether or not it already exists. This may

@@ -146,3 +146,7 @@ Pat Becker <pmb@iss.net>
 	datapoint above the bar, whether this is an absolute number, or a
 	percentage.
 
+
+From: Phil Lu <phlu@cisco.com>
+Allow bars in mixed charts to live next to each other, instead of only
+on top of each other.

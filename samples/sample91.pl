@@ -17,6 +17,11 @@ $my_graph->set(
 	axislabelclr => 'black',
 	pie_height => 36,
 
+	l_margin => 15,
+	r_margin => 15,
+
+	start_angle => 235,
+
 	transparent => 0,
 );
 

@@ -1,5 +1,5 @@
 # This -*- perl -*- script makes the Makefile
-# $Id: Makefile.PL,v 1.10 2002/06/21 08:20:46 mgjv Exp $
+# $Id: Makefile.PL,v 1.11 2003/02/10 02:07:20 mgjv Exp $
  
 #--- Distribution section ---
  
@@ -47,10 +47,11 @@ tags:
 
 print <<END;
 
-There are no tests for GD::Graph. The best way to test the package is to
-run the examples before installing it.
-You can run the examples in the samples directory with `make samples` or
-by going into that directory, and just running `make`.
+The automatic tests for GDGraph are not really a solid workout of the
+library. The best way to test the package is to run the examples
+before installing it.  You can run the examples in the samples
+directory with `make samples` or by going into that directory, and
+just running `make`.
 If that fails, please read samples/Makefile.
 END
 

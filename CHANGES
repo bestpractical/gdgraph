@@ -1,3 +1,8 @@
+Jan - Feb 2003
+
+- Added some tests, mainly to make the CPAN testers happy :) The best
+  way to test is still to use the samples.
+
 12 Jun 2002 - 21 Jun 2002
 
 - Fixed various bugs: 

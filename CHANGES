@@ -1,3 +1,8 @@
+03 Jan 2000
+
+- Fixed two_axes and negative values
+- released 1.22
+
 Dec 1999, mgjv
 
 - Development and support back to me, mgjv. GIFgraph and Chart::PNGgraph

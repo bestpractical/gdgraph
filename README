@@ -1,6 +1,8 @@
 This is GDGraph, a package to generate charts, using Lincoln Stein's
 GD.pm. See the documentation for some history and more information.
 
+The latest release is available from CPAN: http://www.cpan.org/.
+
 INSTALLATION
 
 needed to install (also see TESTED PLATFORMS):
@@ -19,32 +21,35 @@ to install:
 
 	perl Makefile.PL
 	make
-	make test
 	make install
-
-NB: make test may report errors. If you are not using GD 1.20 this is
-normal. Because of differences in the way GD implements fonts and
-polygons in the various versions, the produced Graphs will differ very
-slightly. If you see this behaviour, please 'make' the samples in the
-samples directory, and check the produced PNGs visually. If they look
-ok, then PNGgraph is ok.
 
 to see some samples:
 
+	make samples
+	(use viewer to see samples/sample*.png or .gif)
+
+or
+
 	cd samples
 	make
+	(use viewer to see sample*.png)
 
-That should generate a set of pngs, which you can view using the HTML
-pages in the same directory (or whichever other way pleases you).
+The documentation available is contained in GD::Graph.pm, as pod. See it
+with 
 
-The documentation available is contained in PNGgraph.pm, as pod.
+perldoc GD::Graph
 
-The latest release should normally be available from CPAN.
+after installation or 
+
+perldoc lib/GD/Graph
+
+before installation.
+
 
 TESTED PLATFORMS (also see NOTES FOR WIN32)
 
-Version 1.20:
-- perl 5.005_03 on Linux GD 1.19 and 1.23
+Version 1.22:
+- perl 5.005_03 on Linux, GD 1.19 and 1.23
 
 I'd appreciate it if people let me know about other combinations of
 Perl, GD and OS that it runs on. When I get back to work I'll test it on
@@ -162,8 +167,8 @@ Copyright (c) 1995-1999 Martien Verbruggen. All rights reserved.
 This package is free software; you can redistribute it and/or
 modify it under the same terms as Perl itself.
 
-I really, really felt like adding a clause to the copyright that
-excluded Unisys and its employees from the use of any of my code, at
-least without a license bought from me. I decided against it for several
-reasons, the main one being that I would just feel too dirty doing that.
+I really felt like adding a clause to the copyright that excluded Unisys
+and its employees from the use of any of my code, at least without a
+license bought from me. I decided against it for several reasons, the
+main one being that I would just feel too dirty doing that.
 

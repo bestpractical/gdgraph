@@ -9,14 +9,30 @@
 #		Package of colour manipulation routines, to be used 
 #		with GD::Graph.
 #
-# $Id: colour.pm,v 1.5 2000/03/18 06:01:43 mgjv Exp $
+# $Id: colour.pm,v 1.6 2000/03/18 07:43:05 mgjv Exp $
 #
 #==========================================================================
 
  
 package GD::Graph::colour;
 
-$GD::Graph::colour::VERSION = '$Revision: 1.5 $' =~ /\s([\d.]+)/;
+$GD::Graph::colour::VERSION = '$Revision: 1.6 $' =~ /\s([\d.]+)/;
+
+=head1 NAME
+
+Colour - Colour manipulation routines for use with GD::Graph
+
+=head1 SYNOPSIS
+
+use GD::Graph::colour qw(:colours :lists :files :convert);
+
+=head1 DESCRIPTION
+
+The B<GD::Graph::colour> package provides a few routines to work with
+colours. The functionality of this package is mainly defined by what is
+needed, now and historically, by the GD::Graph modules.
+
+=cut
 
 use vars qw( @EXPORT_OK %EXPORT_TAGS );
 use strict;
@@ -26,15 +42,17 @@ use Carp;
 @GD::Graph::colour::ISA = qw( Exporter );
 
 @EXPORT_OK = qw( 
-	_rgb _luminance _hue 
+	_rgb _luminance _hue add_colour
 	colour_list sorted_colour_list
 	read_rgb
+	hex2rgb rgb2hex
 );
 %EXPORT_TAGS = ( 
-		colours => [qw( _rgb _luminance _hue )],
-		lists => [qw( colour_list sorted_colour_list )],
-		files => [qw( read_rgb )],
-	);
+	colours => [qw( add_colour _rgb _luminance _hue )],
+	lists => [qw( colour_list sorted_colour_list )],
+	files => [qw( read_rgb )],
+	convert => [qw( hex2rgb rgb2hex )],
+);
 
 my %RGB = (
 	white	=> [0xFF,0xFF,0xFF], 
@@ -68,11 +86,30 @@ my %RGB = (
 	dbrown	=> [0xA5,0x2A,0x2A],
 );
 
+=head1 FUNCTIONS
+
+=head2 colour_list( I<number of colours> )
+
+Returns a list of I<number of colours> colour names known to the package.
+Exported with the :lists tag.
+
+=cut
+
 sub colour_list 
 {
 	my $n = ( $_[0] ) ? $_[0] : keys %RGB;
 	return (keys %RGB)[0 .. $n-1]; 
 }
+
+=head2 sorted_colour_list( I<number of colours> )
+
+Returns a list of I<number of colours> colour names known to the package, 
+sorted by luminance or hue.
+B<NB.> Right now it always sorts by luminance. Will add an option in a later
+stage to decide sorting method at run time.
+Exported with the :lists tag.
+
+=cut
 
 sub sorted_colour_list 
 {
@@ -83,6 +120,52 @@ sub sorted_colour_list
 	sub by_luminance { _luminance(@{$RGB{$b}}) <=> _luminance(@{$RGB{$a}}) }
 	sub by_hue       { _hue(@{$RGB{$b}}) <=> _hue(@{$RGB{$a}}) }
 }
+
+=head2 _rgb( I<colour name> )
+
+Returns a list of the RGB values of I<colour name>. if the colour name
+is a string of the form that is acceptable to the hex2rgb sub, then the
+colour will be added to the list dynamically.
+Exported with the :colours tag.
+
+=cut
+
+my %warned_clrs = ();
+
+# return the RGB values of the colour name
+sub _rgb 
+{ 
+	my $clr = shift;
+
+	# Try adding the colour if it doesn't exist yet. It may be of a
+	# parseable form
+	add_colour($clr) unless exists $RGB{$clr};
+
+	my $rgb_ref = $RGB{$clr};
+	if (!defined $rgb_ref)
+	{
+		$rgb_ref = $RGB{'black'};
+		unless ($warned_clrs{$clr})
+		{
+			$warned_clrs{$clr}++;
+			carp "Colour $clr is not defined, reverting to black"; 
+		}
+	};
+
+	@{$rgb_ref};
+}
+
+=head2 _hue( I<R,G,B> )
+
+Returns the hue of the colour with the specified RGB values.
+Exported with the :colours tag.
+
+=head2 _luminance( I<R,G,B> )
+
+Returns the luminance of the colour with the specified RGB values.
+Exported with the :colours tag.
+
+=cut
 
 # return the luminance of the colour (RGB)
 sub _luminance 
@@ -96,39 +179,80 @@ sub _hue
 	($_[0] + $_[1] + $_[2])/(3 * 0xFF) 
 }
 
-my %warned_clrs = ();
+=head2 add_colour(colourname => [$r, $g, $b]) or
+add_colour('#7fe310')
 
-# return the RGB values of the colour name
-sub _rgb 
-{ 
-	my $clr = shift;
-	my $rgb_ref;
-	$rgb_ref = $RGB{$clr} or do {
-		$rgb_ref = $RGB{'black'};
-		unless ($warned_clrs{$clr})
-		{
-			$warned_clrs{$clr}++;
-			carp "Colour $clr is not defined, reverting to black"; 
-		}
-	};
-	@{$rgb_ref};
-}
+Self-explanatory.
+Exported with the :colours tag.
 
-sub version { $GD::Graph::colour::VERSION }
+=cut
 
-sub dump_colours
+sub add_colour
 {
-	my $max = $_[0] ? $_[0] : keys %RGB;
-	my $n = 0;
+	my $name = shift;
+	my $val  = shift;
 
-	my $clr;
-	foreach $clr (sorted_colour_list($max))
+	if (!defined $val)
 	{
-		last if $n > $max;
-		print "colour: $clr, " . 
-			"${$RGB{$clr}}[0], ${$RGB{$clr}}[1], ${$RGB{$clr}}[2]\n"
+		my @rgb = hex2rgb($name) or return;
+		$val = [@rgb];
 	}
+
+	if (ref $val && ref $val eq 'ARRAY')
+	{
+		$RGB{$name} = [@{$val}];
+		return $name;
+	}
+
+	return;
 }
+
+=head2 rgb2hex($red, $green, $blue)
+
+=head2 hex2rgb('#7fe310')
+
+These functions translate a list of RGB values into a hexadecimal
+string, as is commonly used in HTML and the Image::Magick API, and vice
+versa.
+Exported with the :convert tag.
+
+=cut
+
+# Color translation
+sub rgb2hex
+{
+	return unless @_ == 3;
+	my $color = '#';
+	foreach my $cc (@_)
+	{
+		$color .= sprintf("%02x", $cc);
+	}
+	return $color;
+}
+
+sub hex2rgb
+{
+	my $clr = shift;
+	my @rgb = $clr =~ /^#([a-f0-9]{2})([a-f0-9]{2})([a-f0-9]{2})$/i;
+	return unless @rgb;
+	return map { hex $_ } @rgb;
+}
+
+=head2 read_rgb( F<file name> )
+
+Reads in colours from a rgb file as used by the X11 system.
+
+Doing something like:
+
+    use GD::Graph::bars;
+    use GD::Graph::colour;
+
+    GD::Graph::colour::read_rgb("rgb.txt") or die "cannot read colours";
+
+Will allow you to use any colours defined in rgb.txt in your graph.
+Exported with the :files tag.
+
+=cut
 
 #
 # Read a rgb.txt file (X11)
@@ -174,70 +298,26 @@ sub read_rgb($) # (filename)
 	return $n;
 }
 
+sub version { $GD::Graph::colour::VERSION }
+
+sub dump_colours
+{
+	my $max = $_[0] ? $_[0] : keys %RGB;
+	my $n = 0;
+
+	my $clr;
+	foreach $clr (sorted_colour_list($max))
+	{
+		last if $n > $max;
+		print "colour: $clr, " . 
+			"${$RGB{$clr}}[0], ${$RGB{$clr}}[1], ${$RGB{$clr}}[2]\n"
+	}
+}
+
+
 "Just another true value";
 
 __END__
-
-=head1 NAME
-
-Colour - Colour manipulation routines for use with GD::Graph
-
-=head1 SYNOPSIS
-
-use GD::Graph::colour qw( :colours :lists :files );
-
-=head1 DESCRIPTION
-
-The B<Colour> Package provides a few routines to convert some colour
-names to RGB values. Also included are some functions to calculate
-the hue and luminance of the colours, mainly to be able to sort them.
-
-The :colours tags can be used to import the I<_rgb>, I<_hue>, and
-I<_luminance> functions, the :lists tag for I<colour_list> and
-I<sorted_colour_list>, and the :files tag exports the I<read_rgb>
-function.
-
-=head1 FUNCTIONS
-
-=over 4
-
-=item Colour::colour_list( I<number of colours> )
-
-Returns a list of I<number of colours> colour names known to the package.
-
-=item Colour::sorted_colour_list( I<number of colours> )
-
-Returns a list of I<number of colours> colour names known to the package, 
-sorted by luminance or hue.
-B<NB.> Right now it always sorts by luminance. Will add an option in a later
-stage to decide sorting method at run time.
-
-=item Colour::_rgb( I<colour name> )
-
-Returns a list of the RGB values of I<colour name>.
-
-=item Colour::_hue( I<R,G,B> )
-
-Returns the hue of the colour with the specified RGB values.
-
-=item Colour::_luminance( I<R,G,B> )
-
-Returns the luminance of the colour with the specified RGB values.
-
-=item Colour::read_rgb( F<file name> )
-
-Reads in colours from a rgb file as used by the X11 system.
-
-Doing something like:
-
-    use GD::Graph::bars;
-    use GD::Graph::colour;
-
-    GD::Graph::colour::read_rgb("rgb.txt") or die "cannot read colours";
-
-Will allow you to use any colours defined in rgb.txt in your graph.
-
-=back 
 
 =head1 PREDEFINED COLOUR NAMES
 

@@ -5,13 +5,13 @@
 #	Name:
 #		GD::Graph::axestype.pm
 #
-# $Id: axestype.pm,v 1.25 2000/05/06 23:16:38 mgjv Exp $
+# $Id: axestype.pm,v 1.26 2000/05/06 23:23:41 mgjv Exp $
 #
 #==========================================================================
 
 package GD::Graph::axestype;
 
-$GD::Graph::axestype::VERSION = '$Revision: 1.25 $' =~ /\s([\d.]+)/;
+$GD::Graph::axestype::VERSION = '$Revision: 1.26 $' =~ /\s([\d.]+)/;
 
 use strict;
  
@@ -939,7 +939,7 @@ sub draw_values
 				$self->{_data}->error);
 		my @display = $self->{show_values}->y_values($dsn) or next;
 
-		for (my $i; $i < @values; $i++)
+		for (my $i = 0; $i < @values; $i++)
 		{
 			next unless defined $display[$i];
 			my ($xp, $yp);

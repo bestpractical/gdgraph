@@ -5,13 +5,13 @@
 #	Name:
 #		GD::Graph::bars.pm
 #
-# $Id: bars.pm,v 1.18 2000/05/06 23:16:38 mgjv Exp $
+# $Id: bars.pm,v 1.19 2000/05/06 23:23:41 mgjv Exp $
 #
 #==========================================================================
  
 package GD::Graph::bars;
 
-$GD::Graph::bars::VERSION = '$Revision: 1.18 $' =~ /\s([\d.]+)/;
+$GD::Graph::bars::VERSION = '$Revision: 1.19 $' =~ /\s([\d.]+)/;
 
 use strict;
 
@@ -151,7 +151,7 @@ sub draw_values
 				$self->{_data}->error);
 		my @display = $self->{show_values}->y_values($dsn) or next;
 
-		for (my $i; $i < @values; $i++)
+		for (my $i = 0; $i < @values; $i++)
 		{
 			next unless defined $display[$i];
 			my ($xp, $yp);

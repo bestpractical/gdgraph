@@ -19,7 +19,7 @@
 #       GD::Graph::pie
 #       GD::Graph::mixed
 #
-# $Id: Graph.pm,v 1.53 2003/07/01 04:56:57 mgjv Exp $
+# $Id: Graph.pm,v 1.55 2003/12/04 01:37:48 mgjv Exp $
 #
 #==========================================================================
 
@@ -31,7 +31,7 @@
 
 package GD::Graph;
 
-($GD::Graph::prog_version) = '$Revision: 1.53 $' =~ /\s([\d.]+)/;
+($GD::Graph::prog_version) = '$Revision: 1.55 $' =~ /\s([\d.]+)/;
 $GD::Graph::VERSION = '1.43';
 
 use strict;
@@ -597,11 +597,11 @@ Set the graph options.
       y_max_value       => 8,
       y_tick_number     => 8,
       y_label_skip      => 2 
-  ) or die $my_graph->error;
+  ) or die $graph->error;
 
 and plot the graph.
 
-  my $gd = $my_graph->plot(\@data) or die $my_graph->error;
+  my $gd = $graph->plot(\@data) or die $graph->error;
 
 Then do whatever your current version of GD allows you to do to save the
 file. For versions of GD older than 1.19, you'd do something like:
@@ -626,10 +626,10 @@ or
 Then there's also of course the possibility of using a shorter
 version (for each of the export functions that GD supports):
 
-  print IMG $my_graph->plot(\@data)->gif;
-  print IMG $my_graph->plot(\@data)->png;
-  print IMG $my_graph->plot(\@data)->gd;
-  print IMG $my_graph->plot(\@data)->gd2;
+  print IMG $graph->plot(\@data)->gif;
+  print IMG $graph->plot(\@data)->png;
+  print IMG $graph->plot(\@data)->gd;
+  print IMG $graph->plot(\@data)->gd2;
 
 If you want to write something that doesn't require your code to 'know'
 whether to use gif or png, you could do something like:
@@ -638,20 +638,20 @@ whether to use gif or png, you could do something like:
 
 or you can use the convenience method C<export_format>:
 
-  my $format = $my_graph->export_format;
+  my $format = $graph->export_format;
   open(IMG, ">file.$format") or die $!;
   binmode IMG;
-  print IMG $my_graph->plot(\@data)->$format();
+  print IMG $graph->plot(\@data)->$format();
   close IMG;
 
 or for CGI programs:
 
   use CGI qw(:standard);
   #...
-  my $format = $my_graph->export_format;
+  my $format = $graph->export_format;
   print header("image/$format");
   binmode STDOUT;
-  print $my_graph->plot(\@data)->$format();
+  print $graph->plot(\@data)->$format();
 
 (the parentheses after $format are necessary, to help the compiler
 decide that you mean a method name there)
@@ -961,7 +961,7 @@ in currency, with the - sign in the right spot. Something like:
         return $ret;
     }
 
-    $my_graph->set( 'y_number_format' => \&y_format );
+    $graph->set( 'y_number_format' => \&y_format );
 
 (Yes, I know this can be much shorter and more concise)
 
@@ -1453,9 +1453,9 @@ things, since all font handling in GD::Graph is delegated to there.
 
 Examples:
 
-    $my_graph->set_title_font('/fonts/arial.ttf', 18);
-    $my_graph->set_legend_font(gdTinyFont);
-    $my_graph->set_legend_font(
+    $graph->set_title_font('/fonts/arial.ttf', 18);
+    $graph->set_legend_font(gdTinyFont);
+    $graph->set_legend_font(
         ['verdana', 'arial', gdMediumBoldFont], 12)
 
 (The above discussion is based on GD::Text 0.65. Older versions have

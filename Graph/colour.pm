@@ -9,7 +9,7 @@
 #		Package of colour manipulation routines, to be used 
 #		with GD::Graph.
 #
-# $Id: colour.pm,v 1.2 1999/12/11 12:50:48 mgjv Exp $
+# $Id: colour.pm,v 1.3 1999/12/29 12:14:40 mgjv Exp $
 #
 #==========================================================================
 
@@ -17,13 +17,14 @@
 package GD::Graph::colour;
 
 use vars qw( @EXPORT_OK %EXPORT_TAGS );
-use strict qw( vars refs subs );
+use strict;
 require Exporter;
+use Carp;
 
 @GD::Graph::colour::ISA = qw( Exporter );
 
 $GD::Graph::colour::prog_name    = 'GD::Graph::colour.pm';
-$GD::Graph::colour::prog_rcs_rev = '$Revision: 1.2 $';
+$GD::Graph::colour::prog_rcs_rev = '$Revision: 1.3 $';
 $GD::Graph::colour::prog_version = 
 	($GD::Graph::colour::prog_rcs_rev =~ /\s+(\d*\.\d*)/) ? $1 : "0.0";
 
@@ -116,7 +117,7 @@ sub _rgb
 		unless ($warned_clrs{$clr})
 		{
 			$warned_clrs{$clr}++;
-			warn "Colour $clr is not defined, reverting to black"; 
+			carp "Colour $clr is not defined, reverting to black"; 
 		}
 	};
 	@{$rgb_ref};

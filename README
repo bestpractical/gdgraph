@@ -5,8 +5,15 @@ INSTALLATION
 
 needed to install (also see TESTED PLATFORMS):
 
-	perl 5.004
-	GD >= 1.18 (recommended >= 1.23)
+	perl 5.005
+	GD >= 1.19 (recommended >= 1.23)
+	GD::Text::Align (part of the GDTextUtils package)
+
+It is very likely that it runs on 5.004, but I haven't tested it, and I
+won't support it, simply because I don't have the platforms to test it
+on. 5.005 has been available since July 1998, and should be installed.
+It is also possible that it works with older versions of GD.  Again, I
+have not tested it.
 
 to install:
 
@@ -36,20 +43,22 @@ The latest release should normally be available from CPAN.
 
 TESTED PLATFORMS (also see NOTES FOR WIN32)
 
-Latest version:
-- perl 5.005_03 on Linux 2.2.5-22 (RedHat 6.0, patched), GD 1.20
+Version 1.20:
+- perl 5.005_03 on Linux GD 1.19 and 1.23
 
-Version 1.01 (GIFgraph):
-- perl 5.004_04 on Solaris 2.5.1, GD 1.15
-- perl 5.004_02 for win32 by Gurusamy Sarathy, GD (1.14 I think)
-- perl 5.004_04 HP-UX 10.20, GD 1.18 (Ronald Post)
+I'd appreciate it if people let me know about other combinations of
+Perl, GD and OS that it runs on. When I get back to work I'll test it on
+Solaris and NT (maybe).
+
+GIFgraph has been known to run well on ActiveState's ports of Perl for
+Win32, but I haven't tested it myself for GD::Graph.
 
 AUTHOR
 
 Martien Verbruggen
 mgjv@comdyn.com.au
 
-FIRST PNG PORT
+FIRST PNG PORT as Chart::PNGgraph
 
 Steve Bonds
 sbonds@agora.rdrop.com
@@ -58,11 +67,11 @@ MOST IMPORTANT CHANGES FOR VERSION 1.20
 
 - Namespace change to GD::Graph
 - No more links to GIF or PNG. We return a GD object now. It's the
-  user's responsibility to save the right format.
-- GIFgraph and (hopefully) Chart::PNGgraph will become wrappers around
-  all this
+  user's responsibility to save the right format. GIFgraph and
+  (hopefully) Chart::PNGgraph will become wrappers around all this
 - Font support no longer part of these modules. Instead the package
   GDTextUtils is necessary.
+- Some bug fixes and extra options.
 
 MOST IMPORTANT CHANGES SINCE VERSION 1.10
 
@@ -124,18 +133,8 @@ NOTES FOR WIN32
 
 I have not tested the PNG port on Win32.  sbonds.
 
-PNGgraph installs and runs well under Gurusamy Sarathy's port of perl
-for win32, and its usage is exactly the same as documented.
-
-The ActiveState port 5.003 for win32 can be used with Dave Roth's port
-of GD for win32. This port, however has a peculiarity. It is
-impossible to manipulate the png data in memory (the GD::Image::png()
-method always writes to a file descriptor, instead of returning the
-data). This makes the use of PNGgraph with that port impossible
-without a lot of work.
-This means that until someone ports GD for the ActiveState perl with
-full support for all its functionality, PNGgraph will not work on
-ActiveState's port 5.003. 
+GIFgraph installs and runs well under Gurusamy Sarathy's port of
+perl for win32, and its usage is exactly the same as documented.
 
 It may very well, and _should_ work on the 5.005 ports, although I
 have personally not tested that yet.
@@ -148,25 +147,23 @@ and releasing it as Chart::PNGgraph. I really didn't have the time to
 look at it, and he stepped in and fixed the headache that Unisys had
 given me.
 
-Others who have contributed:
-
-	Scott Prahl
-	brian d foy
-	Honza Pazdziora
-	Dave Belcher
-	Vegard Vesterheim
+Others who have contributed are mentioned in the documentation for
+GD::Graph in the AUTHOR section.
 
 COPYRIGHT
 
-Copyright (c) 1995-1997 Martien Verbruggen. All rights reserved.
+GD::Graph
+Copyright (c) 1999 Martien Verbruggen. All rights reserved.
+Chart::PNGgraph
 Copyright (c) 1999 Steve Bonds.  All rights reserved.
-Copyright (c) 1997-1999 Martien Verbruggen. All rights reserved.
+GIFgraph
+Copyright (c) 1995-1999 Martien Verbruggen. All rights reserved.
 
 This package is free software; you can redistribute it and/or
 modify it under the same terms as Perl itself.
 
 I really, really felt like adding a clause to the copyright that
-excluded Unisys and Unisys employees from the use of any of my code, at
+excluded Unisys and its employees from the use of any of my code, at
 least without a license bought from me. I decided against it for several
-reasons. The main one being that I would just feel too dirty doing that.
+reasons, the main one being that I would just feel too dirty doing that.
 

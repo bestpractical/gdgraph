@@ -13,7 +13,9 @@ $my_graph = new GD::Graph::pie( 200, 200 );
 $my_graph->set( 
 	start_angle => 90,
 	'3d' => 0,
-	label => 'foo baer',
+	label => 'Foo Bar',
+	# The following should prevent the 7th slice from getting a label
+	suppress_angle => 5, 
 );
 
 $my_graph->plot(\@data);

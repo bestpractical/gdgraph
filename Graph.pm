@@ -1,6 +1,5 @@
 #==========================================================================
-#              Copyright (c) 1995-1998 Martien Verbruggen
-#              Copyright (c) 1999 Steve Bonds
+#              Copyright (c) 1995-2000 Martien Verbruggen
 #--------------------------------------------------------------------------
 #
 #	Name:
@@ -19,19 +18,9 @@
 #		GD::Graph::pie
 #		GD::Graph::mixed
 #
-# $Id: Graph.pm,v 1.3 1999/12/24 11:23:56 mgjv Exp $
+# $Id: Graph.pm,v 1.4 1999/12/29 12:14:40 mgjv Exp $
 #
 #==========================================================================
-
-require 5.004;
-
-use strict;
-
-use vars qw(@ISA);
-
-# XXX Version numbers?
-use GD '1.18';
-use GD::Text::Align;
 
 #
 # GD::Graph
@@ -41,7 +30,13 @@ use GD::Text::Align;
 
 package GD::Graph;
 
-$GD::Graph::prog_rcs_rev = q{$Revision: 1.3 $};
+use strict;
+
+use GD '1.18';
+use GD::Text::Align;
+use Carp;
+
+$GD::Graph::prog_rcs_rev = q{$Revision: 1.4 $};
 $GD::Graph::prog_version = 
 	($GD::Graph::prog_rcs_rev =~ /\s+(\d*\.\d*)/) ? $1 : "0.0";
 
@@ -59,7 +54,6 @@ my %Defaults = (
 
 	# Set the top, bottom, left and right margin for the chart. These 
 	# margins will be left empty.
-
 	t_margin      => 0,
 	b_margin      => 0,
 	l_margin      => 0,
@@ -68,35 +62,30 @@ my %Defaults = (
 	# Set the factor with which to resize the logo in the chart (need to
 	# automatically compute something nice for this, really), set the 
 	# default logo file name, and set the logo position (UR, BR, UL, BL)
-
 	logo_resize   => 1.0,
 	logo          => undef,
 	logo_position => 'LR',
 
 	# Do we want a transparent background?
-
-	# XXX fix
-	#transparent   => 1,
-	transparent   => 0,
+	transparent   => 1,
 
 	# Do we want interlacing?
-
 	interlaced    => 1,
 
 	# Set the background colour, the default foreground colour (used 
 	# for axes etc), the textcolour, the colour for labels, the colour 
 	# for numbers on the axes, the colour for accents (extra lines, tick
 	# marks, etc..)
-
-	bgclr         => 'white',
-	fgclr         => 'dblue',
-	textclr       => 'dblue',
-	labelclr      => 'dblue',
-	axislabelclr  => 'dblue',
-	accentclr     => 'gray',
+	bgclr         => 'white',	# background colour
+	fgclr         => 'dblue',	# Axes and grid
+	textclr       => 'dblue',	# All text, apart from the following 2
+	labelclr      => 'dblue',	# labels on axes
+	axislabelclr  => 'dblue',	# values on axes
+	accentclr     => 'gray',	# bar, area and pie outlines.
+	boxclr		  => undef,		# Fill colour for box axes, default: not used
+	legendclr	  => 'dblue',	# Text for the legend
 
 	# number of pixels to use as text spacing
-
 	text_space    => 8,
 );
 
@@ -115,7 +104,7 @@ sub new  # ( width, height ) optional;
 		$self->{width} = shift;
 
 		# If there's an x size, there should also be a y size.
-		die "Usage: GD::Graph::<type>::new( [width, height] )\n" 
+		croak "Usage: GD::Graph::<type>::new( [width, height] )\n" 
 			unless @_;
 		$self->{height} = shift;
 	} 
@@ -143,27 +132,22 @@ sub set
 	foreach (keys %args) 
 	{ 
 		# Enforce read-only attributes.
-		if ($_ eq "width" || $_ eq "height") {
+		/^width$/i || /^height$/ and do 
+		{
 			$s->Error(
 				"Attempt made to set read-only attribute '$_'-- not set");
 			$s->{_set_error} = 1;
 			next;
-		}
-		else 
-		{
-			$s->{$_} = $args{$_}; 
-		}
+		};
+
+		$s->{$_} = $args{$_}; 
 	}
 
 	return $s->{_set_error} ? undef : 1;
 }
 
-# These should probably not be used, or be rewritten to 
-# accept some keywords. Problem is that GD is very limited 
-# on fonts, and this routine just accepts GD font names. 
-# But.. it's not nice to require the user to include GD.pm
-# just because she might want to change the font.
-
+# Generic routine to instantiate GD::Text::Align objects for text
+# attributes
 sub _set_font
 {
 	my $self = shift;
@@ -217,8 +201,7 @@ sub plot # (\@data)
 }
 
 # Routine to read GNUplot style data files
-# NOT USEABLE
-
+# NOT USEABLE AT THE MOMENT
 sub ReadFile 
 {
 	my $file = shift; 
@@ -228,7 +211,7 @@ sub ReadFile
 	@cols = 1 if ( $#cols < 1 );
 
 	open (DATA, $file) || do { 
-		warn "Cannot open file: $file"; 
+		carp "Cannot open file: $file"; 
 		return []; 
 	};
 
@@ -243,7 +226,7 @@ sub ReadFile
 		foreach (@cols) 
 		{
 			if ( $_ > $#_ ) { 
-				warn "Data column $_ not present"; 
+				carp "Data column $_ not present"; 
 				return []; 
 			}
 			$out[$j][$i] = $_[$_]; $j++;
@@ -294,12 +277,13 @@ sub check_data # \@data
 	$self->set(numsets => $#$data);
 	$self->set(numpoints => $#{@$data[0]});
 
-	( $self->{numsets} < 1 || $self->{numpoints} < 0 ) && die "No Data";
+	( $self->{numsets} < 1 || $self->{numpoints} < 0 ) and 
+		croak "GD::Graph: No Data";
 
 	my $i;
 	for $i ( 1..$self->{numsets} ) 
 	{
-		die "Data array $i: length misfit"
+		croak "Data array $i: length misfit"
 			unless ( $self->{numpoints} == $#{@$data[$i]} );
 	}
 }
@@ -328,38 +312,49 @@ sub init_graph # GD::Image
 	$self->{lci}  = $self->set_clr(_rgb($self->{labelclr}));
 	$self->{alci} = $self->set_clr(_rgb($self->{axislabelclr}));
 	$self->{acci} = $self->set_clr(_rgb($self->{accentclr}));
+	$self->{legendci} = $self->set_clr(_rgb($self->{legendclr}));
+	$self->{boxci} = $self->set_clr(_rgb($self->{boxclr})) 
+		if $self->{boxclr};
 	$g->transparent($self->{bgci}) if $self->{transparent};
 	$g->interlaced($self->{interlaced});
 	$self->put_logo();
 }
 
+sub _read_logo_file
+{
+	my $self = shift;
+	my $gdimport = 'newFrom' . ucfirst($self->export_format);
+	my $glogo;
+
+	open(LOGO, $self->{logo}) or return;
+	binmode(LOGO);
+	unless ( $glogo = GD::Image->$gdimport(\*LOGO) ) 
+	{
+		carp "Problems reading $self->{logo}"; 
+		return;
+	}
+	close(LOGO);
+
+	return $glogo;
+}
+
 # read in the logo, and paste it on the graph canvas
 
-# XXX Fix to make more independent of input format
 sub put_logo # GD::Image
 {
 	my $self = shift;
 	local (*LOGO);
-	return unless(defined($self->{logo}));
+	return unless defined $self->{logo};
 
-	my $gdimport = 'newFrom' . ucfirst($self->export_format);
+	my $glogo = $self->_read_logo_file() or return;
 
-	my ($x, $y, $glogo);
+	my ($x, $y);
 	my $r = $self->{logo_resize};
 
 	my $r_margin = (defined $self->{r_margin_abs}) ? 
 		$self->{r_margin_abs} : $self->{r_margin};
 	my $b_margin = (defined $self->{b_margin_abs}) ? 
 		$self->{b_margin_abs} : $self->{b_margin};
-
-	open(LOGO, $self->{logo}) || return;
-	binmode(LOGO);
-	unless ( $glogo = GD::Image->$gdimport(\*LOGO) ) 
-	{
-		warn "Problems reading $self->{logo}"; 
-		return;
-	}
-	close(LOGO);
 
 	my ($w, $h) = $glogo->getBounds;
 	LOGO: for ($self->{logo_position}) {
@@ -385,7 +380,6 @@ sub put_logo # GD::Image
 	}
 	$self->{graph}->copyResized($glogo, 
 		$x, $y, 0, 0, $r * $w, $r * $h, $w, $h);
-	undef $glogo;
 }
 
 # Set a colour to work with on the canvas, by rgb value. 
@@ -421,8 +415,17 @@ sub set_clr_uniq # GD::Image, r, g, b
 sub pick_data_clr # number
 {
 	my $s = shift;
+	_rgb($s->{dclrs}[$_[0] % (1+$#{$s->{dclrs}}) -1]);
+}
 
-	return _rgb( $s->{dclrs}[ $_[0] % (1+$#{$s->{dclrs}}) -1 ] );
+# contrib "Bremford, Mike" <mike.bremford@gs.com>
+sub pick_border_clr # number
+{
+	my $s = shift;
+
+	exists $s->{borderclrs} ?
+		_rgb($s->{borderclrs}[$_[0] % (1+$#{$s->{borderclrs}}) -1]) :
+		_rgb($s->{accentclr});
 }
 
 # DEBUGGING
@@ -433,7 +436,7 @@ sub die_abstract
 	my $s = shift;
 	my $msg = shift;
 	# ABSTRACT
-	die
+	confess
 		"Subclass (" .
 		ref($s) . 
 		") not implemented correctly: " .
@@ -549,7 +552,7 @@ use B<undef>, and the point will be skipped.
 
 Create a new I<GD::Graph> object by calling the I<new> method on the
 graph type you want to create (I<chart> is I<bars, lines, points,
-linespoints> or I<pie>).
+linespoints>, I<mixed> or I<pie>).
 
     $graph = GD::Graph::chart->new(400, 300);
 
@@ -710,9 +713,22 @@ colour marked as transparent (see also option I<bgclr>).  Default: 1.
 If set to a true value, the produced image will be interlaced.
 Default: 1.
 
-=item bgclr, fgclr, textclr, labelclr, axislabelclr, accentclr
+=item bgclr, fgclr, boxclr, accentclr
 
-Background, foreground, text, label, axis label and accent colours.
+Drawing colours used for the chart: background, foreground (axes and
+grid), axis box fill colour, and accent (bar, area and pie outlines).
+
+All colours should have a valid value as described in L<"COLOURS">,
+except boxclr, which can be undefined, in which case the background
+colour will be used. 
+
+=item labelclr, axislabelclr, legendclr, textclr
+
+Text Colours used for the chart: label (labels for the axes or pie),
+axis label (misnomer: values printed along the axes, or on a pie slice),
+legend text, and all other text.
+
+All colours should have a valid value as described in L<"COLOURS">.
 
 =item dclrs (short for datacolours)
 
@@ -740,6 +756,9 @@ If I<long_ticks> is a true value, ticks will be drawn the same length
 as the axes.  Otherwise ticks will be drawn with length
 I<tick_length>. if I<tick_length> is negative, the ticks will be drawn
 outside the axes.  Default: long_ticks = 0, tick_length = 4.
+
+These attributes can also be set for x and y axes separately with
+x_long_ticks, y_long_ticks, x_tick_length and y_tick_length.
 
 =item x_ticks
 
@@ -797,6 +816,24 @@ Default: undef.
 Print every I<x_label_skip>th number under the tick on the x axis, and
 every I<y_label_skip>th number next to the tick on the y axis.
 Default: 1 for both.
+
+=item x_tick_offset
+
+When x_label_skip is used, this will skip the first x_tick_offset values
+in the labels before starting to print. Let me give an example. If you
+have a series of X labels like
+
+  qw(Jan Feb Mar Apr May Jun Jul Aug Sep Oct Nov Dec)
+
+and you set x_label_skip to 3, you will see ticks on the X axis for Jan,
+Apr, Jul, Oct and Dec. This is not always what is wanted. If you set
+x_tick_offset to 1, you get Feb, May, Aug, Nov and Dec, and if you set
+it to 2, you get Mar, Jun Sep and Dec, and this last one definitely
+looks better. A combination of 6 and 5 also works nice for months. 
+
+Note that the value for x_tick_offset is periodical. This means that it
+will have the same effect for each nteger n in x_tick_offset + n *
+x_label_skip.
 
 =item x_all_ticks
 
@@ -874,8 +911,15 @@ Default: Computed from data sets.
 
 =item axis_space
 
-This space will be left blank between the axes and the text.
+This space will be left blank between the axes and the tick value text.
 Default: 4.
+
+=item text_space
+
+This space will be left open between text elements and the graph (text
+elements are title and axis labels.
+
+Default: 8.
 
 =item overwrite
 
@@ -937,6 +981,21 @@ See y_label_skip
 Number of pixels to leave open between bars. This works well in most
 cases, but on some platforms, a value of 1 will be rounded off to 0.
 Default: 0
+
+=item borderclrs
+
+This controls the colours of the borders of the bars. Like dclrs, it is a
+reference to an array of colour names as defined in
+L<GIFgraph::colour>.
+
+Setting the border colours to the background colour of the graph allows
+bars to "float" above the X-axis. For example:
+
+    $graph->set( dclrs => [ qw(white cyan cyan) ] );
+    $graph->set( bclrs => [ qw(white black black) ] );
+
+Creates a cyan bar with a black line across the middle, ideal for showing
+ranges with the average value.
 
 =back
 
@@ -1095,9 +1154,14 @@ The angle at which the first data slice will be displayed, with 0 degrees
 being "6 o'clock".
 Default: 0.
 
+=item suppress_angle
+
+If a pie slice is smaller than this angle (in degrees), a label will not
+be drawn on it. Default: 0.
+
 =back
 
-=head1 NOTES
+=head1 COLOURS
 
 All references to colours in the options for this module have been
 shortened to clr. The main reason for this was that I didn't want to
@@ -1115,11 +1179,29 @@ Martien Verbruggen <mgjv@comdyn.com.au>
 
 =head2 Copyright
 
-GIFgraph: Copyright (C) 1995-1999 Martien Verbruggen.
-Chart::PNGgraph: Copyright (C) 1999 Steve Bonds.
-GD::Graph: Copyright (C) 1999 Martien Verbruggen.
-All rights reserved.  This package is free software; you can redistribute it 
-and/or modify it under the same terms as Perl itself.
+GIFgraph: Copyright (c) 1995-1999 Martien Verbruggen.
+Chart::PNGgraph: Copyright (c) 1999 Steve Bonds.
+GD::Graph: Copyright (c) 1999 Martien Verbruggen.
+
+All rights reserved. This package is free software; you can redistribute
+it and/or modify it under the same terms as Perl itself.
+
+=head2 Acknowledgements
+
+Thanks to the following people for contributing code, or sending me
+fixes:
+Dave Belcher,
+Steve Bonds,
+Mike Bremford,
+Damon Brodie,
+brian d foy,
+Ari Jolma,
+Honza Pazdziora,
+Scott Prahl,
+Vegard Vesterheim.
+
+And some people whose real name I don't know, and whose email address
+I'd rather not publicise without their consent.
 
 =cut
 

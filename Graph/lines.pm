@@ -5,7 +5,7 @@
 #	Name:
 #		GD::Graph::lines.pm
 #
-# $Id: lines.pm,v 1.3 1999/12/24 11:23:56 mgjv Exp $
+# $Id: lines.pm,v 1.4 1999/12/29 12:14:40 mgjv Exp $
 #
 #==========================================================================
 
@@ -167,6 +167,9 @@ sub draw_legend_marker # (data_set_number, x, y)
 	my $type = $s->pick_line_type($n);
 
 	$y += int($s->{lg_el_height}/2);
+
+	#  Joe Smith <jms@tardis.Tymnet.COM>
+	local($s->{line_width}) = 2;    # Make these show up better
 
 	$s->draw_line(
 		$x, $y, 

@@ -5,7 +5,7 @@
 #	Name:
 #		GD::Graph::axestype.pm
 #
-# $Id: axestype.pm,v 1.3 1999/12/24 11:23:56 mgjv Exp $
+# $Id: axestype.pm,v 1.4 1999/12/29 12:14:40 mgjv Exp $
 #
 #==========================================================================
 
@@ -15,6 +15,7 @@ use strict;
  
 use GD::Graph;
 use GD::Graph::utils qw(:all);
+use Carp;
 
 @GD::Graph::axestype::ISA = qw( GD::Graph );
 
@@ -23,14 +24,17 @@ use constant PI => 4 * atan2(1,1);
 my %Defaults = (
  
 	# Set the length for the 'short' ticks on the axes.
-	tick_length			=> 4,
+	x_tick_length			=> 4,
+	y_tick_length			=> 4,
  
 	# Do you want ticks to span the entire width of the graph?
-	long_ticks			=> 0,
+	x_long_ticks			=> 0,
+	y_long_ticks			=> 0,
  
 	# Number of ticks for the y axis
 	y_tick_number		=> 5,
 	x_tick_number		=> undef,		# CONTRIB Scott Prahl
+	x_tick_offset		=> 0,			# CONTRIB Damon Brodi
  
 	# Skip every nth label. if 1 will print every label on the axes,
 	# if 2 will print every second, etc..
@@ -85,6 +89,8 @@ my %Defaults = (
 	x_number_format			=> undef,		# CONTRIB Scott Prahl
 );
 
+#use Data::Dumper;
+
 # PUBLIC
 sub plot # (\@data)
 {
@@ -100,9 +106,39 @@ sub plot # (\@data)
 	$self->draw_axes($data);
 	$self->draw_ticks($data);
 	$self->draw_data($data);
-	$self->draw_legend($self->{graph});
+	$self->draw_legend();
+
+#	print Dumper($self);
 
 	return $self->{graph}
+}
+
+sub set
+{
+	my $s = shift;
+	my %args = @_;
+
+	$s->{_set_error} = 0;
+
+	for (keys %args) 
+	{ 
+		/^tick_length$/ and do 
+		{
+			$s->{x_tick_length} = 
+			$s->{y_tick_length} = $args{$_};
+			delete $args{$_};
+			next;
+		};
+		/^long_ticks$/ and do 
+		{
+			$s->{x_long_ticks} = 
+			$s->{y_long_ticks} = $args{$_};
+			delete $args{$_};
+			next;
+		};
+	}
+
+	return $s->SUPER::set(%args);
 }
 
 sub setup_text
@@ -112,18 +148,18 @@ sub setup_text
 	$self->{gdta_x_label}->set(colour => $self->{lci});
 	$self->{gdta_y_label}->set(colour => $self->{lci});
 	$self->{xlfh} = $self->{gdta_x_label}->get('height');
-	$self->{ylfh} = $self->{gdta_x_label}->get('height');
+	$self->{ylfh} = $self->{gdta_y_label}->get('height');
 
 	$self->{gdta_x_axis}->set(colour => $self->{alci});
 	$self->{gdta_y_axis}->set(colour => $self->{alci});
-	$self->{xafh} = $self->{gdta_x_label}->get('height');
-	$self->{yafh} = $self->{gdta_x_label}->get('height');
+	$self->{xafh} = $self->{gdta_x_axis}->get('height');
+	$self->{yafh} = $self->{gdta_x_axis}->get('height');
 
 	$self->{gdta_title}->set(colour => $self->{tci});
 	$self->{gdta_title}->set_align('top', 'center');
 	$self->{tfh} = $self->{gdta_title}->get('height');
 
-	$self->{gdta_legend}->set(colour => $self->{fgci});
+	$self->{gdta_legend}->set(colour => $self->{legendci});
 	$self->{gdta_legend}->set_align('top', 'left');
 	$self->{lgfh} = $self->{gdta_legend}->get('height');
 }
@@ -202,30 +238,29 @@ sub setup_coords
 	$s->set( tfh => 0 ) unless ( $s->{title} );
 	$s->set( xlfh => 0 ) unless ( $s->{x_label} );
 
-	if ( ! $s->{y1_label} && $s->{y_label} ) 
-	{
-		$s->{y1_label} = $s->{y_label};
-	}
+	# Make sure the y1 axis has a label if there is one set for y in
+	# general
+	$s->{y1_label} = $s->{y_label} 
+		if ( ! $s->{y1_label} && $s->{y_label} );
 
-	$s->set( ylfh1 => $s->{y1_label} ? 1 : 0 );
-	$s->set( ylfh2 => $s->{y2_label} ? 1 : 0 );
-
+	# Set axis tick text heights and widths to 0 if they don't need to
+	# be plotted.
 	$s->set( xafh => 0, xafw => 0 ) unless ($s->{x_plot_values}); 
 	$s->set( yafh => 0, yafw => 0 ) unless ($s->{y_plot_values});
 
+	# Get the height of the space needed for the X axis tick text
 	$s->{x_axis_label_height} = $s->get_x_axis_label_height($data);
 
-	my $lbl = ($s->{xlfh} ? 1 : 0) + ($s->{xafh} ? 1 : 0);
-
 	# calculate the top and bottom of the bounding box for the graph
-	$s->{bottom} = 
-		$s->{height} - $s->{b_margin} - 1 -
-		( $s->{xlfh} ? $s->{xlfh} : 0 ) -
+	$s->{bottom} = $s->{height} - $s->{b_margin} - 1 -
+		# X axis tick labels
 		( $s->{x_axis_label_height} ? $s->{x_axis_label_height} : 0) -
-		( $lbl ? $lbl * $s->{text_space} : 0 );
+		# X axis label
+		( $s->{xlfh} ? $s->{xlfh} + $s->{text_space} : 0 );
 
 	$s->{top} = $s->{t_margin} +
 				( $s->{tfh} ? $s->{tfh} + $s->{text_space} : 0 );
+	# Make sure the text for the y axis tick markers fits on the canvas
 	$s->{top} = $s->{yafh}/2 if ( $s->{top} == 0 );
 
 	$s->set_max_min($data);
@@ -239,15 +274,17 @@ sub setup_coords
 	#my $ls = $s->{yafw} * $s->{y_label_len}[1];
 	my $ls = $s->{y_label_len}[1];
 	$s->{left} = $s->{l_margin} +
+				 # Space for tick values
 				 ( $ls ? $ls + $s->{axis_space} : 0 ) +
-				 ( $s->{ylfh1} ? $s->{ylfh} + $s->{text_space} : 0 );
+				 # Space for the Y axis label
+				 ( $s->{y1_label} ? $s->{ylfh} + $s->{text_space} : 0 );
 
 	#$ls = $s->{yafw} * $s->{y_label_len}[2] if $s->{two_axes};
 	$ls = $s->{y_label_len}[2] if $s->{two_axes};
 	$s->{right} = $s->{width} - $s->{r_margin} - 1 -
 				  $s->{two_axes} * (
 					  ( $ls ? $ls + $s->{axis_space} : 0 ) +
-					  ( $s->{ylfh2} ? $s->{ylfh} + $s->{text_space} : 0 )
+					  ( $s->{y2_label} ? $s->{ylfh} + $s->{text_space} : 0 )
 				  );
 
 	# CONTRIB Scott Prahl
@@ -263,7 +300,7 @@ sub setup_coords
 	# CONTRIB Changes by Scott Prahl
 	if (defined $s->{x_tick_number})
 	{
-		my $delta = ($s->{right}-$s->{left})/($s->{x_max}-$s->{x_min});
+		my $delta = ($s->{right} - $s->{left})/($s->{x_max} - $s->{x_min});
 		$s->{x_offset} = 
 			($s->{true_x_min} - $s->{x_min}) * $delta + $s->{left};
 		$s->{x_step} = 
@@ -280,10 +317,10 @@ sub setup_coords
 	($dum, $s->{zeropoint}) = $s->val_to_pixel(0, 0, 1);
 
 	# Check the size
-	die "Vertical size too small"
+	croak "Vertical size too small"
 		if ( ($s->{bottom} - $s->{top}) <= 0 );
 
-	die "Horizontal size too small"	
+	croak "Horizontal size too small"	
 		if ( ($s->{right} - $s->{left}) <= 0 );
 
 	# set up the data colour list if it doesn't exist yet.
@@ -329,10 +366,8 @@ sub create_y_labels
 				}
 			}
 			
-			$s->{gdta_y_label}->set_text("$label");
-			my $len = $s->{gdta_y_label}->get('width');
-
-			#my $len = length($label);
+			$s->{gdta_y_axis}->set_text($label);
+			my $len = $s->{gdta_y_axis}->get('width');
 
 			$s->{y_labels}[$a][$t] = $label;
 
@@ -373,7 +408,6 @@ sub create_x_labels
 
 		$s->{gdta_x_label}->set_text($label);
 		my $len = $s->{gdta_x_label}->get('width');
-		#my $len = length($label);
 
 		$s->{x_labels}[$t] = $label;
 
@@ -402,7 +436,7 @@ sub get_x_axis_label_height
 
 # inherit open_graph from GD::Graph
 
-sub draw_text # GD::Image
+sub draw_text
 {
 	my $s = shift;
 
@@ -439,9 +473,8 @@ sub draw_text # GD::Image
 	if ( $s->{two_axes} && exists $s->{y2_label} ) 
 	{
 		$s->{gdta_y_label}->set_text($s->{y2_label});
-		$s->{gdta_y_label}->set_align('top', 'left');
-		my $tx = $s->{width} - $s->{r_margin} -
-			$s->{gdta_y_label}->get('height');
+		$s->{gdta_y_label}->set_align('bottom', 'left');
+		my $tx = $s->{width} - $s->{r_margin};
 		my $ty = $s->{bottom} -
 			$s->{y_label_position} * ($s->{bottom} - $s->{top}) + 
 			$s->{y_label_position} * $s->{gdta_y_label}->get('width');
@@ -449,7 +482,7 @@ sub draw_text # GD::Image
 	}
 }
 
-sub draw_axes # GD::Image
+sub draw_axes
 {
 	my $s = shift;
 	my $d = shift;
@@ -460,6 +493,9 @@ sub draw_axes # GD::Image
 
 	if ( $s->{box_axis} ) 
 	{
+		$g->filledRectangle($l+1, $t+1, $r-1, $b-1, $s->{boxci})
+			if $s->{boxci};
+
 		$g->rectangle($l, $t, $r, $b, $s->{fgci});
 	}
 	else
@@ -481,14 +517,11 @@ sub draw_axes # GD::Image
 #
 # Ticks and values for y axes
 #
-sub draw_y_ticks # GD::Image, \@data
+sub draw_y_ticks # \@data
 {
 	my $s = shift;
 	my $d = shift;
 
-	#
-	# Ticks and values for y axes
-	#
 	my $t;
 	foreach $t (0 .. $s->{y_tick_number}) 
 	{
@@ -499,15 +532,9 @@ sub draw_y_ticks # GD::Image, \@data
 			my $label = $s->{y_labels}[$a][$t];
 			
 			my ($x, $y) = $s->val_to_pixel(0, $value, $a);
-			#my ($x, $y) = $s->val_to_pixel( 
-			#	($a-1) * ($s->{numpoints} + 2), 
-			#	$value, 
-			#	$a 
-			#);
-
 			$x = ($a == 1) ? $s->{left} : $s->{right};
 
-			if ($s->{long_ticks}) 
+			if ($s->{y_long_ticks}) 
 			{
 				$s->{graph}->line( 
 					$x, $y, 
@@ -519,7 +546,7 @@ sub draw_y_ticks # GD::Image, \@data
 			{
 				$s->{graph}->line( 
 					$x, $y, 
-					$x + (3 - 2 * $a) * $s->{tick_length}, $y, 
+					$x + (3 - 2 * $a) * $s->{y_tick_length}, $y, 
 					$s->{fgci} 
 				);
 			}
@@ -539,7 +566,7 @@ sub draw_y_ticks # GD::Image, \@data
 #
 # Ticks and values for x axes
 #
-sub draw_x_ticks # GD::Image, \@data
+sub draw_x_ticks # \@data
 {
 	my $s = shift;
 	my $d = shift;
@@ -551,47 +578,44 @@ sub draw_x_ticks # GD::Image, \@data
 
 		$y = $s->{bottom} unless $s->{zero_axis_only};
 
+		# CONTRIB  Damon Brodie for x_tick_offset
 		next if (!$s->{x_all_ticks} and 
-				$i%($s->{x_label_skip}) and 
+				($i - $s->{x_tick_offset}) % $s->{x_label_skip} and 
 				$i != $s->{numpoints} 
 			);
 
 		if ($s->{x_ticks})
 		{
-			if ($s->{long_ticks})
+			if ($s->{x_long_ticks})
 			{
 				$s->{graph}->line($x, $s->{bottom}, $x, $s->{top},
 					$s->{fgci});
 			}
 			else
 			{
-				$s->{graph}->line($x, $y, $x, $y - $s->{tick_length},
+				$s->{graph}->line($x, $y, $x, $y - $s->{x_tick_length},
 					$s->{fgci});
 			}
 		}
 
-		next if ($i%($s->{x_label_skip}) and $i != $s->{numpoints});
+		# CONTRIB Damon Brodie for x_tick_offset
+		next if 
+			($i - $s->{x_tick_offset}) % ($s->{x_label_skip}) and 
+			$i != $s->{numpoints};
 
 		$s->{gdta_x_axis}->set_text($d->[0][$i]);
+
+		my $yt = $y + $s->{axis_space};
 
 		if ($s->{x_labels_vertical})
 		{
 			$s->{gdta_x_axis}->set_align('center', 'right');
-			my $yt = $y + $s->{text_space}/2;
 			$s->{gdta_x_axis}->draw($x, $yt, PI/2);
-			#$x -= $s->{xafw};
-			#my $yt = 
-			#	$y + $s->{text_space}/2 + $s->{xafw} * length($d->[0][$i]);
-			#$g->stringUp($s->{xaf}, $x, $yt, $d->[0][$i], $s->{alci});
 		}
 		else
 		{
 			$s->{gdta_x_axis}->set_align('top', 'center');
-			my $yt = $y + $s->{text_space}/2;
 			$s->{gdta_x_axis}->draw($x, $yt);
-			#$x -= $s->{xafw} * length($d->[0][$i])/2;
-			#my $yt = $y + $s->{text_space}/2;
-			#$g->string($s->{xaf}, $x, $yt, $d->[0][$i], $s->{alci});
 		}
 	}
 }
@@ -601,7 +625,7 @@ sub draw_x_ticks # GD::Image, \@data
 # Assume x array contains equally spaced x-values
 # and generate an appropriate axis
 #
-sub draw_x_ticks_number # GD::Image, \@data
+sub draw_x_ticks_number # \@data
 {
 	my $s = shift;
 	my $d = shift;
@@ -613,7 +637,7 @@ sub draw_x_ticks_number # GD::Image, \@data
 					* ($s->{x_values}[$i] - $s->{true_x_min})
 					/ ($s->{true_x_max} - $s->{true_x_min});
 
-		my $label = $s->{x_values}[$i];
+		my $label = $s->{x_labels}[$i];
 
 		my ($x, $y) = $s->val_to_pixel($value + 1, 0, 1);
 
@@ -621,13 +645,15 @@ sub draw_x_ticks_number # GD::Image, \@data
 
 		if ($s->{x_ticks})
 		{
-			if ($s->{long_ticks})
+			if ($s->{x_long_ticks})
 			{
-				$s->{graph}->line($x, $s->{bottom}, $x, $s->{top},$s->{fgci});
+				$s->{graph}->line($x, $s->{bottom}, 
+					$x, $s->{top},$s->{fgci});
 			}
 			else
 			{
-				$s->{graph}->line( $x, $y, $x, $y - $s->{tick_length}, $s->{fgci} );
+				$s->{graph}->line( $x, $y, 
+					$x, $y - $s->{x_tick_length}, $s->{fgci} );
 			}
 		}
 
@@ -641,27 +667,17 @@ sub draw_x_ticks_number # GD::Image, \@data
 			$s->{gdta_x_axis}->set_align('center', 'right');
 			my $yt = $y + $s->{text_space}/2;
 			$s->{gdta_x_axis}->draw($x, $yt, PI/2);
-
-			#$x -= $s->{xafw};
-			#my $yt =
-			#	$y + $s->{text_space}/2 + $s->{xafw} * length($d->[0][$i]);
-			#$s->{graph}->stringUp($s->{xaf}, $x, $yt, $label, $s->{alci});
 		}
 		else
 		{
 			$s->{gdta_x_axis}->set_align('top', 'center');
 			my $yt = $y + $s->{text_space}/2;
 			$s->{gdta_x_axis}->draw($x, $yt);
-
-#			$x -= $s->{xafw} * length($$d[0][$i])/2;
-			#$x -=  length($d->[0][$i])/2;
-			#my $yt = $y + $s->{text_space}/2;
-			#$s->{graph}->string($s->{xaf}, $x, $yt, $label, $s->{alci});
 		}
 	}
 }
 
-sub draw_ticks # GD::Image, \@data
+sub draw_ticks # \@data
 {
 	my $s = shift;
 	my $d = shift;
@@ -680,7 +696,7 @@ sub draw_ticks # GD::Image, \@data
 	}
 }
 
-sub draw_data # GD::Image, \@data
+sub draw_data # \@data
 {
 	my $s = shift;
 	my $d = shift;
@@ -692,8 +708,9 @@ sub draw_data # GD::Image, \@data
 	}
 }
 
+#
 # draw_data_set is in sub classes
-
+#
 sub draw_data_set
 {
 	# ABSTRACT
@@ -701,9 +718,10 @@ sub draw_data_set
 	$s->die_abstract( "sub draw_data missing, ")
 }
 
+#
 # Figure out the maximum values for the vertical exes, and calculate
 # a more or less sensible number for the tops.
-
+#
 sub set_max_min
 {
 	my $s = shift;
@@ -712,7 +730,6 @@ sub set_max_min
 	my @max_min;
 
 	# First, calculate some decent values
-
 	if ( $s->{two_axes} ) 
 	{
 		my $i;
@@ -742,15 +759,16 @@ sub set_max_min
 	}
 
 	# Make sure bars and area always have a zero offset
+	# This has to work for all subclasses
+	my ($subclass) = ref($s) =~ m/.*::(.*)$/;
 
-	if (ref($s) eq 'GD::Graph::bars' or ref($s) eq 'GD::Graph::area')
+	if (defined $subclass and $subclass eq 'bars' or $subclass eq 'area')
 	{
 		$s->{y_min}[1] = 0 if $s->{y_min}[1] > 0;
 		$s->{y_min}[2] = 0 if $s->{y_min}[2] && $s->{y_min}[2] > 0;
 	}
 
 	# Overwrite these with any user supplied ones
-
 	$s->{y_min}[1] = $s->{y_min_value}  if defined $s->{y_min_value};
 	$s->{y_min}[2] = $s->{y_min_value}  if defined $s->{y_min_value};
 
@@ -767,29 +785,29 @@ sub set_max_min
 	$s->{x_max}    = $s->{x_max_value}  if defined $s->{x_max_value};
 
 	# Check to see if we have sensible values
-
 	if ( $s->{two_axes} ) 
 	{
 		my $i;
 		for $i (1 .. 2)
 		{
-			die "Minimum for y" . $i . " too large\n"
+			croak "Minimum for y" . $i . " too large\n"
 				if ( $s->{y_min}[$i] > get_min_y(@{$d->[$i]}) );
-			die "Maximum for y" . $i . " too small\n"
+			croak "Maximum for y" . $i . " too small\n"
 				if ( $s->{y_max}[$i] < get_max_y(@{$d->[$i]}) );
 		}
 	} 
 #	else 
 #	{
-#		die "Minimum for y too large\n"
+#		croak "Minimum for y too large\n"
 #			if ( $s->{y_min}[1] > $max_min[1] );
-#		die "Maximum for y too small\n"
+#		croak "Maximum for y too small\n"
 #			if ( $s->{y_max}[1] < $max_min[0] );
 #	}
 }
 
+#
 # return maximum value from an array
-
+#
 sub get_max_y # array
 {
 	my $max = undef;
@@ -819,7 +837,6 @@ sub get_min_y # array
 }
 
 # get maximum y value from the whole data set
-
 sub get_max_min_y_all # \@data
 {
 	my $s = shift;
@@ -873,7 +890,6 @@ sub get_max_min_y_all # \@data
 # 			use 5 intervals
 #		($nmin,$nmax,$nint) = _best_ends(247, 508, 4..7);	
 # 			best of 4,5,6,7 intervals
-
 sub _best_ends 
 {
 	my ($min, $max, @n) = @_;
@@ -924,8 +940,9 @@ sub _best_ends
 	return ($best_min, $best_max, $best_num)
 }
 
+#
 # Convert value coordinates to pixel coordinates on the canvas.
-
+#
 sub val_to_pixel	# ($x, $y, $i) in real coords ($Dataspace), 
 {						# return [x, y] in pixel coords
 	my $s = shift;
@@ -949,7 +966,6 @@ sub val_to_pixel	# ($x, $y, $i) in real coords ($Dataspace),
 #
 # Legend
 #
-
 sub setup_legend
 {
 	my $s = shift;
@@ -979,7 +995,6 @@ sub setup_legend
 	$s->{lg_num} = $num;
 
 	# calculate the height and width of each element
-
 	my $legend_height = _max($s->{lgfh}, $s->{legend_marker_height});
 
 	$s->{lg_el_width} = 
@@ -1062,10 +1077,10 @@ sub setup_legend
 	}
 }
 
-sub draw_legend # (GD::Image)
+sub draw_legend
 {
 	my $s = shift;
-	my $g = shift;
+	my $g = $s->{graph};
 
 	return unless defined($s->{legend});
 
@@ -1106,9 +1121,11 @@ sub draw_legend # (GD::Image)
 	}
 }
 
+#
 # This will be virtual; every sub class should define their own
 # if this one doesn't suffice
-sub draw_legend_marker # (GD::Image, data_set_number, x, y)
+#
+sub draw_legend_marker # data_set_number, x, y
 {
 	my $s = shift;
 	my $n = shift;

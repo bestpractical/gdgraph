@@ -5,7 +5,7 @@
 #	Name:
 #		GD::Graph::mixed.pm
 #
-# $Id: mixed.pm,v 1.2 1999/12/11 12:50:48 mgjv Exp $
+# $Id: mixed.pm,v 1.3 1999/12/29 12:14:40 mgjv Exp $
 #
 #==========================================================================
 
@@ -19,6 +19,7 @@ use GD::Graph::points;
 use GD::Graph::linespoints;
 use GD::Graph::bars;
 use GD::Graph::area;
+use Carp;
  
 # Even though multiple inheritance is not really a good idea, I will
 # do it here, because I need the functionality of the markers and the
@@ -48,6 +49,8 @@ sub initialise
 		$s->set( $key => $Defaults{$key} );
 	}
 
+	# XXX This is a bit ugly. Maybe need to do this with a loop and
+	# UNIVERSAL->can..
 	$s->GD::Graph::lines::initialise();
 	$s->GD::Graph::points::initialise();
 	$s->GD::Graph::bars::initialise();
@@ -63,12 +66,10 @@ sub draw_data_set # GD::Image, \@data, $ds
 
 	# Try to execute the draw_data_set function in the package
 	# specified by type
-	#
 	eval '$s->GD::Graph::'.$type.'::draw_data_set($d, $ds)';
 
 	# If we fail, we try it in the package specified by the
 	# default_type, and warn the user
-	#
 	if ($@)
 	{
 		warn "Set $ds, unknown type $type, assuming $s->{default_type}\n";
@@ -78,8 +79,7 @@ sub draw_data_set # GD::Image, \@data, $ds
 	}
 
 	# If even that fails, we bail out
-	#
-	die "Set $ds: unknown default type $s->{default_type}\n" if $@;
+	croak "Set $ds: unknown default type $s->{default_type}\n" if $@;
 }
 
 sub draw_legend_marker # (GD::Image, data_set_number, x, y)

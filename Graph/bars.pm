@@ -5,7 +5,7 @@
 #	Name:
 #		GD::Graph::bars.pm
 #
-# $Id: bars.pm,v 1.2 1999/12/11 12:50:48 mgjv Exp $
+# $Id: bars.pm,v 1.3 1999/12/29 12:14:40 mgjv Exp $
 #
 #==========================================================================
  
@@ -16,7 +16,7 @@ use strict;
 use GD::Graph::axestype;
 use GD::Graph::utils qw(:all);
 
-@GD::Graph::bars::ISA = qw( GD::Graph::axestype );
+@GD::Graph::bars::ISA = qw(GD::Graph::axestype);
 
 my %Defaults = (
 	
@@ -84,6 +84,8 @@ sub draw_data_overwrite
 
 			# get data colour
 			my $dsci = $s->set_clr($s->pick_data_clr($j));
+			# contrib "Bremford, Mike" <mike.bremford@gs.com>
+			my $brci = $s->set_clr($s->pick_border_clr($j));
 
 			# get coordinates of top and center of bar
 			($xp, $t) = $s->val_to_pixel($i + 1, $d->[$j][$i], $j);
@@ -99,14 +101,14 @@ sub draw_data_overwrite
 			if ($d->[$j][$i] >= 0)
 			{
 				# positive value
-				$g->filledRectangle( $l, $t, $r, $bottom, $dsci );
-				$g->rectangle( $l, $t, $r, $bottom, $s->{acci} );
+				$g->filledRectangle($l, $t, $r, $bottom, $dsci);
+				$g->rectangle($l, $t, $r, $bottom, $brci);
 			}
 			else
 			{
 				# negative value
-				$g->filledRectangle( $l, $bottom, $r, $t, $dsci );
-				$g->rectangle( $l, $bottom, $r, $t, $s->{acci} );
+				$g->filledRectangle($l, $bottom, $r, $t, $dsci);
+				$g->rectangle($l, $bottom, $r, $t, $brci);
 			}
 
 			# reset $bottom to the top
@@ -125,6 +127,8 @@ sub draw_data_set
 
 	# Pick a data colour
 	my $dsci = $s->set_clr($s->pick_data_clr($ds));
+	# contrib "Bremford, Mike" <mike.bremford@gs.com>
+	my $brci = $s->set_clr($s->pick_border_clr($ds));
 
 	my $i;
 	for $i (0 .. $s->{numpoints}) 
@@ -158,14 +162,14 @@ sub draw_data_set
 		if ($d->[$i] >= 0)
 		{
 			# positive value
-			$g->filledRectangle( $l, $t, $r, $s->{zeropoint}, $dsci );
-			$g->rectangle( $l, $t, $r, $s->{zeropoint}, $s->{acci} );
+			$g->filledRectangle($l, $t, $r, $s->{zeropoint}, $dsci );
+			$g->rectangle($l, $t, $r, $s->{zeropoint}, $brci);
 		}
 		else
 		{
 			# negative value
-			$g->filledRectangle( $l, $s->{zeropoint}, $r, $t, $dsci );
-			$g->rectangle( $l, $s->{zeropoint}, $r, $t, $s->{acci} );
+			$g->filledRectangle($l, $s->{zeropoint}, $r, $t, $dsci);
+			$g->rectangle($l, $s->{zeropoint}, $r, $t, $brci);
 		}
 	}
 }

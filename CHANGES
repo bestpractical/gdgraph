@@ -1,3 +1,21 @@
+Dec 1999, mgjv
+
+- Development and support back to me, mgjv. GIFgraph and Chart::PNGgraph
+  (hopefully) will both become wrappers around this new set of modules.
+
+- Renamed to GD::Graph
+- Removed direct font handling stuff, and moved font handling to
+  GD::Text::Align objects
+- Removed methods for writing to files directly. it is now up to the
+  user of the module to save the image to a file. GIFgraph and
+  Chart::PNGgraph will still do this
+- plot method now returns a reference to a gd object, no longer the
+  image data. GIFgraph and Chart::PNGgraph still exhibit old beahviour.
+- Added some new options, and split up some others. 
+- Added new methods, mainly to detect the useability level of the
+  current GD.
+- Changed any die and warn statements to croak and carp
+
 Thu October 21 1999 by sbonds@agora.rdrop.com
 - Chart::PNGgraph version 1.13
 - Added primitive support for TrueType fonts

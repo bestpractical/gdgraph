@@ -5,7 +5,7 @@
 #	Name:
 #		GD::Graph::pie.pm
 #
-# $Id: pie.pm,v 1.3 1999/12/24 11:23:56 mgjv Exp $
+# $Id: pie.pm,v 1.4 1999/12/29 12:14:40 mgjv Exp $
 #
 #==========================================================================
 
@@ -13,11 +13,12 @@ package GD::Graph::pie;
 
 use strict;
 
+use GD;
 use GD::Graph;
 use GD::Graph::utils qw(:all);
 use GD::Graph::colour qw(:colours :lists);
-
 use GD::Text::Align;
+use Carp;
 
 @GD::Graph::pie::ISA = qw( GD::Graph );
 
@@ -32,13 +33,14 @@ my %Defaults = (
 	#   pie_height => _round(0.1*${'width'}),
  
 	# Do you want a 3D pie?
- 
 	'3d'         => 1,
  
 	# The angle at which to start the first data set
 	# 0 is at the front/bottom
- 
 	start_angle => 0,
+
+	# Angle below which a label on a pie slice is suppressed.
+	suppress_angle => 0,	# CONTRIB ryan <xomina@bitstream.net>
 );
 
 # PUBLIC methods, documented in pod
@@ -126,9 +128,9 @@ sub setup_coords()
 	( $s->{xc}, $s->{yc} ) = 
 		( ($s->{right}+$s->{left})/2, ($s->{bottom}+$s->{top})/2 );
 
-	die "Vertical size too small" 
+	croak "Vertical size too small" 
 		if ( ($s->{bottom} - $s->{top}) <= 0 );
-	die "Horizontal size too small"
+	croak "Horizontal size too small"
 		if ( ($s->{right} - $s->{left}) <= 0 );
 
 	# set up the data colour list if it doesn't exist yet.
@@ -222,7 +224,7 @@ sub draw_data # (\@data, GD::Image)
 	{ 
 		$total += $data->[$j][$i]; 
 	}
-	die "no Total" unless $total;
+	croak "no Total" unless $total;
 
 	my $ac = $s->{acci};			# Accent colour
 	my $pb = $s->{start_angle};
@@ -246,7 +248,7 @@ sub draw_data # (\@data, GD::Image)
 		# $pa/$pb include the start_angle (so if start_angle
 		# is 90, there will be no pa/pb < 90.
 		my $pa = $pb;
-		$pb += 360 * $data->[1][$i]/$total;
+		$pb += my $slice_angle = 360 * $data->[1][$i]/$total;
 
 		# Calculate the end points of the lines at the boundaries of
 		# the pie slice
@@ -270,7 +272,8 @@ sub draw_data # (\@data, GD::Image)
 
 		$s->{graph}->fillToBorder($xe, $ye, $ac, $dc);
 
-		$s->put_slice_label($xe, $ye, $data->[0][$i]);
+		$s->put_slice_label($xe, $ye, $data->[0][$i])
+			if ($slice_angle > $s->{suppress_angle});
 
 		# If it's 3d, colour the front ones as well
 		# if one slice is very large (>180 deg) then

@@ -5,7 +5,7 @@
 #	Name:
 #		GD::Graph::area.pm
 #
-# $Id: area.pm,v 1.2 1999/12/11 12:50:47 mgjv Exp $
+# $Id: area.pm,v 1.3 1999/12/29 12:14:40 mgjv Exp $
 #
 #==========================================================================
 
@@ -29,6 +29,7 @@ sub draw_data_set  # GD::Image, \@data, $ds
 
 	# Select a data colour
 	my $dsci = $s->set_clr($s->pick_data_clr($ds));
+	my $brci = $s->set_clr($s->pick_border_clr($ds));
 
 	# Create a new polygon
 	my $poly = new GD::Polygon();
@@ -55,7 +56,7 @@ sub draw_data_set  # GD::Image, \@data, $ds
 
 	# Draw a filled and a line polygon
 	$g->filledPolygon($poly, $dsci);
-	$g->polygon($poly, $s->{acci});
+	$g->polygon($poly, $brci);
 
 	# Draw the accent lines
 	for $i (1 .. ($s->{numpoints} - 1)) 
@@ -63,7 +64,7 @@ sub draw_data_set  # GD::Image, \@data, $ds
 		next unless (defined $d->[$i]);
 
 		($x, $y) = $s->val_to_pixel($i + 1, $d->[$i], $ds);
-		$g->dashedLine( $x, $y, $x, $s->{zeropoint}, $s->{acci} );
+		$g->dashedLine( $x, $y, $x, $s->{zeropoint}, $brci );
    }
 }
  

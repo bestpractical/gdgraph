@@ -1,0 +1,112 @@
+3D
+
+From: Jim Elliott <jimel@sco.COM>
+	1 - $g->('x_number_format' => \&x_format) only works for numerical 
+	x axes. Can this be expanded?
+
+adamm@genomecorp.com
+
+	No matter what I do, I can't get the first point to appear at
+	where the X and Y axes meet; instead, it appears one tick mark to
+	the right of zero on the X axis.
+
+From: anordby@sparky.seaweb.com
+
+	1. Is it possible to do away with the blank space between the
+	y-axis and the graph output and the trailing space (area, lines,
+	linespoints)?
+
+	2.  Is it possible to create the output without either or both axes?
+
+From: "Thierry Botten" <Botten.Thierry@talkline.de>
+
+	My suggestions :
+	1) Display the data used for each chart inside the chart (does
+	this work?)
+	2) Display the date (and hour?) the graph was created?
+	3) Maybe define your own delimiter character (e.g i like '|' and
+	others use '~', etc...)
+
+From: Matthieu BORDONNE <matthieu_bordonne@yahoo.com>
+
+	- I wanted to have different line widths for the different lines
+	  on one graph: I changed lines.pm. The parameter line_width is
+	  now an array and works in the  same way as line_type. You will
+	  find in attached my new lines.pm and a diff of the original and
+	  this file.
+
+Mixed Graphs, all graphs,
+
+	Allow setting of individual options per data set:
+
+	It will not be trivial at all to implement this, but it will require a
+	lot of tweaking of the code. I will have a look at it, and try to
+	estimate the amount of effort needed. Most likely it means that each
+	option needs to be able to take either a single value, or a array ref.
+	If it's an array ref, then it needs to take the appropriate setting
+	out of the array, or the last one. Something like that. It would
+	require writing a wrapper function that does that, and making sure
+	that wrapper gets called for all settings that would apply to
+	individual data sets.
+
+
+Positioning of X axis labels (and y axis?)
+
+	Configurable
+
+Allen Bolderoff <allen@gist.net.au>
+
+	1.
+	> I would like to be able to say
+	>
+	> 'x_label_offset'  => 2
+	>
+	> this would allow me to have start at the label I want, instead
+	> of from the 1st
+
+	2.
+	> anyway, the next, but not as important wish, is to have the
+	> ability to turn off the labeling on the left or right side. - as
+	> you can see I am using GD to cut off the right side of the
+	> graph, and re-writing the numbers as I want.
+
+	mgjv - Should be using label formatting routine. Need to test?
+
+Pat Becker <pmb@iss.net>
+
+	1.
+	Is there any reason why pie charts can't have legends? If there is
+	a really thin slice a legend is a good way to get the information
+	across without polluting the graph with a long data title, (and
+	keep it readable).
+
+	2.
+	Still on pie charts it would also be nice to be able to get the
+	data percentages and the totals in the pie.
+
+	For example one of my pies is a breakdown of the Operating System
+	of different machines around the office.
+
+	If the data breaks down
+
+	Linux - 45%
+	Solaris - 30%
+	Windows NT -25%
+
+	Total system = 100
+
+	It would be nice to have legends with the OS Names, and have
+	offset lines from the pie which show the percentages.
+
+	3.
+	Bar charts lend themselves to presenting the data that make up the
+	datapoint above the bar, whether this is an absolute number, or a
+	percentage.
+
+	4.
+	It would be nice it bar charts could also have a 3D effect.
+
+	5.
+	Nit. I thought you were going to change bars so that I could
+	specify each datapoint, (rather than dataset of different colors) ??
+

@@ -7,7 +7,7 @@
 #
 # tcsh> foreach s (*.pl)
 # foreach> perl -I. -I../lib -Tw $s
-# foreach> ^D
+# foreach> end
 #
 # If you use an old version of GD that exports GIF, you will need to
 # have ImageMagick installed, or you need to provide another way to
@@ -23,7 +23,7 @@ EXT := \
 	$(shell perl $(OPTIONS) -MGD::Graph -e 'print GD::Graph::export_format')
 
 SAMPLES :=  \
-		sample11 sample12 sample13 sample14 sample15 sample16 \
+		sample11 sample12 sample13 sample14 sample15 sample16 sample17 \
 		sample21 \
 		sample31 \
 		sample41 sample42\

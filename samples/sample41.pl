@@ -18,6 +18,8 @@ $my_graph->set(
 	y_max_value => 80,
 	y_tick_number => 6,
 	y_label_skip => 2,
+	y_long_ticks => 1,
+	x_tick_length => 2,
 	markers => [ 1, 5 ],
 );
 

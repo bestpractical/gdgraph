@@ -19,7 +19,7 @@
 #		GD::Graph::pie
 #		GD::Graph::mixed
 #
-# $Id: Graph.pm,v 1.1 1999/12/11 02:40:37 mgjv Exp $
+# $Id: Graph.pm,v 1.1.1.1 1999/12/11 02:40:37 mgjv Exp $
 #
 #==========================================================================
 
@@ -41,7 +41,7 @@ use GD;
 package GD::Graph;
 
 $GD::Graph::prog_name    = 'GD::Graph.pm';
-$GD::Graph::prog_rcs_rev = q{$Revision: 1.1 $};
+$GD::Graph::prog_rcs_rev = q{$Revision: 1.1.1.1 $};
 $GD::Graph::prog_version = 
 	($GD::Graph::prog_rcs_rev =~ /\s+(\d*\.\d*)/) ? $1 : "0.0";
 

@@ -1,5 +1,5 @@
 # This -*- perl -*- script makes the Makefile
-# $Id: Makefile.PL,v 1.1 1999/12/11 02:40:37 mgjv Exp $
+# $Id: Makefile.PL,v 1.1.1.1 1999/12/11 02:40:37 mgjv Exp $
  
 #--- Distribution section ---
  

@@ -9,7 +9,7 @@
 #		Package of colour manipulation routines, to be used 
 #		with GD::Graph.
 #
-# $Id: colour.pm,v 1.1 1999/12/11 02:40:37 mgjv Exp $
+# $Id: colour.pm,v 1.1.1.1 1999/12/11 02:40:37 mgjv Exp $
 #
 #==========================================================================
 
@@ -23,7 +23,7 @@ require Exporter;
 @GD::Graph::colour::ISA = qw( Exporter );
 
 $GD::Graph::colour::prog_name    = 'GD::Graph::colour.pm';
-$GD::Graph::colour::prog_rcs_rev = '$Revision: 1.1 $';
+$GD::Graph::colour::prog_rcs_rev = '$Revision: 1.1.1.1 $';
 $GD::Graph::colour::prog_version = 
 	($GD::Graph::colour::prog_rcs_rev =~ /\s+(\d*\.\d*)/) ? $1 : "0.0";
 

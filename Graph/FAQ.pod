@@ -68,6 +68,21 @@ that GD can export. If you are only interested in the answer 'gif' or
   print "Export format is " .  $graph->export_format . "\n";
   @export_formats = $graph->export_format;
 
+
+=head2 TrueType fonts don't work when I use GD::graph from a CGI program.
+
+When your programs run as CGI, they typically do not have the same
+environment as when you use them from the command line. The Perl FAQ,
+section 9, has some information on this. It is also not guaranteed that
+your script runs from the directory that it is in. It is probably better
+to include something like:
+
+use GD::Text;
+GD::Text->font_path("/path/to/my/font_dir");
+
+See the GD::Text documentation for more information about font paths.
+
+
 =head1 AUTHOR
 
 Martien Verbruggen E<lt>mgjv@tradingpost.com.auE<gt>

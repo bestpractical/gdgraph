@@ -19,7 +19,7 @@
 #       GD::Graph::pie
 #       GD::Graph::mixed
 #
-# $Id: Graph.pm,v 1.40 2002/06/21 08:20:46 mgjv Exp $
+# $Id: Graph.pm,v 1.41 2003/01/21 22:24:51 mgjv Exp $
 #
 #==========================================================================
 
@@ -31,8 +31,8 @@
 
 package GD::Graph;
 
-$GD::Graph::prog_version = '$Revision: 1.40 $' =~ /\s([\d.]+)/;
-$GD::Graph::VERSION = '1.35';
+$GD::Graph::prog_version = '$Revision: 1.41 $' =~ /\s([\d.]+)/;
+$GD::Graph::VERSION = '1.36';
 
 use strict;
 use GD;
@@ -455,7 +455,13 @@ sub gd
 sub export_format
 {
     my $proto = shift;
-    my @f = grep { GD::Image->can($_) } qw(gif png jpeg xbm xpm gd gd2);
+    my @f = grep { GD::Image->can($_) && 
+                   do { 
+		    my $g = GD::Image->new(5,5);
+		    $g->colorAllocate(0,0,0);
+		    $g->$_() 
+		   };
+	    } qw(gif png jpeg xbm xpm gd gd2);
     wantarray ? @f : $f[0];
 }
 

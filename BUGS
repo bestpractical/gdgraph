@@ -1,5 +1,13 @@
 UNRESOLVED BUGS
 
+- From: Eric White <ewhite@ssc.wisc.edu>
+  My question concerns the fact that when I create bar graphs
+  with GD::Graph and set cumulate = 1 and show_values = 1 the
+  values for the "2nd" data set are drawn within the bars for
+  their data rather than above the bars (as is the case for the
+  "1st" data set).  (I've included a graph that illustrates this
+  much better than I can describe it.)
+
 - Reported by Michael Ho (see bug_test/scale_off.pl)
   Heuristics to determine default values for y axis can be terribly
   wrong in certain circumstances.

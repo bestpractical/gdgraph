@@ -1,9 +1,8 @@
 use strict;
 use GD::Graph::bars;
+use GD::Graph::hbars;
 use GD::Graph::Data;
 require 'save.pl';
-
-print STDERR "Processing sample 1-4\n";
 
 $GD::Graph::Error::Debug = 5;
 
@@ -19,56 +18,67 @@ my $values = $data->copy();
 $values->set_y(1, 7, undef) or warn $data->error;
 $values->set_y(2, 7, undef) or warn $data->error;
 
-my $my_graph = new GD::Graph::bars(500,300);
+my @names = qw/sample14 sample14-h/;
 
-$my_graph->set( 
-    x_label             => 'x label',
-    y1_label            => 'y1 label',
-    y2_label            => 'y2 label',
-    title               => 'Using two axes',
-    y1_max_value        => 40,
-    y2_max_value        => 8,
-    y_tick_number       => 8,
-    y_label_skip        => 2,
-    long_ticks          => 1,
-    two_axes            => 1,
-    legend_placement    => 'RT',
-    x_labels_vertical   => 1,
-    x_label_position    => 1/2,
+for my $my_graph (GD::Graph::bars->new(500,300),
+                  GD::Graph::hbars->new(500,300))
+{
+    my $name = shift @names;
+    print STDERR "Processing $name\n";
 
-    fgclr               => 'white',
-    boxclr              => 'dblue',
-    accentclr           => 'dblue',
-    valuesclr           => '#ffff77',
-    dclrs               => [qw(lgreen lred)],
+    $my_graph->set( 
+	x_label             => 'x label',
+	y1_label            => 'y1 label',
+	y2_label            => 'y2 label',
+	title               => 'Using two axes',
+	y1_max_value        => 40,
+	y2_max_value        => 8,
+	y_tick_number       => 8,
+	y_label_skip        => 2,
+	long_ticks          => 1,
+	two_axes            => 1,
+	legend_placement    => 'RT',
+	x_labels_vertical   => 1,
+	x_label_position    => 1/2,
 
-    bar_spacing         => 1,
+	fgclr               => 'white',
+	boxclr              => 'dblue',
+	accentclr           => 'dblue',
+	valuesclr           => '#ffff77',
+	dclrs               => [qw(lgreen lred)],
 
-    logo                => 'logo.' . GD::Graph->export_format,
-    logo_position       => 'BR',
+	bar_spacing         => 1,
 
-    transparent         => 0,
+	logo                => 'logo.' . GD::Graph->export_format,
+	logo_position       => 'BR',
 
-    l_margin            => 10,
-    b_margin            => 10,
-    r_margin            => 10,
-    t_margin            => 10,
+	transparent         => 0,
 
-    show_values         => 1,
-    values_vertical     => 1,
-    values_format       => "%4.1f",
+	l_margin            => 10,
+	b_margin            => 10,
+	r_margin            => 10,
+	t_margin            => 10,
 
-) or warn $my_graph->error;
+	show_values         => 1,
+	values_vertical     => 1,
+	values_format       => "%4.1f",
 
-$my_graph->set_y_label_font('../cetus.ttf', 12);
-$my_graph->set_x_label_font('../cetus.ttf', 12);
-$my_graph->set_y_axis_font('../cetus.ttf', 10);
-$my_graph->set_x_axis_font('../cetus.ttf', 10);
-$my_graph->set_title_font('../cetus.ttf', 18);
-$my_graph->set_legend_font('../cetus.ttf', 8);
-$my_graph->set_values_font('../cetus.ttf', 8);
+    ) or warn $my_graph->error;
 
-$my_graph->set_legend( 'left axis', 'right axis');
-$my_graph->plot($data) or die $my_graph->error;
-save_chart($my_graph, 'sample14');
+    if ($name =~ /-h$/)
+    {
+	$my_graph->set(x_labels_vertical => 0, values_vertical => 0);
+    }
 
+    $my_graph->set_y_label_font('../cetus.ttf', 12);
+    $my_graph->set_x_label_font('../cetus.ttf', 12);
+    $my_graph->set_y_axis_font('../cetus.ttf', 10);
+    $my_graph->set_x_axis_font('../cetus.ttf', 10);
+    $my_graph->set_title_font('../cetus.ttf', 18);
+    $my_graph->set_legend_font('../cetus.ttf', 8);
+    $my_graph->set_values_font('../cetus.ttf', 8);
+
+    $my_graph->set_legend( 'left axis', 'right axis');
+    $my_graph->plot($data) or die $my_graph->error;
+    save_chart($my_graph, $name);
+}

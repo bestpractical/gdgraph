@@ -1,4 +1,6 @@
+no strict; # TODO fix this
 use GD::Graph::bars;
+use GD::Graph::hbars;
 require 'save.pl';
 
 # CONTRIB Edwin Hildebrand.
@@ -6,13 +8,11 @@ require 'save.pl';
 # See changes in bars.pm: Check for bar height rounding errors when 
 # stacking bars.
 
-print STDERR "Processing sample 1-8\n";
-
 @dat = qw(
-	991006 991007 991114 991117 991118 991119 991120 
-	991121 991122 991123 991124 991125 991126 991127 
-	991128 991129 991130 991201 991204 991205 991206 
-	991207 991208
+        991006 991007 991114 991117 991118 991119 991120 
+        991121 991122 991123 991124 991125 991126 991127 
+        991128 991129 991130 991201 991204 991205 991206 
+        991207 991208
 );
 
 @sub = qw(0 0 0 0 0 0 0 0 1 1 1 1 2 3 1 1 1 1 2 2 6 8 8);
@@ -49,45 +49,52 @@ push(@data,\@sld);
 
 # setup legend labels
 @legend = qw(
-	Submitted Deferred Rejected Opened Assigned Work
-	Finished Verified Configured Tested Reviewed
-	Closed-CO Closed Sealed
+        Submitted Deferred Rejected Opened Assigned Work
+        Finished Verified Configured Tested Reviewed
+        Closed-CO Closed Sealed
 );
 
-# get graph object
-$graph = GD::Graph::bars->new(600, 400);
+my @names = qw/sample18 sample18-h/;
 
-# set graph legend
-$graph->set_legend(@legend);
+for my $graph (GD::Graph::bars->new(600, 400),
+               GD::Graph::hbars->new(600, 400))
+{
+    my $name = shift @names;
+    print STDERR "Processing $name\n";
 
-# set graph options
-$graph->set(
-   'dclrs'            => [ qw(lblue lyellow blue yellow lgreen lred
-						      green red purple orange pink dyellow) ],
-   'title'            => "States by Time",
-   'x_label'          => "Time",
-   'y_label'          => "# OF thingies",
-   'long_ticks'       => 1,
-   'tick_length'      => 0,
-   'x_ticks'          => 0,
-   'x_label_position' => .5,
-   'y_label_position' => .5,
-   'cumulate'         => 1,
+    # set graph legend
+    $graph->set_legend(@legend);
 
-   'bgclr'            => 'white',
-   'transparent'      => 0,
-   'interlaced'       => 1,
+    # set graph options
+    $graph->set(
+       'dclrs'            => [ qw(lblue lyellow blue yellow lgreen lred
+                                  green red purple orange pink dyellow) ],
+       'title'            => "States by Time",
+       'x_label'          => "Time",
+       'y_label'          => "# OF thingies",
+       'long_ticks'       => 1,
+       'tick_length'      => 0,
+       'x_ticks'          => 0,
+       'x_label_position' => .5,
+       'y_label_position' => .5,
+       'cumulate'         => 1,
 
-   'y_tick_number'    => 5,
-   'y_number_format'  => '%d',
-   'y_max_value'      => 25,
-   'y_min_value'      => 0,
-   'y_plot_values'    => 1,
-   'x_plot_values'    => 1,
-   'x_labels_vertical'=> 1,
-   'zero_axis'        => 1,
-);
+       'bgclr'            => 'white',
+       'transparent'      => 0,
+       'interlaced'       => 1,
 
-$graph->plot(\@data);
-save_chart($graph, 'sample18');
+       'y_tick_number'    => 5,
+       'y_number_format'  => '%d',
+       'y_max_value'      => 25,
+       'y_min_value'      => 0,
+       'y_plot_values'    => 1,
+       'x_plot_values'    => 1,
+       'zero_axis'        => 1,
+    );
+
+   $graph->set('x_labels_vertical'=> 1) unless $name =~/-h$/;
+
+    $graph->plot(\@data);
+    save_chart($graph, $name);
+}
 

@@ -7,6 +7,7 @@ Graph.pm
 Graph/area.pm
 Graph/axestype.pm
 Graph/bars.pm
+Graph/hbars.pm
 Graph/colour.pm
 Graph/lines.pm
 Graph/linespoints.pm

@@ -17,22 +17,23 @@
 
 PERL = perl
 #OPTIONS = -I/home/mgjv/perl/GD1.19 -I. -I../blib/lib -Tw
-OPTIONS = -I. -I../blib/lib -Tw
+OPTIONS = -I. -I../blib/lib -w
 
-EXT := \
-	$(shell perl $(OPTIONS) -MGD::Graph \
+EXT := $(shell perl $(OPTIONS) -MGD::Graph \
 		-e 'print scalar GD::Graph::export_format')
 
 SAMPLES :=  \
-		sample11 sample12 sample13 sample14 sample15 sample16 \
-		sample17 sample18 \
-		sample21 sample22 sample23 \
-		sample31 \
-		sample41 sample42\
-		sample51 sample52 sample53 sample54 sample55 sample56 \
-		sample61 sample62 sample63 \
-		sample71 \
-		sample91 sample92 sample93 sample94
+    sample11 sample12 sample13 sample14 sample15 \
+    sample16 sample17 sample18 \
+    sample11-h sample12-h sample13-h sample14-h sample15-h \
+    sample16-h sample17-h sample18-h \
+    sample21 sample22 sample23 \
+    sample31 \
+    sample41 sample42\
+    sample51 sample52 sample53 sample54 sample55 sample56 \
+    sample61 sample62 sample63 \
+    sample71 \
+    sample91 sample92 sample93 sample94
 
 IMAGES := $(SAMPLES:%=%.$(EXT))
 
@@ -41,7 +42,7 @@ all: $(IMAGES)
 	echo These samples are both examples and test cases. Therefore
 	echo some of them might look slightly unrealistic.
 
-%.$(EXT): %.pl
+%.$(EXT) %-h.$(EXT): %.pl
 	$(PERL) $(OPTIONS) $<
 
 # Requires ImageMagick to be installed

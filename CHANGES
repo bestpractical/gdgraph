@@ -1,6 +1,9 @@
 6 May 2000
 
 - Added FAQ to distribution
+- Fixed bug with calculation of bottom of plotting area (causing axis
+  tick values to be cut off, when no label present)
+- Some 5.004 code retrogression
 
 30 Apr 2000
 

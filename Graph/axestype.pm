@@ -5,13 +5,13 @@
 #	Name:
 #		GD::Graph::axestype.pm
 #
-# $Id: axestype.pm,v 1.23 2000/04/30 08:32:38 mgjv Exp $
+# $Id: axestype.pm,v 1.24 2000/05/06 10:16:49 mgjv Exp $
 #
 #==========================================================================
 
 package GD::Graph::axestype;
 
-$GD::Graph::axestype::VERSION = '$Revision: 1.23 $' =~ /\s([\d.]+)/;
+$GD::Graph::axestype::VERSION = '$Revision: 1.24 $' =~ /\s([\d.]+)/;
 
 use strict;
  
@@ -338,10 +338,10 @@ sub _setup_boundaries
 	# calculate the top and bottom of the bounding box for the graph
 	$self->{bottom} = $self->{height} - $self->{b_margin} - 1 -
 		# X axis tick labels
-		$self->{x_label_height} -
+		( $self->{xafh} ? $self->{x_label_height} + $self->{axis_space} : 0 ) -
 		# X axis label
 		( $self->{xlfh} ? $self->{xlfh} + $self->{text_space} : 0 );
-
+	
 	$self->{top} = $self->{t_margin} +
 				( $self->{tfh} ? $self->{tfh} + $self->{text_space} : 0 );
 	# Make sure the text for the y axis tick markers fits on the canvas

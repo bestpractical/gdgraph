@@ -1,5 +1,5 @@
 # This -*- perl -*- script makes the Makefile
-# $Id: Makefile.PL,v 1.11 2003/02/10 02:07:20 mgjv Exp $
+# $Id: Makefile.PL,v 1.12 2003/05/29 23:56:29 mgjv Exp $
  
 #--- Distribution section ---
  
@@ -10,27 +10,27 @@ my @clean = qw(*.old *.save tags);
 push @clean, map { "*/$_" } @clean;
  
 WriteMakefile(
-        'VERSION_FROM'      => 'Graph.pm',  #finds $VERSION
-        'DISTNAME'          => 'GDGraph',
-        'NAME'              => 'GD::Graph',
+        'VERSION_FROM'  => 'Graph.pm',  #finds $VERSION
+        'DISTNAME'      => 'GDGraph',
+        'NAME'          => 'GD::Graph',
 
         ($] >= 5.005 ?
-            ('ABSTRACT'     => 'Produces charts with GD',
-             'AUTHOR'       => 'Martien Verbruggen <mgjv@tradingpost.com.au>',
+            ('ABSTRACT'	    => 'Produces charts with GD',
+             'AUTHOR'	    => 'Martien Verbruggen <mgjv@tradingpost.com.au>',
             ):()
         ),
 
-        'PREREQ_PM'         => { 
-            'GD' => '1.18', 
-            'GD::Text::Align' => undef,
+        'PREREQ_PM'     => { 
+            'GD'	    => '1.18', 
+            'GD::Text'      => '0.80',
         },
  
-        'dist'              => {
+        'dist'          => {
             'COMPRESS'      => 'gzip -9f',
             'SUFFIX'        => 'gz', 
         },
 
-        'clean'   => { 'FILES' => join(" ", @clean), },
+        'clean'         => { 'FILES' => join(" ", @clean), },
 );
 
 sub MY::postamble 

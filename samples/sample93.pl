@@ -11,7 +11,8 @@ $my_graph = new GD::Graph::pie( 200, 200 );
 
 $my_graph->set( 
 	start_angle => 90,
-	'3d' => 0
+	'3d' => 0,
+	label => 'foo baer',
 );
 
 $my_graph->plot_to_png( "sample93.png", \@data );

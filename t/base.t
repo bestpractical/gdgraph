@@ -91,7 +91,7 @@ foreach my $i (1..3)
 	    next;
 	  }
 	  my %Font = (
-		      fontname => "t/20thcent.ttf",
+		      fontname => "20thcent.ttf",
 		      size => 10,
 		      angle => 0.05,
 		     );

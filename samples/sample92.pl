@@ -10,14 +10,16 @@ print STDERR "Processing sample 9-2\n";
 $my_graph = new GD::Graph::pie( 250, 200 );
 
 $my_graph->set( 
-	title => 'A Pie Chart',
-	label => 'Label',
-	axislabelclr => 'white',
-	dclrs => [ 'lblue' ],
-	accentclr => 'lgray',
+	title 			=> 'A Pie Chart',
+	label 			=> 'Label',
+	axislabelclr 	=> 'white',
+	dclrs 			=> [ 'lblue' ],
+	accentclr 		=> 'lgray',
 );
 
-$my_graph->plot_to_png( "sample92.png", \@data );
+$my_graph->set_title_font('../20thcent.ttf', 18);
+$my_graph->set_label_font('../20thcent.ttf', 12);
+$my_graph->set_value_font('../cetus.ttf', 10);
 
-exit;
+$my_graph->plot_to_png( "sample92.png", \@data );
 

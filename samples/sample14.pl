@@ -22,13 +22,20 @@ $my_graph->set(
 	long_ticks => 1,
 	two_axes => 1,
 	legend_placement => 'RT',
-	x_labels_vertical => 1,
+	#x_labels_vertical => 1,
 	x_label_position => 1/2,
+
+	#b_margin => 12,
+	#t_margin => 12,
+	#l_margin => 12,
+	#r_margin => 12,
 
 	bar_spacing => 2,
 
 	logo => 'logo.png',
 	logo_position => 'BR',
+
+	transparent => 0,
 );
 
 $my_graph->set_legend( 'left axis', 'right axis');

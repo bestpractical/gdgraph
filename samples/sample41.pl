@@ -20,7 +20,7 @@ $my_graph->set(
 	markers => [ 1, 5 ],
 );
 
-$my_graph->set_legend( 'data set 1', 'data set 2' );
+#$my_graph->set_legend( 'data set 1', 'data set 2' );
 
 $my_graph->plot_to_png( "sample41.png", \@data );
 

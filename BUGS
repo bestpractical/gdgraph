@@ -43,6 +43,8 @@ NOT REALLY BUGS
 FIXED IN 1.22
 ! two_axes only works correctly with negative numbers and zero_axis for
   bars and area graphs.
+! Fixed estimation of y_tick_number attribute in axestype::set_max_min
+  sub. A lot of code added there.
 
 FIXED IN 1.21
 ! y_min_value doesn't automatically get adapted for bars and area if 0

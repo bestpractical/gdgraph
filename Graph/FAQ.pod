@@ -1,6 +1,6 @@
 =head1 NAME
 
-GD::Graph - Frequently asked questions
+GD::Graph::FAQ - Frequently asked questions
 
 =head1 DESCRIPTION
 

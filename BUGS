@@ -1,6 +1,12 @@
 UNRESOLVED BUGS
 
 ? mgjv -
+  Hotspots stuff needs a lot of thought. Currently linespoints graphs
+  will end up with whichever hotspot was drawn last, which is probably
+  not what we want. Lines have a hotspot on a line segment, instead of
+  on the point of interest. Areas have hotspots in the wrong place.
+
+? mgjv -
   Have not been able to reproduce this, as far as I can tell, $type is
   never tainted inherently. If it is ever tainted, it got tainted in the
   calling program, and should be untainted there.

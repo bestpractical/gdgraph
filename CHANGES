@@ -1,3 +1,14 @@
+30 Apr 2000
+
+- Fixed problems with overzealousness of correct_width attribute for
+  mixed charts (report Jimmy Sieben)
+- Fixed problem with zero_axis and zero_axis_only drawing when y values
+  are all on one side of 0 (report Matthew Darwin)
+- Fixed GD::Graph::Data::get_min_max_y and ppoints charts with numerical
+  X axes (thanks Peter)
+- Fixed problem when data sets contain only zeroes (report Joe Pepin)
+- Added experimental support for hotspots
+
 15 Apr 2000
 
 - Added some code (thanks Gary) to deal better with 'numerical' X axes.

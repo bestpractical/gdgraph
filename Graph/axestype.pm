@@ -5,13 +5,13 @@
 #	Name:
 #		GD::Graph::axestype.pm
 #
-# $Id: axestype.pm,v 1.22 2000/04/30 03:09:30 mgjv Exp $
+# $Id: axestype.pm,v 1.23 2000/04/30 08:32:38 mgjv Exp $
 #
 #==========================================================================
 
 package GD::Graph::axestype;
 
-$GD::Graph::axestype::VERSION = '$Revision: 1.22 $' =~ /\s([\d.]+)/;
+$GD::Graph::axestype::VERSION = '$Revision: 1.23 $' =~ /\s([\d.]+)/;
 
 use strict;
  
@@ -307,6 +307,26 @@ sub set_legend_font # (font name)
 	$self->_set_font('gdta_legend', @_);
 }
 
+sub get_hotspot
+{
+	my $self = shift;
+	my $ds = shift;		# Which data set
+	my $np = shift;		# Which data point?
+
+	if (defined $np && defined $ds)
+	{
+		return @{$self->{_hotspots}->[$ds]->[$np]};
+	}
+	elsif (defined $ds)
+	{
+		return @{$self->{_hotspots}->[$ds]};
+	}
+	else
+	{
+		return @{$self->{_hotspots}};
+	}
+}
+
 # PRIVATE
 
 # inherit check_data from GD::Graph
@@ -599,6 +619,13 @@ sub draw_axes
 
 	my ($l, $r, $b, $t) = 
 		( $self->{left}, $self->{right}, $self->{bottom}, $self->{top} );
+	
+	# Sanity check for zero_axis and zero_axis_only
+	unless ($self->{y_min}[1] < 0 && $self->{y_max}[1] > 0)
+	{
+		$self->{zero_axis} = 0;
+		$self->{zero_axis_only} = 0;
+	}
 
 	if ( $self->{box_axis} ) 
 	{

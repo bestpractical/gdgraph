@@ -5,13 +5,13 @@
 #	Name:
 #		GD::Graph::bars.pm
 #
-# $Id: bars.pm,v 1.16 2000/03/18 10:58:39 mgjv Exp $
+# $Id: bars.pm,v 1.17 2000/04/30 08:32:38 mgjv Exp $
 #
 #==========================================================================
  
 package GD::Graph::bars;
 
-$GD::Graph::bars::VERSION = '$Revision: 1.16 $' =~ /\s([\d.]+)/;
+$GD::Graph::bars::VERSION = '$Revision: 1.17 $' =~ /\s([\d.]+)/;
 
 use strict;
 
@@ -104,12 +104,6 @@ sub draw_data_set
 				- $bar_s;
 		}
 
-		# XXX There are inaccuracies in displaying the bars. Maybe we
-		# should do some calculations up front, and set the width of the
-		# graph to a multiple of the number of bar spaces needed, and
-		# adapt one of the margins to make it fit.
-		#printf "%03d %03d %03.3f %03.3f\n", $i, $ds, $l, $r;
-
 		# draw the bar
 		if ($value >= 0)
 		{
@@ -120,6 +114,8 @@ sub draw_data_set
 			$self->{graph}->filledRectangle($l, $t, $r, $bottom, $dsci);
 			$self->{graph}->rectangle($l, $t, $r, $bottom, $brci) 
 				if $r - $l > $self->{accent_treshold};
+
+			$self->{_hotspots}->[$ds]->[$i] = ['rect', $l, $t, $r, $bottom]
 		}
 		else
 		{
@@ -130,6 +126,8 @@ sub draw_data_set
 			$self->{graph}->filledRectangle($l, $bottom, $r, $t, $dsci);
 			$self->{graph}->rectangle($l, $bottom, $r, $t, $brci) 
 				if $r - $l > $self->{accent_treshold};
+
+			$self->{_hotspots}->[$ds]->[$i] = ['rect', $l, $bottom, $r, $t]
 		}
 	}
 

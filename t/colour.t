@@ -36,6 +36,6 @@ printf "ok %d\n", $i++;
 print 'not ' unless $ncolours + 2 == scalar (@_ = colour_list());
 printf "ok %d\n", $i++;
 
-my $ncolours = scalar (@_ = colour_list(13));
+$ncolours = scalar (@_ = colour_list(13));
 print 'not ' unless $ncolours == 13;
 printf "ok %d\n", $i++;

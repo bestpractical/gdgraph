@@ -5,13 +5,13 @@
 #	Name:
 #		GD::Graph::points.pm
 #
-# $Id: points.pm,v 1.8 2000/04/15 07:54:25 mgjv Exp $
+# $Id: points.pm,v 1.9 2000/04/30 08:32:38 mgjv Exp $
 #
 #==========================================================================
 
 package GD::Graph::points;
 
-$GD::Graph::points::VERSION = '$Revision: 1.8 $' =~ /\s([\d.]+)/;
+$GD::Graph::points::VERSION = '$Revision: 1.9 $' =~ /\s([\d.]+)/;
 
 use strict;
  
@@ -41,13 +41,15 @@ sub draw_data_set
 		if (defined($self->{x_min_value}) && defined($self->{x_max_value}))
 		{
 			($xp, $yp) = $self->val_to_pixel(
-				$self->{_data}->get_x(0), $values[$i], $ds);
+				$self->{_data}->get_x($i), $values[$i], $ds);
 		}
 		else	
 		{
 			($xp, $yp) = $self->val_to_pixel($i+1, $values[$i], $ds);
 		}
 		$self->marker($xp, $yp, $type, $dsci );
+		$self->{_hotspots}->[$ds]->[$i] = 
+			['rect', $self->marker_coordinates($xp, $yp)];
 	}
 
 	return $ds;
@@ -67,15 +69,24 @@ sub pick_marker # number
 
 # Draw a marker
 
+sub marker_coordinates
+{
+	my $self = shift;
+	my ($xp, $yp) = @_;
+	return (
+		$xp - $self->{marker_size},
+		$xp + $self->{marker_size},
+		$yp + $self->{marker_size},
+		$yp - $self->{marker_size},
+	);
+}
+
 sub marker # $xp, $yp, type (1-7), $colourindex
 {
 	my $self = shift;
 	my ($xp, $yp, $mtype, $mclr) = @_;
 
-	my $l = $xp - $self->{marker_size};
-	my $r = $xp + $self->{marker_size};
-	my $b = $yp + $self->{marker_size};
-	my $t = $yp - $self->{marker_size};
+	my ($l, $r, $b, $t) = $self->marker_coordinates($xp, $yp);
 
 	MARKER: {
 

@@ -5,13 +5,13 @@
 #	Name:
 #		GD::Graph::pie.pm
 #
-# $Id: pie.pm,v 1.14 2000/03/18 06:01:43 mgjv Exp $
+# $Id: pie.pm,v 1.15 2000/04/30 08:32:38 mgjv Exp $
 #
 #==========================================================================
 
 package GD::Graph::pie;
 
-$GD::Graph::pie::VERSION = '$Revision: 1.14 $' =~ /\s([\d.]+)/;
+$GD::Graph::pie::VERSION = '$Revision: 1.15 $' =~ /\s([\d.]+)/;
 
 use strict;
 
@@ -49,6 +49,9 @@ my %Defaults = (
 
 	# and some public attributes without defaults
 	label		=> undef,
+
+	# This misnamed attribute is used for pie marker colours
+	axislabelclr => 'black',
 );
 
 # PRIVATE

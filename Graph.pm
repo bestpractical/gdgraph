@@ -18,7 +18,7 @@
 #		GD::Graph::pie
 #		GD::Graph::mixed
 #
-# $Id: Graph.pm,v 1.25 2000/04/30 03:09:30 mgjv Exp $
+# $Id: Graph.pm,v 1.26 2000/04/30 08:32:38 mgjv Exp $
 #
 #==========================================================================
 
@@ -30,8 +30,8 @@
 
 package GD::Graph;
 
-$GD::Graph::prog_version = '$Revision: 1.25 $' =~ /\s([\d.]+)/;
-$GD::Graph::VERSION = '1.30';
+$GD::Graph::prog_version = '$Revision: 1.26 $' =~ /\s([\d.]+)/;
+$GD::Graph::VERSION = '1.31';
 
 use strict;
 use GD;
@@ -677,6 +677,15 @@ Set the font for the x and y axis label, and for the x and y axis
 value labels.
 See L<"FONTS">.
 
+=item $graph->get_hotspot($dataset, $point)
+
+B<Experimental>:
+Return a coordinate specification for a point in a dataset. Returns a
+list. If the point is not specified, returns a list of array references
+for all points in the dataset. If the dataset is also not specified,
+returns a list of array references for each data set. 
+See L<"HOTSPOTS">.
+
 =back
 
 
@@ -1259,6 +1268,49 @@ Examples:
 (The above discussion is based on GD::Text 0.65. Older versions have
 more restrictive behaviour).
 
+=head1 HOTSPOTS
+
+I<Note that this is an experimental feature, and its interface may, and
+likely will, change in the future>
+
+GD::Graph keeps an internal set of coordinates for each data point. This
+specification is very similar to the HTML image map specification, and
+in fact exists mainly for that purpose. You can get at these hotspots
+with the C<get_hotspot> method. This method accepts two optional
+arguments, the number of the dataset you're interested in, and the
+number of the point in that dataset you're interested in. When called
+with two arguments, the method returns a list of one of the following
+forms:
+
+  'rect', x1, y1, x2, y2
+  'poly', x1, y1, x2, y2, x3, y3, ....
+  'line', xs, ys, xe, ye, width
+
+The parameters for C<rect> are the coordinates of the corners of the
+rectangle, the parameters for C<poly> are the coordinates of the
+vertices of the polygon, and the parameters for the C<line> are the
+coordinates for the start and end point, and the line width.  It should
+be possible to almost directly translate these lists into HTML image map
+specifications.
+
+If the second argument to C<get_hotspot> is omitted, a list of
+references to arrays will be returned. This list represents all the
+points in the dataset specified, and each array referred to is of the
+form outlined above.
+
+  ['rect', x1, y1, x2, y2 ], ['rect', x1, y1, x2, y2], ...
+
+if both arguments to C<get_hotspot> are omitted, the list that comes
+back will contain references to arrays for each data set, which in
+turn contain references to arrays for each point.
+
+  [
+    ['rect', x1, y1, x2, y2 ], ['rect', x1, y1, x2, y2], ...
+  ],
+  [
+    ['line', xs, ys, xe, ye, w], ['line', xs, ys, xe, ye, w], ...
+  ],...
+
 =head1 NOTES
 
 As with all Modules for Perl: Please stick to using the interface. If
@@ -1299,6 +1351,7 @@ Gary Deschaines
 brian d foy,
 Edwin Hildebrand,
 Ari Jolma,
+Tim Meadowcroft,
 Honza Pazdziora,
 Scott Prahl,
 Vegard Vesterheim,

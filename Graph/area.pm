@@ -5,13 +5,13 @@
 #	Name:
 #		GD::Graph::area.pm
 #
-# $Id: area.pm,v 1.10 2000/03/18 06:01:43 mgjv Exp $
+# $Id: area.pm,v 1.11 2000/04/30 08:32:38 mgjv Exp $
 #
 #==========================================================================
 
 package GD::Graph::area;
  
-$GD::Graph::area::VERSION = '$Revision: 1.10 $' =~ /\s([\d.]+)/;
+$GD::Graph::area::VERSION = '$Revision: 1.11 $' =~ /\s([\d.]+)/;
 
 use strict;
 
@@ -50,7 +50,30 @@ sub draw_data_set
 
 		my ($x, $y) = $self->val_to_pixel($i + 1, $value, $ds);
 		$poly->addPt($x, $y);
+		# XXX Wish I could remember why I did this @bottom thing again,
+		# instead of just using one straight connector
 		push @bottom, [$x, $bottom];
+
+		# Hotspot stuff
+		# XXX needs fixing
+		if ($i == 0)
+		{
+			$self->{_hotspots}->[$ds]->[$i] = ["poly", 
+				$x, $y,
+				$x , $bottom,
+				$x - 1, $bottom,
+				$x - 1, $y,
+				$x, $y];
+		}
+		else
+		{
+			$self->{_hotspots}->[$ds]->[$i] = ["poly", 
+				$poly->getPt($i),
+				@{$bottom[$i]},
+				@{$bottom[$i-1]},
+				$poly->getPt($i-1),
+				$poly->getPt($i)];
+		}
 	}
 
 	foreach my $bottom (reverse @bottom)
@@ -69,7 +92,6 @@ sub draw_data_set
 		{
 			my $value = $values[$i];
 			next unless defined $value;
-			#my ($x, $y) = $self->val_to_pixel($i + 1, $values[$i], $ds);
 
 			my ($x, $y) = $poly->getPt($i);
 			my $bottom = $bottom[$i]->[1];
@@ -80,5 +102,5 @@ sub draw_data_set
 
 	return $ds
 }
- 
+
 "Just another true value";

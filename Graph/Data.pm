@@ -5,13 +5,13 @@
 #	Name:
 #		GD::Graph::Data.pm
 #
-# $Id: Data.pm,v 1.12 2000/03/18 10:58:39 mgjv Exp $
+# $Id: Data.pm,v 1.13 2000/04/30 08:32:38 mgjv Exp $
 #
 #==========================================================================
 
 package GD::Graph::Data;
 
-$GD::Graph::Data::VERSION = '$Revision: 1.12 $' =~ /\s([\d.]+)/;
+$GD::Graph::Data::VERSION = '$Revision: 1.13 $' =~ /\s([\d.]+)/;
 
 use strict;
 use GD::Graph::Error;
@@ -285,7 +285,7 @@ sub get_min_max_y_all
 	for (my $ds = 1; $ds <= $self->num_sets; $ds++)
 	{
 		my ($ds_min, $ds_max) = $self->get_min_max_y($ds);
-		next unless $ds_min;
+		next unless defined $ds_min;
 		$min = $ds_min if !defined $min || $ds_min < $min;
 		$max = $ds_max if !defined $max || $ds_max > $max;
 	}

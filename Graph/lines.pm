@@ -5,13 +5,13 @@
 #	Name:
 #		GD::Graph::lines.pm
 #
-# $Id: lines.pm,v 1.10 2000/04/15 07:54:25 mgjv Exp $
+# $Id: lines.pm,v 1.11 2000/04/30 08:32:38 mgjv Exp $
 #
 #==========================================================================
 
 package GD::Graph::lines;
 
-$GD::Graph::lines::VERSION = '$Revision: 1.10 $' =~ /\s([\d.]+)/;
+$GD::Graph::lines::VERSION = '$Revision: 1.11 $' =~ /\s([\d.]+)/;
 
 use strict;
  
@@ -63,8 +63,12 @@ sub draw_data_set
 			($xe, $ye) = $self->val_to_pixel($i+1, $values[$i], $ds);
 		}
 
-		$self->draw_line($xb, $yb, $xe, $ye, $type, $dsci ) 
-			if defined $xb;
+		if (defined $xb)
+		{
+			$self->draw_line($xb, $yb, $xe, $ye, $type, $dsci);
+			$self->{_hotspots}->[$ds]->[$i] = 
+				['line', $xb, $yb, $xe, $ye, $self->{line_width}];
+		}
 		($xb, $yb) = ($xe, $ye);
    }
 

@@ -28,3 +28,4 @@ or warn $my_graph->error;
 
 $my_graph->plot(\@data) or die $my_graph->error;
 save_chart($my_graph, 'sample11');
+

@@ -19,7 +19,7 @@
 #       GD::Graph::pie
 #       GD::Graph::mixed
 #
-# $Id: Graph.pm,v 1.48 2003/02/22 13:00:30 mgjv Exp $
+# $Id: Graph.pm,v 1.49 2003/03/06 23:10:25 mgjv Exp $
 #
 #==========================================================================
 
@@ -31,7 +31,7 @@
 
 package GD::Graph;
 
-($GD::Graph::prog_version) = '$Revision: 1.48 $' =~ /\s([\d.]+)/;
+($GD::Graph::prog_version) = '$Revision: 1.49 $' =~ /\s([\d.]+)/;
 $GD::Graph::VERSION = '1.40';
 
 use strict;
@@ -90,7 +90,7 @@ my %Defaults = (
     valuesclr     => 'dblue',   # values printed above the points
     
     # data set colours
-    dclrs => [ qw(lred lgreen lblue lyellow lpurple cyan lorange)], 
+    dclrs => [qw(lred lgreen lblue lyellow lpurple cyan lorange)], 
 
     # number of pixels to use as text spacing
     text_space    => 4,
@@ -859,6 +859,7 @@ A colour can be C<undef>, in which case the data set will not be drawn.
 This can be useful for cumulative bar sets where you want certain data
 series (often the first one) not to show up, which can be used to
 emulate error bars (see examples 1-7 and 6-3 in the distribution).
+
 Default: [ qw(lred lgreen lblue lyellow lpurple cyan lorange) ] 
 
 =item borderclrs

@@ -110,6 +110,15 @@ you try to use the short names without including the GD module.
 
 Also see the L<GD::Text> documentation for this information.
 
+=head2 When I have many data sets, some end up having the same colour.
+
+The default number of colours for data sets is seven, so if you use
+more than seven data sets, those colours will be re-used for the
+higher data sets.
+
+This is described in the entry for the C<dclrs> attribute in the
+L<GD::Graph> documentation.
+
 =head1 AUTHOR
 
 Martien Verbruggen E<lt>mgjv@tradingpost.com.auE<gt>

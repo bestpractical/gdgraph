@@ -5,13 +5,13 @@
 #	Name:
 #		GD::Graph::axestype.pm
 #
-# $Id: axestype.pm,v 1.29 2000/10/07 05:52:41 mgjv Exp $
+# $Id: axestype.pm,v 1.30 2000/10/28 22:28:34 mgjv Exp $
 #
 #==========================================================================
 
 package GD::Graph::axestype;
 
-$GD::Graph::axestype::VERSION = '$Revision: 1.29 $' =~ /\s([\d.]+)/;
+$GD::Graph::axestype::VERSION = '$Revision: 1.30 $' =~ /\s([\d.]+)/;
 
 use strict;
  
@@ -61,6 +61,11 @@ my %Defaults = (
 	# will be displayed using the left axis, the second using the right
 	# axis. You cannot use more than two datasets when this option is on.
 	two_axes			=> 0,
+
+	# Which axis to use for each dataset. This only is in effect when
+	# two_axes is true. The axis number will wrap around, just like
+	# the dclrs array.
+	use_axis			=> [1, 2],
  
 	# Print values on the axes?
 	x_plot_values 		=> 1,
@@ -507,6 +512,7 @@ sub create_y_labels
 
 	for my $t (0 .. $self->{y_tick_number})
 	{
+		# XXX Ugh, why did I ever do it this way? How bloody obscure.
 		for my $a (1 .. ($self->{two_axes} + 1))
 		{
 			my $label = $self->{y_min}[$a] +
@@ -687,6 +693,7 @@ sub draw_y_ticks
 
 	for my $t (0 .. $self->{y_tick_number}) 
 	{
+		# XXX Ugh, why did I ever do it this way? How bloody obscure.
 		for my $a (1 .. ($self->{two_axes} + 1)) 
 		{
 			my $value = $self->{y_values}[$a][$t];
@@ -1004,6 +1011,10 @@ sub set_max_min
 {
 	my $self = shift;
 
+	# XXX fix to calculate min and max for each data set
+	# independently, and store in an array. Then, based on use_axis,
+	# pick the minimust and maximust for each axis, and use those.
+
 	# First, calculate some decent values
 	if ( $self->{two_axes} ) 
 	{
@@ -1215,6 +1226,7 @@ sub val_to_pixel	# ($x, $y, $i) in real coords ($Dataspace),
 	my $self = shift;
 	my ($x, $y, $i) = @_;
 
+	# XXX use_axis
 	my $y_min = ($self->{two_axes} && $i == 2) ? 
 		$self->{y_min}[2] : $self->{y_min}[1];
 

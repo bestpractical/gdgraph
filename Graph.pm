@@ -18,7 +18,7 @@
 #		GD::Graph::pie
 #		GD::Graph::mixed
 #
-# $Id: Graph.pm,v 1.37 2001/01/09 11:27:37 mgjv Exp $
+# $Id: Graph.pm,v 1.38 2001/02/27 01:21:13 mgjv Exp $
 #
 #==========================================================================
 
@@ -30,7 +30,7 @@
 
 package GD::Graph;
 
-$GD::Graph::prog_version = '$Revision: 1.37 $' =~ /\s([\d.]+)/;
+$GD::Graph::prog_version = '$Revision: 1.38 $' =~ /\s([\d.]+)/;
 $GD::Graph::VERSION = '1.34';
 
 use strict;
@@ -904,7 +904,7 @@ This can be either a string, or a reference to a subroutine. If it is
 a string, it will be taken to be the first argument to an sprintf,
 with the value as the second argument:
 
-    $label = sprintf( $s->{y_number_format, $value );
+    $label = sprintf( $s->{y_number_format}, $value );
 
 If it is a code reference, it will be executed with the value as the
 argument:

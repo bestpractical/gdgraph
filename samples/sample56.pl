@@ -43,6 +43,7 @@ save_chart($my_graph, 'sample56');
 sub read_data
 {
 	my $fn = shift;
+        local(*ZZZ);
 	my @d = ();
 
 	open(ZZZ, $fn) || return ();

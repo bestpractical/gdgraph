@@ -1,3 +1,9 @@
+22 Feb 2003
+
+- Added patch by Ben Tilly from RT ticket 203 (manually, and much too
+  late) to fix problems with picking decent values for axes when
+  two_axes set to true. Added sample 57
+
 20 Feb 2003
 
 - Removed cetus font, because of unknown copyright status.

@@ -19,7 +19,7 @@
 #       GD::Graph::pie
 #       GD::Graph::mixed
 #
-# $Id: Graph.pm,v 1.47 2003/02/20 12:47:29 mgjv Exp $
+# $Id: Graph.pm,v 1.48 2003/02/22 13:00:30 mgjv Exp $
 #
 #==========================================================================
 
@@ -31,8 +31,8 @@
 
 package GD::Graph;
 
-($GD::Graph::prog_version) = '$Revision: 1.47 $' =~ /\s([\d.]+)/;
-$GD::Graph::VERSION = '1.39';
+($GD::Graph::prog_version) = '$Revision: 1.48 $' =~ /\s([\d.]+)/;
+$GD::Graph::VERSION = '1.40';
 
 use strict;
 use GD;
@@ -540,7 +540,8 @@ Create a graph, representing the data as areas under a line.
 Create a mixed type graph, any combination of the above. At the moment
 this is fairly limited. Some of the options that can be used with some
 of the individual graph types won't work very well. Multiple bar
-graphs in a mixed graph won't display very nicely.
+graphs in a mixed graph won't display very nicely, i.e. they cannot be
+put next to each other.
 
 =back
 
@@ -1588,6 +1589,7 @@ Ari Jolma,
 Tim Meadowcroft,
 Honza Pazdziora,
 Scott Prahl,
+Ben Tilly,
 Vegard Vesterheim,
 Jeremy Wadsack.
 

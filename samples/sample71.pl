@@ -80,7 +80,7 @@ $my_graph->plot(\@data);
 
 # Use a hotspot to draw some extra text on the chart
 # XXX This doesn't work nicely. Need a nicer way to get the maximum.
-if (0) {
+if (1) {
     my $gd = $my_graph->gd;
     my $red = $gd->colorResolve(255,0,0);
     my @l = $my_graph->get_hotspot(1, 3);

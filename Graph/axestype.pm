@@ -5,13 +5,13 @@
 #   Name:
 #       GD::Graph::axestype.pm
 #
-# $Id: axestype.pm,v 1.42 2003/06/20 03:20:24 mgjv Exp $
+# $Id: axestype.pm,v 1.43 2003/07/01 04:56:57 mgjv Exp $
 #
 #==========================================================================
 
 package GD::Graph::axestype;
 
-($GD::Graph::axestype::VERSION) = '$Revision: 1.42 $' =~ /\s([\d.]+)/;
+($GD::Graph::axestype::VERSION) = '$Revision: 1.43 $' =~ /\s([\d.]+)/;
 
 use strict;
  
@@ -1696,15 +1696,17 @@ sub _best_dual_ends
     my ($min_2, $max_2) = _fit_vals_range(splice @_, 0, 3);
     my @rem_args = @_;
 
+    # Fix the situation where both min and max are 0
+    ($min_1, $max_1) = (-1, 1) unless $min_1 or $max_1;
+    ($min_2, $max_2) = (-1, 1) unless $min_2 or $max_2;
+
     my $scale_1 = _max(abs($min_1), abs($max_1));
     my $scale_2 = _max(abs($min_2), abs($max_2));
 
     $scale_1 = defined($scale_2) ? $scale_2 : 1 unless defined($scale_1);
     $scale_2 = $scale_1 unless defined($scale_2);
 
-    # XXX Should we check that $scale_2 isn't 0 here? It should never
-    # be, but just to make sure?
-    my $ratio = $scale_1 / $scale_2;
+    my $ratio = $scale_1 / ($scale_2 || 1);
     my $fact_1 = my $fact_2 = 1;
 
     while ($ratio < sqrt(0.1))

@@ -1,3 +1,10 @@
+1 July 2003
+
+- Fixed yet another division by 0 problem, for two_axes. 
+- Added more tests to axestype.t
+- Cleaned up other test files.
+- Release 1.43
+
 19 June 2003
 
 - Fixed another division by 0 problem, introduced in 1.41

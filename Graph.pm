@@ -19,7 +19,7 @@
 #       GD::Graph::pie
 #       GD::Graph::mixed
 #
-# $Id: Graph.pm,v 1.52 2003/06/19 01:17:06 mgjv Exp $
+# $Id: Graph.pm,v 1.53 2003/07/01 04:56:57 mgjv Exp $
 #
 #==========================================================================
 
@@ -31,8 +31,8 @@
 
 package GD::Graph;
 
-($GD::Graph::prog_version) = '$Revision: 1.52 $' =~ /\s([\d.]+)/;
-$GD::Graph::VERSION = '1.42';
+($GD::Graph::prog_version) = '$Revision: 1.53 $' =~ /\s([\d.]+)/;
+$GD::Graph::VERSION = '1.43';
 
 use strict;
 use GD;

@@ -19,7 +19,7 @@
 #       GD::Graph::pie
 #       GD::Graph::mixed
 #
-# $Id: Graph.pm,v 1.45 2003/02/10 23:33:40 mgjv Exp $
+# $Id: Graph.pm,v 1.46 2003/02/11 05:38:46 mgjv Exp $
 #
 #==========================================================================
 
@@ -31,7 +31,7 @@
 
 package GD::Graph;
 
-($GD::Graph::prog_version) = '$Revision: 1.45 $' =~ /\s([\d.]+)/;
+($GD::Graph::prog_version) = '$Revision: 1.46 $' =~ /\s([\d.]+)/;
 $GD::Graph::VERSION = '1.38';
 
 use strict;
@@ -1581,7 +1581,7 @@ Dave Belcher,
 Steve Bonds,
 Mike Bremford,
 Damon Brodie,
-Gary Deschaines
+Gary Deschaines,
 brian d foy,
 Edwin Hildebrand,
 Ari Jolma,
@@ -1593,8 +1593,6 @@ Jeremy Wadsack.
 
 And some people whose real name I don't know, and whose email address
 I'd rather not publicise without their consent.
-
-=cut
 
 =head1 SEE ALSO
 

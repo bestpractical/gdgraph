@@ -1,5 +1,6 @@
 11 Feb 2003, continued after 1.37 release
 
+- Fixed version numbering
 - Added get_feature_coordinates support.
 
 11 Feb 2003

@@ -9,18 +9,18 @@
 #       Package of colour manipulation routines, to be used 
 #       with GD::Graph.
 #
-# $Id: colour.pm,v 1.9 2003/02/10 22:12:41 mgjv Exp $
+# $Id: colour.pm,v 1.10 2003/02/11 05:38:46 mgjv Exp $
 #
 #==========================================================================
 
  
 package GD::Graph::colour;
 
-($GD::Graph::colour::VERSION) = '$Revision: 1.9 $' =~ /\s([\d.]+)/;
+($GD::Graph::colour::VERSION) = '$Revision: 1.10 $' =~ /\s([\d.]+)/;
 
 =head1 NAME
 
-Colour - Colour manipulation routines for use with GD::Graph
+GD::Graph::colour - Colour manipulation routines for use with GD::Graph
 
 =head1 SYNOPSIS
 
@@ -351,5 +351,21 @@ cyan,
 lbrown,
 dbrown.
 
-=cut
+=head1 AUTHOR
+
+Martien Verbruggen E<lt>mgjv@tradingpost.com.auE<gt>
+
+=head2 Copyright
+
+GIFgraph: Copyright (c) 1995-1999 Martien Verbruggen.
+Chart::PNGgraph: Copyright (c) 1999 Steve Bonds.
+GD::Graph: Copyright (c) 1999 Martien Verbruggen.
+
+All rights reserved. This package is free software; you can redistribute
+it and/or modify it under the same terms as Perl itself.
+
+=head1 SEE ALSO
+
+L<GD::Graph>, 
+L<GD::Graph::FAQ>
 

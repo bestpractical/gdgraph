@@ -75,7 +75,7 @@ for my $my_graph (GD::Graph::bars->new(600,400),
 	$my_graph->set_legend('left axis', 'right axis');
     }
 
-    my $font_spec = "../cetus.ttf";
+    my $font_spec = "../Dustismo_Sans";
 
     $my_graph->set_y_label_font($font_spec, 12);
     $my_graph->set_x_label_font($font_spec, 12);

@@ -22,7 +22,9 @@ t/colour.t
 t/data.t
 t/error.t
 t/use.t
-cetus.ttf
+Dustismo.LICENSE
+Dustismo_Roman.ttf
+Dustismo_Sans.ttf
 samples/sample11.pl
 samples/sample12.pl
 samples/sample13.pl

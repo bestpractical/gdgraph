@@ -1,3 +1,4 @@
+# $Id: data.t,v 1.12 2003/02/10 02:09:46 mgjv Exp $
 use Test;
 use strict;
 

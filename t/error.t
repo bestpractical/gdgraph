@@ -1,3 +1,4 @@
+# $Id: error.t,v 1.2 2003/02/10 02:09:46 mgjv Exp $
 use Test;
 use strict;
 

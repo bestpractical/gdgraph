@@ -1,3 +1,4 @@
+# $Id: colour.t,v 1.6 2003/02/10 02:09:46 mgjv Exp $
 use Test;
 use strict;
 

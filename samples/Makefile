@@ -22,6 +22,16 @@ OPTIONS = -I. -I../blib/lib $(EXTRA_OPTS) -w
 EXT := $(shell perl $(OPTIONS) -MGD::Graph \
 		-e 'print scalar GD::Graph::export_format')
 
+# Samples
+# sample1? : bars
+# sample2? : area
+# sample3? : points
+# sample4? : linespoints
+# sample5? : lines
+# sample6? : mixed
+# sample7? : tricks and test cases
+# sample9? : pie
+
 SAMPLES :=  \
     sample11 sample12 sample13 sample14 sample15 \
     sample16 sample17 sample18 \
@@ -33,7 +43,7 @@ SAMPLES :=  \
     sample51 sample52 sample53 sample54 sample55 sample56 \
     sample57 \
     sample61 sample62 sample63 \
-    sample71 \
+    sample71 sample72 \
     sample91 sample92 sample93 sample94
 
 IMAGES := $(SAMPLES:%=%.$(EXT))

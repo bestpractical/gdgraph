@@ -46,6 +46,10 @@ all: $(IMAGES)
 %.$(EXT) %-h.$(EXT): %.pl
 	$(PERL) $(OPTIONS) $<
 
+# EXPERIMENTAL, for internal use only. Don't try to run this
+html: make_index.pl Makefile
+	$(PERL) $(OPTIONS) make_index.pl $(EXT)
+
 # Requires ImageMagick to be installed
 logo.gif: logo.png
 	convert logo.png logo.gif

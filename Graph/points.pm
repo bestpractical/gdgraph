@@ -5,13 +5,13 @@
 #	Name:
 #		GD::Graph::points.pm
 #
-# $Id: points.pm,v 1.7 2000/03/18 06:01:43 mgjv Exp $
+# $Id: points.pm,v 1.8 2000/04/15 07:54:25 mgjv Exp $
 #
 #==========================================================================
 
 package GD::Graph::points;
 
-$GD::Graph::points::VERSION = '$Revision: 1.7 $' =~ /\s([\d.]+)/;
+$GD::Graph::points::VERSION = '$Revision: 1.8 $' =~ /\s([\d.]+)/;
 
 use strict;
  
@@ -37,7 +37,16 @@ sub draw_data_set
 	for (my $i = 0; $i < @values; $i++)
 	{
 		next unless defined $values[$i];
-		my ($xp, $yp) = $self->val_to_pixel($i+1, $values[$i], $ds);
+		my ($xp, $yp);
+		if (defined($self->{x_min_value}) && defined($self->{x_max_value}))
+		{
+			($xp, $yp) = $self->val_to_pixel(
+				$self->{_data}->get_x(0), $values[$i], $ds);
+		}
+		else	
+		{
+			($xp, $yp) = $self->val_to_pixel($i+1, $values[$i], $ds);
+		}
 		$self->marker($xp, $yp, $type, $dsci );
 	}
 

@@ -5,13 +5,13 @@
 #	Name:
 #		GD::Graph::axestype.pm
 #
-# $Id: axestype.pm,v 1.19 2000/03/18 10:58:39 mgjv Exp $
+# $Id: axestype.pm,v 1.20 2000/04/15 07:54:25 mgjv Exp $
 #
 #==========================================================================
 
 package GD::Graph::axestype;
 
-$GD::Graph::axestype::VERSION = '$Revision: 1.19 $' =~ /\s([\d.]+)/;
+$GD::Graph::axestype::VERSION = '$Revision: 1.20 $' =~ /\s([\d.]+)/;
 
 use strict;
  
@@ -409,11 +409,20 @@ sub setup_coords
 	if (defined $s->{x_tick_number})
 	{
 		my $delta = ($s->{right} - $s->{left})/($s->{x_max} - $s->{x_min});
-		$s->{x_offset} = 
-			($s->{true_x_min} - $s->{x_min}) * $delta + $s->{left};
-		$s->{x_step} = 
-			($s->{true_x_max} - $s->{true_x_min}) * 
-			$delta/($s->{_data}->num_points - 1);
+		# 'True' numerical X axis addition # From: Gary Deschaines
+ 		if ( defined( $s->{x_min_value} ) && defined( $s->{x_max_value} ) )
+ 		{
+ 			$s->{x_offset} = $s->{left};
+ 			$s->{x_step} = $delta;
+ 		}
+ 		else
+ 		{
+			$s->{x_offset} = 
+				($s->{true_x_min} - $s->{x_min}) * $delta + $s->{left};
+			$s->{x_step} = 
+				($s->{true_x_max} - $s->{true_x_min}) * 
+				$delta/($s->{_data}->num_points - 1);
+		}
 	}
 	else
 	{
@@ -715,28 +724,78 @@ sub draw_x_ticks
 # Assume x array contains equally spaced x-values
 # and generate an appropriate axis
 #
+####
+# 'True' numerical X axis addition 
+# From: Gary Deschaines
+#
+# These modification to draw_x_ticks_number pass x-tick values to the
+# val_to_pixel subroutine instead of x-tick indices when ture numerical
+# x-axis mode is detected.  Also, x_tick_offset and x_label_skip are
+# processed differently when true numerical x-axis mode is detected to
+# allow labeled major x-tick marks and un-labeled minor x-tick marks.
+#
+# For example:
+#
+#      x_tick_number =>  14,
+#      x_ticks       =>   1,
+#      x_long_ticks  =>   1,
+#      x_tick_length =>  -4,
+#      x_min_value   => 100,
+#      x_max_value   => 800,
+#      x_tick_offset =>   2,
+#      x_label_skip  =>   2,
+#
+#
+#      ~         ~    ~    ~    ~    ~    ~    ~    ~    ~    ~    ~         ~
+#      |         |    |    |    |    |    |    |    |    |    |    |         |
+#   1 -|         |    |    |    |    |    |    |    |    |    |    |         |
+#      |         |    |    |    |    |    |    |    |    |    |    |         |
+#   0 _|_________|____|____|____|____|____|____|____|____|____|____|_________|
+#                |    |    |    |    |    |    |    |    |    |    |
+#               200       300       400       500       600       700
 sub draw_x_ticks_number
 {
 	my $self = shift;
 
 	for my $i (0 .. $self->{x_tick_number})
 	{
-		my $value = ($self->{_data}->num_points - 1)
-					* ($self->{x_values}[$i] - $self->{true_x_min})
-					/ ($self->{true_x_max} - $self->{true_x_min});
+		my ($value, $x, $y);
 
+ 		if (defined($self->{x_min_value}) && defined($self->{x_max_value}))
+ 		{
+			next if ($i - $self->{x_tick_offset}) < 0;
+ 			next if ($i + $self->{x_tick_offset}) > $self->{x_tick_number};
+ 			$value = $self->{x_values}[$i];
+ 			($x, $y) = $self->val_to_pixel($value, 0, 1);
+ 		}
+ 		else
+ 		{
+			$value = ($self->{_data}->num_points - 1)
+						* ($self->{x_values}[$i] - $self->{true_x_min});
+ 			($x, $y) = $self->val_to_pixel($value + 1, 0, 1);
+ 		}
+
+		print "$i, $label: $x, $y ($self->{x_ticks}, $self->{x_long_ticks})\n";
 		my $label = $self->{x_labels}[$i];
-
-		my ($x, $y) = $self->val_to_pixel($value + 1, 0, 1);
-
 		$y = $self->{bottom} unless $self->{zero_axis_only};
 
 		if ($self->{x_ticks})
 		{
 			if ($self->{x_long_ticks})
 			{
-				$self->{graph}->line($x, $self->{bottom}, 
-					$x, $self->{top}, $self->{fgci});
+				# XXX This mod needs to be done everywhere ticks are
+				# drawn
+				if ( $self->{x_tick_length} >= 0 ) 
+				{
+					$self->{graph}->line($x, $self->{bottom}, 
+						$x, $self->{top}, $self->{fgci});
+				} 
+				else 
+				{
+					$self->{graph}->line(
+						$x, $self->{bottom} - $self->{x_tick_length}, 
+						$x, $self->{top}, $self->{fgci});
+				}
 			}
 			else
 			{
@@ -745,8 +804,15 @@ sub draw_x_ticks_number
 			}
 		}
 
-		next
-			if $i % $self->{x_label_skip} and $i != $self->{x_tick_number};
+		if (defined($self->{x_min_value}) && defined($self->{x_max_value}))
+		{
+			next if ($i - 1) % $self->{x_label_skip};
+		}
+		else
+		{
+			next if ($i - 1) % $self->{x_label_skip} && 
+				$i != $self->{x_tick_number};
+		}
 
 		$self->{gdta_x_axis}->set_text($label);
 
@@ -852,12 +918,22 @@ sub set_max_min
 
 	if (defined($self->{x_tick_number}))
 	{
-		($self->{true_x_min}, $self->{true_x_max}) = 
-			$self->{_data}->get_min_max_x;
+		if (defined($self->{x_min_value}) && defined($self->{x_max_value}))
+		{
+			$self->{true_x_min} = $self->{x_min_value};
+			$self->{true_x_max} = $self->{x_max_value};
+		}
+		else
+		{
+			$self->{x_min_value} = $self->{x_max_value} = undef;
 
-		($self->{x_min}, $self->{x_max}, $self->{x_tick_number}) =
-			_best_ends( $self->{true_x_min}, $self->{true_x_max}, 
-						$self->{x_tick_number});
+			($self->{true_x_min}, $self->{true_x_max}) = 
+				$self->{_data}->get_min_max_x;
+
+			($self->{x_min}, $self->{x_max}, $self->{x_tick_number}) =
+				_best_ends( $self->{true_x_min}, $self->{true_x_max}, 
+							$self->{x_tick_number});
+		}
 	}
 
 	# Make sure bars and area always have a zero offset
@@ -1043,11 +1119,19 @@ sub val_to_pixel	# ($x, $y, $i) in real coords ($Dataspace),
 
 	my $y_step = abs(($self->{bottom} - $self->{top})/($y_max - $y_min));
 
-	return ( 
-		_round( ($self->{x_tick_number} ? $self->{x_offset} : $self->{left}) 
-					+ $x * $self->{x_step} ),
-		_round( $self->{bottom} - ($y - $y_min) * $y_step )
-	)
+	my $ret_x;
+	if (defined($self->{x_min_value}) && defined($self->{x_max_value}))
+ 	{
+		$ret_x = $self->{left} + ($x - $self->{x_min}) * $self->{x_step};
+ 	}
+ 	else
+ 	{
+		$ret_x = ($self->{x_tick_number} ? $self->{x_offset} : $self->{left}) 
+			+ $x * $self->{x_step};
+	}
+	my $ret_y = $self->{bottom} - ($y - $y_min) * $y_step;
+
+	return(_round($ret_x), _round($ret_y));
 }
 
 #

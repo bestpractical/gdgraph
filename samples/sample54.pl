@@ -26,6 +26,8 @@ $my_graph->set(
 	r_margin => 15,
 
 	x_labels_vertical => 1,
+
+	transparent => 0,
 );
 
 $my_graph->set_legend('Thanks to Scott Prahl');
@@ -48,7 +50,7 @@ sub read_data
 		for (my $i = 0; $i <= $#row; $i++)
 		{
 			undef $row[$i] if ($row[$i] eq 'undef');
-			push @{$d[$i]}, $row[$i];
+			unshift @{$d[$i]}, $row[$i];
 		}
 	}
 

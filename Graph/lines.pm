@@ -5,13 +5,13 @@
 #	Name:
 #		GD::Graph::lines.pm
 #
-# $Id: lines.pm,v 1.9 2000/03/18 06:01:43 mgjv Exp $
+# $Id: lines.pm,v 1.10 2000/04/15 07:54:25 mgjv Exp $
 #
 #==========================================================================
 
 package GD::Graph::lines;
 
-$GD::Graph::lines::VERSION = '$Revision: 1.9 $' =~ /\s([\d.]+)/;
+$GD::Graph::lines::VERSION = '$Revision: 1.10 $' =~ /\s([\d.]+)/;
 
 use strict;
  
@@ -33,15 +33,35 @@ sub draw_data_set
 
 	my $dsci = $self->set_clr($self->pick_data_clr($ds) );
 	my $type = $self->pick_line_type($ds);
-	my ($xb, $yb) = (defined $values[0]) ?
-		$self->val_to_pixel( 1, $values[0], $ds) :
-		(undef, undef);
+
+	my ($xb, $yb);
+	if (defined $values[0])
+	{
+		if (defined($self->{x_min_value}) && defined($self->{x_max_value}))
+		{
+			($xb, $yb) =
+				$self->val_to_pixel($self->{_data}->get_x(0), $values[0], $ds);
+		}
+		else	
+		{
+			($xb, $yb) = $self->val_to_pixel(1, $values[0], $ds);
+		}
+	}
 
 	for (my $i = 0; $i < @values; $i++)
 	{
 		next unless defined $values[$i];
+		my ($xe, $ye);
 
-		my ($xe, $ye) = $self->val_to_pixel($i+1, $values[$i], $ds);
+		if (defined($self->{x_min_value}) && defined($self->{x_max_value}))
+		{
+			($xe, $ye) = $self->val_to_pixel(
+				$self->{_data}->get_x($i), $values[$i], $ds);
+		}
+		else
+		{
+			($xe, $ye) = $self->val_to_pixel($i+1, $values[$i], $ds);
+		}
 
 		$self->draw_line($xb, $yb, $xe, $ye, $type, $dsci ) 
 			if defined $xb;

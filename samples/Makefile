@@ -17,7 +17,7 @@
 
 PERL = perl
 #OPTIONS = -I/home/mgjv/perl/GD1.19 -I. -I../lib -Tw
-OPTIONS = -I. -I../lib -Tw
+OPTIONS = -I. -I../blib/lib -Tw
 
 EXT := \
 	$(shell perl $(OPTIONS) -MGD::Graph -e 'print GD::Graph::export_format')

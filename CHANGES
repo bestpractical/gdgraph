@@ -1,6 +1,12 @@
 7 Oct 2000
-- Various slight bug fixes
+
 - Addition of undefined data set colour.
+- Addition of bar_width option
+- Preparation of release 1.33
+
+May - Sep 2000
+
+- Various small bug fixes
 
 7 May 2000
 

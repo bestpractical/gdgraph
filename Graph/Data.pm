@@ -5,13 +5,13 @@
 #	Name:
 #		GD::Graph::Data.pm
 #
-# $Id: Data.pm,v 1.14 2000/05/06 10:03:19 mgjv Exp $
+# $Id: Data.pm,v 1.15 2000/10/07 05:52:41 mgjv Exp $
 #
 #==========================================================================
 
 package GD::Graph::Data;
 
-$GD::Graph::Data::VERSION = '$Revision: 1.14 $' =~ /\s([\d.]+)/;
+$GD::Graph::Data::VERSION = '$Revision: 1.15 $' =~ /\s([\d.]+)/;
 
 use strict;
 use GD::Graph::Error;
@@ -691,7 +691,7 @@ reference.
 
 =head1 AUTHOR
 
-Martien Verbruggen <mgjv@comdyn.com.au>
+Martien Verbruggen E<lt>mgjv@tradingpost.com.auE<gt>
 
 =head2 Copyright
 

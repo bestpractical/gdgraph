@@ -18,7 +18,7 @@
 #		GD::Graph::pie
 #		GD::Graph::mixed
 #
-# $Id: Graph.pm,v 1.33 2000/10/07 04:06:22 mgjv Exp $
+# $Id: Graph.pm,v 1.34 2000/10/07 05:52:41 mgjv Exp $
 #
 #==========================================================================
 
@@ -30,7 +30,7 @@
 
 package GD::Graph;
 
-$GD::Graph::prog_version = '$Revision: 1.33 $' =~ /\s([\d.]+)/;
+$GD::Graph::prog_version = '$Revision: 1.34 $' =~ /\s([\d.]+)/;
 $GD::Graph::VERSION = '1.33';
 
 use strict;
@@ -1155,11 +1155,21 @@ See y_label_skip
 
 =over 4
 
+=item bar_width
+
+The width of a bar in pixels. Also see C<bar_spacing>.  Use C<bar_width>
+If you want to have fixed-width bars, no matter how wide the chart gets.
+Default: as wide as possible, within the constraints of the chart size
+and C<bar_spacing> setting.
+
 =item bar_spacing
 
 Number of pixels to leave open between bars. This works well in most
 cases, but on some platforms, a value of 1 will be rounded off to 0.
-Default: 0
+Use C<bar_spacing> to get a fixed amount of space between bars, with
+variable bar widths, depending on the width of the chart.  Note that if
+C<bar_width> is also set, this setting will be ignored, and
+automatically calculated.  Default: 0
 
 =back
 
@@ -1437,7 +1447,7 @@ create a new GD::Graph object.
 
 =head1 AUTHOR
 
-Martien Verbruggen E<lt>mgjv@comdyn.com.auE<gt>
+Martien Verbruggen E<lt>mgjv@tradingpost.com.auE<gt>
 
 =head2 Copyright
 

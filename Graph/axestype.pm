@@ -5,13 +5,13 @@
 #	Name:
 #		GD::Graph::axestype.pm
 #
-# $Id: axestype.pm,v 1.28 2000/10/07 04:06:22 mgjv Exp $
+# $Id: axestype.pm,v 1.29 2000/10/07 05:52:41 mgjv Exp $
 #
 #==========================================================================
 
 package GD::Graph::axestype;
 
-$GD::Graph::axestype::VERSION = '$Revision: 1.28 $' =~ /\s([\d.]+)/;
+$GD::Graph::axestype::VERSION = '$Revision: 1.29 $' =~ /\s([\d.]+)/;
 
 use strict;
  
@@ -160,6 +160,7 @@ my %Defaults = (
 
 	# XXX bars
 	# Spacing between the bars
+	bar_width		=> undef,
 	bar_spacing 	=> 0,
 
 	# cycle through colours per data point, not set
@@ -913,6 +914,18 @@ sub draw_ticks
 sub draw_data
 {
 	my $self = shift;
+
+	# Calculate bar_spacing from bar_width
+	if ($self->{bar_width})
+	{
+		my $chart_width = $self->{right} - $self->{left};
+		my $n_bars = $self->{_data}->num_points;
+		my $n_sets = $self->{_data}->num_sets;
+		my $bar_space = $chart_width/($n_bars + 1) /
+			($self->{overwrite} ? 1 : $n_sets);
+		$self->{bar_spacing} = $bar_space - $self->{bar_width};
+		$self->{bar_spacing} = 0 if $self->{bar_spacing} < 0;
+	}
 
 	# XXX is this comment still pertinent?
 	# The drawing of 'cumulated' sets needs to be done in reverse,

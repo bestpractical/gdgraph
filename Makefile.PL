@@ -1,5 +1,5 @@
 # This -*- perl -*- script makes the Makefile
-# $Id: Makefile.PL,v 1.8 2000/04/15 04:48:21 mgjv Exp $
+# $Id: Makefile.PL,v 1.9 2000/10/07 05:52:41 mgjv Exp $
  
 #--- Distribution section ---
  
@@ -16,7 +16,7 @@ WriteMakefile(
 
 		($] >= 5.005 ?
 			('ABSTRACT'		=> 'Produces charts with GD',
-			 'AUTHOR'		=> 'Martien Verbruggen <mgjv@comdyn.com.au>',
+			 'AUTHOR'		=> 'Martien Verbruggen <mgjv@tradingpost.com.au>',
 			):()
 		),
 
@@ -29,7 +29,7 @@ WriteMakefile(
 			'COMPRESS' 		=> 'gzip -9f',
 			'SUFFIX'   		=> 'gz', 
 		},
- 
+
         'clean'   => { 'FILES' => join(" ", @clean), },
 );
 

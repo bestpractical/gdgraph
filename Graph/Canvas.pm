@@ -5,7 +5,7 @@
 #	Name:
 #		GD::Graph::Canvas.pm
 #
-# $Id: Canvas.pm,v 1.3 2000/05/03 11:51:52 mgjv Exp $
+# $Id: Canvas.pm,v 1.4 2000/10/07 05:52:41 mgjv Exp $
 #
 #==========================================================================
 
@@ -38,7 +38,7 @@ exercise anyway).
 
 package GD::Graph::Canvas;
 
-$GD::Graph::Canvas::VERSION = '$Revision: 1.3 $' =~ /\s([\d.]+)/;
+$GD::Graph::Canvas::VERSION = '$Revision: 1.4 $' =~ /\s([\d.]+)/;
 
 use strict;
 
@@ -134,7 +134,7 @@ sub __to_pixels
 
 =head1 AUTHOR
 
-Martien Verbruggen E<lt>mgjv@comdyn.com.auE<gt>
+Martien Verbruggen E<lt>mgjv@tradingpost.com.auE<gt>
 
 =head2 Copyright
 

@@ -1,3 +1,4 @@
+use strict;
 use GD::Graph::mixed;
 require 'save.pl';
 
@@ -25,15 +26,16 @@ $my_graph->set(
 	y_label_skip 	=> 2,
 	cumulate 		=> 1,
 	types 			=> [qw(area bars bars lines)],
-	dclrs 			=> [ undef, qw(lgray gray red) ],
-	borderclrs 		=> [ undef, qw(black black black) ],
+	dclrs 			=> [undef, qw(lgray gray red)],
+	borderclrs 		=> [undef, qw(black black black)],
 	line_width 		=> 2,
-	bar_spacing 	=> 25,
+	bar_width		=> 4,
 
 	transparent 	=> 0,
-);
+)
+or warn $my_graph->error;
 
-$my_graph->set_legend('undef', qw(increment more));
+$my_graph->set_legend(undef, qw(increment more));
 $my_graph->plot(\@data) or die $my_graph->error;
 save_chart($my_graph, 'sample63');
 

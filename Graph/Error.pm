@@ -5,13 +5,13 @@
 #	Name:
 #		GD::Graph::Error.pm
 #
-# $Id: Error.pm,v 1.4 2000/03/18 06:01:43 mgjv Exp $
+# $Id: Error.pm,v 1.5 2000/10/07 05:52:41 mgjv Exp $
 #
 #==========================================================================
 
 package GD::Graph::Error;
 
-$GD::Graph::Error::VERSION = '$Revision: 1.4 $' =~ /\s([\d.]+)/;
+$GD::Graph::Error::VERSION = '$Revision: 1.5 $' =~ /\s([\d.]+)/;
 
 use strict;
 use Carp;
@@ -328,7 +328,7 @@ module, you could get burned. I may change them at any time.
 
 =head1 AUTHOR
 
-Martien Verbruggen <mgjv@comdyn.com.au>
+Martien Verbruggen E<lt>mgjv@tradingpost.com.auE<gt>
 
 =head2 Copyright
 

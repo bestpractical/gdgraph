@@ -5,7 +5,7 @@
 #	Name:
 #		GD::Graph::Canvas::Area.pm
 #
-# $Id: Area.pm,v 1.1 2000/05/01 13:51:24 mgjv Exp $
+# $Id: Area.pm,v 1.2 2000/10/07 05:52:41 mgjv Exp $
 #
 #==========================================================================
 
@@ -23,7 +23,7 @@ GD::Graph::Canvas::Area - Canvas Area
 
 package GD::Graph::Canvas::Area;
 
-$GD::Graph::Canvas::Area::VERSION = '$Revision: 1.1 $' =~ /\s([\d.]+)/;
+$GD::Graph::Canvas::Area::VERSION = '$Revision: 1.2 $' =~ /\s([\d.]+)/;
 
 use strict;
 #use GD::Graph::Canvas::Layer;
@@ -53,7 +53,7 @@ sub add_layer
 
 =head1 AUTHOR
 
-Martien Verbruggen E<lt>mgjv@comdyn.com.auE<gt>
+Martien Verbruggen E<lt>mgjv@tradingpost.com.auE<gt>
 
 =head2 Copyright
 

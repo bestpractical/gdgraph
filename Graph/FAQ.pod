@@ -56,7 +56,7 @@ that GD can export. If you are only interested in the answer 'gif' or
 
 =head1 AUTHOR
 
-Martien Verbruggen E<lt>mgjv@comdyn.com.auE<gt>
+Martien Verbruggen E<lt>mgjv@tradingpost.com.auE<gt>
 
 Copyright (c) 2000 Martien Verbruggen.
 

@@ -5,13 +5,13 @@
 #	Name:
 #		GD::Graph::pie.pm
 #
-# $Id: pie.pm,v 1.17 2000/10/23 12:21:05 mgjv Exp $
+# $Id: pie.pm,v 1.18 2000/10/28 22:36:18 mgjv Exp $
 #
 #==========================================================================
 
 package GD::Graph::pie;
 
-$GD::Graph::pie::VERSION = '$Revision: 1.17 $' =~ /\s([\d.]+)/;
+$GD::Graph::pie::VERSION = '$Revision: 1.18 $' =~ /\s([\d.]+)/;
 
 use strict;
 
@@ -83,7 +83,7 @@ sub plot
 	$self->setup_text()				or return;
 	$self->setup_coords() 			or return;
 	$self->draw_text()				or return;
-#	$self->draw_pie()				or return;
+	$self->draw_pie()				or return;
 	$self->draw_data()				or return;
 
 	return $self->{graph};
@@ -127,7 +127,7 @@ sub setup_coords()
 		$self->{height} - $self->{pie_height} - $self->{b_margin} -
 		( $lfh ? $lfh + $self->{text_space} : 0 );
 	$self->{top} = 
-		$self->{t_margin} + ($tfh ? $tfh + $self->{text_space} : 0);
+		$self->{t_margin} + ( $tfh ? $tfh + $self->{text_space} : 0 );
 
 	return $self->_set_error('Vertical size too small') 
 		if $self->{bottom} - $self->{top} <= 0;
@@ -138,8 +138,8 @@ sub setup_coords()
 	return $self->_set_error('Horizontal size too small')
 		if $self->{right} - $self->{left} <= 0;
 
-	$self->{width} = $self->{right}  - $self->{left};
-	$self->{height} = $self->{bottom} - $self->{top};
+	$self->{w} = $self->{right}  - $self->{left};
+	$self->{h} = $self->{bottom} - $self->{top};
 
 	$self->{xc} = ($self->{right}  + $self->{left})/2; 
 	$self->{yc} = ($self->{bottom} + $self->{top})/2;
@@ -190,19 +190,19 @@ sub draw_pie
 {
 	my $self = shift;
 
-	my $left = $self->{xc} - $self->{width}/2;
+	my $left = $self->{xc} - $self->{w}/2;
 
 	$self->{graph}->arc(
 		$self->{xc}, $self->{yc}, 
-		$self->{width}, $self->{height},
+		$self->{w}, $self->{h},
 		0, 360, $self->{acci}
 	);
 
 	$self->{graph}->arc(
 		$self->{xc}, $self->{yc} + $self->{pie_height}, 
-		$self->{width}, $self->{height},
+		$self->{w}, $self->{h},
 		0, 180, $self->{acci}
-	) if $self->{'3d'};
+	) if ( $self->{'3d'} );
 
 	$self->{graph}->line(
 		$left, $self->{yc},
@@ -211,155 +211,17 @@ sub draw_pie
 	);
 
 	$self->{graph}->line(
-		$left + $self->{width}, $self->{yc},
-		$left + $self->{width}, $self->{yc} + $self->{pie_height}, 
+		$left + $self->{w}, $self->{yc},
+		$left + $self->{w}, $self->{yc} + $self->{pie_height}, 
 		$self->{acci}
 	);
 
 	return $self;
 }
 
-sub _draw_pie_lines
-{
-	my $self = shift;
-	my ($pa, $pb, $ci) = @_;
-
-	# Calculate the end points of the lines at the boundaries of
-	# the pie slice
-	my ($xa, $ya) = cartesian(
-			$self->{width}/2, $pa, 
-			$self->{xc}, $self->{yc}, $self->{height}/$self->{width});
-	my ($xb, $yb) = cartesian(
-			$self->{width}/2, $pb, 
-			$self->{xc}, $self->{yc}, $self->{height}/$self->{width});
-
-	$self->{graph}->line($self->{xc}, $self->{yc}, $xa, $ya, $ci);
-	$self->{graph}->line($self->{xc}, $self->{yc}, $xb, $yb, $ci);
-
-	# Draw the arc on the pie top and bottom
-	$self->{graph}->arc(
-		$self->{xc}, $self->{yc}, 
-		$self->{width}, $self->{height},
-		0, 360, $ci);
-		# XXX Grumble GD integer rounding leaves little gaps through
-		# which the colour escapes
-		#$pa + 90, $pb + 90, $ci);
-	
-	$self->{graph}->arc(
-		$self->{xc}, $self->{yc} + $self->{pie_height}, 
-		$self->{width}, $self->{height},
-		0, 180, $ci) if $self->{'3d'};
-		# XXX Grumble GD integer rounding leaves little gaps through
-		# which the colour escapes
-		#$pa + 90, $pb + 90, $ci) if $self->{'3d'};
-	
-	if ($self->{'3d'})
-	{
-		my $wrap_detected = slice_wraps($pa, $pb);
-
-		if ($wrap_detected)
-		{
-		print "Wrap detected: $pa - $pb\n";
-			($xa, $ya) = cartesian(
-				$self->{width}/2, 270, 
-				$self->{xc}, $self->{yc}, $self->{height}/$self->{width})
-					unless in_front($pa);
-			($xb, $yb) = cartesian(
-				$self->{width}/2, 90, 
-				$self->{xc}, $self->{yc}, $self->{height}/$self->{width})
-					unless in_front($pb);
-		}
-
-		$self->{graph}->line($xa, $ya, $xa, $ya + $self->{pie_height}, $ci)
-			if in_front($pa) || $wrap_detected;
-		$self->{graph}->line($xb, $yb, $xb, $yb + $self->{pie_height}, $ci)
-			if in_front($pb) || $wrap_detected;
-	}
-}
-
-sub draw_pie_slice
-{
-	my $self = shift;
-	my $num  = shift;
-	my ($pa, $pb) = @_;
-	my $dc = $self->set_clr_uniq($self->pick_data_clr($num + 1));
-
-	#return unless $num == 3;
-
-	my $tmpclr = $self->_set_tmp_clr;
-
-	# Draw the pie slice in the temporary border colour
-	$self->_draw_pie_lines($pa, $pb, $tmpclr);
-
-	# Make an estimate of a point in the middle of the pie slice
-	# And fill it
-	my ($xe, $ye) = cartesian(
-			3 * $self->{width}/8, ($pa+$pb)/2,
-			$self->{xc}, $self->{yc}, $self->{height}/$self->{width});
-	#$self->{graph}->setPixel($xe, $ye, $dc);
-	$self->{graph}->fillToBorder($xe, $ye, $tmpclr, $dc);
-
-	# If it's 3d, colour the front ones as well
-	#
-	# if one slice is very large (>180 deg) then we will need to
-	# fill it twice.  sbonds.
-	#
-	# Independently noted and fixed by Jeremy Wadsack, in a slightly
-	# different way.
-	if ($self->{'3d'}) 
-	{
-		foreach my $fill ($self->_get_pie_front_coords($pa, $pb)) 
-		{
-			$self->{graph}->fillToBorder(
-				$fill->[0], $fill->[1] + $self->{pie_height}/2, 
-				$tmpclr, $dc);
-		}
-	}
-	$self->_rm_tmp_clr($tmpclr);
-
-	$self->_draw_pie_lines($pa, $pb, $self->{acci});
-}
-
-sub draw_data
-{
-	my $self = shift;
-
-	my $total = 0;
-	my @values = $self->{_data}->y_values(1);	# for now, only one pie..
-	for (@values)
-	{	
-		$total += $_ 
-	}
-	return $self->_set_error("Pie data total is <= 0") 
-		unless $total > 0;
-
-	my $pb = $self->{start_angle};
-
-	for (my $i = 0; $i < @values; $i++)
-	{
-		# Set the angles of the pie slice
-		# Angle 0 faces down, positive angles are clockwise 
-		# from there.
-		#         ---
-		#        /   \
-		#        |    |
-		#        \ | /
-		#         ---
-		#          0
-		# $pa/$pb include the start_angle (so if start_angle
-		# is 90, there will be no pa/pb < 90.
-		my $pa = $pb;
-		$pb += my $slice_angle = 360 * $values[$i]/$total;
-
-		$self->draw_pie_slice($i, $pa, $pb);
-	}
-}
-
-
-
 # Draw the data slices
 
-sub draw_data_old
+sub draw_data
 {
 	my $self = shift;
 
@@ -398,8 +260,8 @@ sub draw_data_old
 		# Calculate the end points of the lines at the boundaries of
 		# the pie slice
 		my ($xe, $ye) = cartesian(
-				$self->{width}/2, $pa, 
-				$self->{xc}, $self->{yc}, $self->{height}/$self->{width}
+				$self->{w}/2, $pa, 
+				$self->{xc}, $self->{yc}, $self->{h}/$self->{w}
 			);
 
 		$self->{graph}->line($self->{xc}, $self->{yc}, $xe, $ye, $ac);
@@ -411,8 +273,8 @@ sub draw_data_old
 		# Make an estimate of a point in the middle of the pie slice
 		# And fill it
 		($xe, $ye) = cartesian(
-				3 * $self->{width}/8, ($pa+$pb)/2,
-				$self->{xc}, $self->{yc}, $self->{height}/$self->{width}
+				3 * $self->{w}/8, ($pa+$pb)/2,
+				$self->{xc}, $self->{yc}, $self->{h}/$self->{w}
 			);
 
 		$self->{graph}->fillToBorder($xe, $ye, $ac, $dc);
@@ -455,8 +317,8 @@ sub draw_data_old
 
 		my ($xe, $ye) = 
 			cartesian(
-				3 * $self->{width}/8, ($pa+$pb)/2,
-				$self->{xc}, $self->{yc}, $self->{height}/$self->{width}
+				3 * $self->{w}/8, ($pa+$pb)/2,
+				$self->{xc}, $self->{yc}, $self->{h}/$self->{w}
 			);
 
 		$self->put_slice_label($xe, $ye, $self->{_data}->get_x($i));
@@ -489,14 +351,14 @@ sub _get_pie_front_coords # (angle 1, angle 2)
 				# direction this works, we can just get the coordinates
 				# for $pa.
 				my ($x, $y) = cartesian(
-					$self->{width}/2, $pa,
-					$self->{xc}, $self->{yc}, $self->{height}/$self->{width}
+					$self->{w}/2, $pa,
+					$self->{xc}, $self->{yc}, $self->{h}/$self->{w}
 				);
 
 				# and move one pixel to the left, but only if we don't
 				# fall out of the pie!.
 				push @fills, [$x - 1, $y]
-					if $x - 1 > $self->{xc} - $self->{width}/2;
+					if $x - 1 > $self->{xc} - $self->{w}/2;
 
 				# Reset $pa to the right edge of the front arc, to do
 				# the right bit on the front.
@@ -524,8 +386,8 @@ sub _get_pie_front_coords # (angle 1, angle 2)
 	}
 
 	my ($x, $y) = cartesian(
-		$self->{width}/2, ($pa + $pb)/2,
-		$self->{xc}, $self->{yc}, $self->{height}/$self->{width}
+		$self->{w}/2, ($pa + $pb)/2,
+		$self->{xc}, $self->{yc}, $self->{h}/$self->{w}
 	);
 
 	push @fills, [$x, $y];
@@ -538,17 +400,10 @@ sub _get_pie_front_coords # (angle 1, angle 2)
 # problems
 sub in_front
 {
-	my $pa = level_angle(shift);
+	my $a = level_angle(shift);
 	return 
-		$pa > ($ANGLE_OFFSET - 180 + 0.00000001) && 
-		$pa < $ANGLE_OFFSET - 0.000000001;
-}
-
-sub slice_wraps
-{
-	my ($pa, $pb) = @_;
-	return ( in_front($pa) && !in_front($pb)) || 
-		   (!in_front($pa) &&  in_front($pb))
+		$a > ($ANGLE_OFFSET - 180 + 0.00000001) && 
+		$a < $ANGLE_OFFSET - 0.000000001;
 }
 
 # XXX Ugh! I need to fix this. See the GD::Text module for better ways

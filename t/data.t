@@ -1,4 +1,4 @@
-# $Id: data.t,v 1.16 2003/06/17 02:18:37 mgjv Exp $
+# $Id: data.t,v 1.17 2003/06/17 03:28:11 mgjv Exp $
 use Test;
 use strict;
 
@@ -144,7 +144,7 @@ if (!defined $rc)
 else
 {
     ok($data->num_sets(), 3);
-    ok(scalar $data->num_points(), 2);
+    ok(scalar $data->num_points(), 3);
 }
 
 __DATA__
@@ -152,3 +152,4 @@ We will skip this line
 # And from here on, things should be normal for input files
 A,1,2,3
 B,1,2,3
+C,1,2,3

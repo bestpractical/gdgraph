@@ -5,13 +5,13 @@
 #   Name:
 #       GD::Graph::Data.pm
 #
-# $Id: Data.pm,v 1.20 2003/06/17 02:18:37 mgjv Exp $
+# $Id: Data.pm,v 1.21 2003/06/17 03:28:11 mgjv Exp $
 #
 #==========================================================================
 
 package GD::Graph::Data;
 
-($GD::Graph::Data::VERSION) = '$Revision: 1.20 $' =~ /\s([\d.]+)/;
+($GD::Graph::Data::VERSION) = '$Revision: 1.21 $' =~ /\s([\d.]+)/;
 
 use strict;
 use GD::Graph::Error;
@@ -636,7 +636,6 @@ delimiter instead of a single tab.
 sub read
 {
     my $self = shift;
-    my $fh;
 
     return $self->_set_error(ERR_ARGS_NO_HASH) if (@_ && @_ % 2);
     my %args = @_;
@@ -646,11 +645,14 @@ sub read
 
     my $delim = $args{delimiter} || "\t";
 
+    $self->reset();
+
     # The following will die if these modules are not present, as
     # documented.
     require Text::ParseWords;
 
-    $self->reset;
+    my $fh;
+    local *FH;
 
     if (UNIVERSAL::isa($args{file}, "GLOB"))
     {
@@ -658,7 +660,8 @@ sub read
     }
     else
     {
-	$fh = \do{ local *FH }; # XXX Need this for perl 5.005
+	# $fh = \do{ local *FH }; # Odd... This dumps core, sometimes in 5.005
+	$fh = \*FH; # XXX Need this for perl 5.005
 	open($fh, $args{file}) or 
 	    return $self->_set_error("open ($args{file}): $!");
     }

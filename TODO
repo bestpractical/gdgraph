@@ -40,17 +40,6 @@ From: "Feech" <feech@fastlane.net>
   Check whether this is doable
 
 
-ME:
-
-	Severe inaccuracies in left and right of bars. Needs fixing.
-
-john jeyasekharn <jeyasekharn@yahoo.com>
-
-	Make it possible to create image maps with this
-
-	This may create the necessity for some sort of dry-run mode, and
-	creation of the gd object on demand, instead of directly.
-
 3D
 
 From: Jim Elliott <jimel@sco.COM>
@@ -102,11 +91,6 @@ Mixed Graphs, all graphs,
 	that wrapper gets called for all settings that would apply to
 	individual data sets.
 
-
-Positioning of X axis labels (and y axis?)
-
-	Configurable
-
 Allen Bolderoff <allen@gist.net.au>
 
 	1.
@@ -155,11 +139,4 @@ Pat Becker <pmb@iss.net>
 	Bar charts lend themselves to presenting the data that make up the
 	datapoint above the bar, whether this is an absolute number, or a
 	percentage.
-
-	4.
-	It would be nice it bar charts could also have a 3D effect.
-
-	5.
-	Nit. I thought you were going to change bars so that I could
-	specify each datapoint, (rather than dataset of different colors) ??
 

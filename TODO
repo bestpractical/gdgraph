@@ -1,3 +1,31 @@
+--Interesting Idea!
+
+I'd like to change "x" axis label color depending on current label value.
+If label starts with "SOMETHING" I'd like to have label in red
+otherwise in black color.
+I wrote a function as follows:
+
+sub xLabelColor
+{
+        my $value = shift;
+        my $ret;
+        if ($value =~ /^SOMETHING/i){
+                $ret = [qw(red)];
+        }
+        else
+        {
+                $ret = [qw(black)];
+        }
+        return $ret;
+}
+
+and then set as a grapgh attribute:
+
+$my_graph->set( 'axislabelclr' => \&xLabelColor );
+
+From: Damian Kaliszan <damian@info.com.pl>
+
+
 --Flexible colours. Allow #ffeedd notation, on the fly. Allow
 conversions. Allow addition of single colours, by name.
 

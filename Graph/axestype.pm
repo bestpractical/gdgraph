@@ -5,13 +5,13 @@
 #   Name:
 #       GD::Graph::axestype.pm
 #
-# $Id: axestype.pm,v 1.43 2003/07/01 04:56:57 mgjv Exp $
+# $Id: axestype.pm,v 1.44 2003/07/01 05:04:10 mgjv Exp $
 #
 #==========================================================================
 
 package GD::Graph::axestype;
 
-($GD::Graph::axestype::VERSION) = '$Revision: 1.43 $' =~ /\s([\d.]+)/;
+($GD::Graph::axestype::VERSION) = '$Revision: 1.44 $' =~ /\s([\d.]+)/;
 
 use strict;
  
@@ -1696,9 +1696,9 @@ sub _best_dual_ends
     my ($min_2, $max_2) = _fit_vals_range(splice @_, 0, 3);
     my @rem_args = @_;
 
-    # Fix the situation where both min and max are 0
-    ($min_1, $max_1) = (-1, 1) unless $min_1 or $max_1;
-    ($min_2, $max_2) = (-1, 1) unless $min_2 or $max_2;
+    # Fix the situation where both min_1 and max_1 are 0, which makes it
+    # loop forever
+    ($min_1, $max_1) = (0, 1) unless $min_1 or $max_1;
 
     my $scale_1 = _max(abs($min_1), abs($max_1));
     my $scale_2 = _max(abs($min_2), abs($max_2));
@@ -1775,6 +1775,8 @@ sub _fit_interval
 
     my $fit = _measure_interval_fit($nice_min, $min, $max, $nice_max);
 
+    # Prevent division by zero errors further up
+    return ($min, $max, 0) if ($step_size == 0);
     return ($nice_min, $nice_max, $fit);
 }
 

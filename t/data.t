@@ -10,10 +10,10 @@ my @data = (
 	[qw( 31 32 33 34 )],
 );
 
-$data->copy_from(\@data) || warn 'problems copying';
+$data->copy_from(\@data); # || warn $data->error;
 
-$data->add_point(qw(X3 13 23 33 43)) || warn "foobie";
-#$data->set_x(2, "Grub");
+#$data->add_point(qw(X3 13 23 33 43));
+#$data->set_y(-2, -3, "Grub") || warn $data->error;
 #$data->set_y(4, 2, 21);
 
 #$data->make_strict;
@@ -22,7 +22,8 @@ $data->add_point(qw(X3 13 23 33 43)) || warn "foobie";
 #my @foo = $data->y_values(3) ;
 #print scalar @foo, "@foo\n";
 
-$data->read(file => '/tmp/foo.dat', delimiter => qr/\s+/) or die $!;
+$data->read(file => '/tmp/foo.dat', delimiter => qr/\s+/) or 
+	die $data->error;
 
 #$data->add_point('Foo', 12, 13);
 
@@ -33,8 +34,9 @@ print $dd->Dumpxs;
 
 
 #$data->cumulate;
-#$data = $data->copy(cumulate => 1, strict => 1, wanted => [1, 3]);
-$data = $data->copy(cumulate => 1, strict => 1);
+$data = $data->copy();
+$data->wanted(3, 1, 2);
+die $data->error if $data->error;
 
 $dd = Data::Dumper->new([$data], ['data']);
 $dd->Deepcopy(1);

@@ -1,4 +1,5 @@
 use GD::Graph::mixed;
+require 'save.pl';
 
 print STDERR "Processing sample 6-2\n";
 
@@ -31,8 +32,6 @@ $my_graph->set(
 );
 
 $my_graph->set_legend( qw( one two three four five six ) );
-
-$my_graph->plot_to_png( "sample62.png", \@data );
-
-exit;
+$my_graph->plot(\@data);
+save_chart($my_graph, 'sample62');
 

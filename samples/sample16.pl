@@ -1,4 +1,5 @@
 use GD::Graph::bars;
+require 'save.pl';
 
 print STDERR "Processing sample 1-6\n";
 
@@ -44,8 +45,6 @@ sub y_format
 }
 
 $my_graph->set_legend( 'credits', 'debets' );
-
-$my_graph->plot_to_png( "sample16.png", \@data );
-
-exit;
+$my_graph->plot(\@data);
+save_chart($my_graph, 'sample16');
 

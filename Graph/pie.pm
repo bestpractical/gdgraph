@@ -5,7 +5,7 @@
 #	Name:
 #		GD::Graph::pie.pm
 #
-# $Id: pie.pm,v 1.2 1999/12/11 12:50:48 mgjv Exp $
+# $Id: pie.pm,v 1.3 1999/12/24 11:23:56 mgjv Exp $
 #
 #==========================================================================
 
@@ -55,7 +55,7 @@ sub plot # (\@data)
 	$self->draw_pie($self->{graph});
 	$self->draw_data($data, $self->{graph});
 
-	return $self->{graph}->png;
+	return $self->{graph};
 }
 
 sub set_label_font # (fontname)
@@ -97,7 +97,7 @@ sub initialise()
 # inherit checkdata from GD::Graph
 
 # Setup the coordinate system and colours, calculate the
-# relative axis coordinates in respect to the png size.
+# relative axis coordinates in respect to the canvas size.
 
 sub setup_coords()
 {
@@ -126,9 +126,9 @@ sub setup_coords()
 	( $s->{xc}, $s->{yc} ) = 
 		( ($s->{right}+$s->{left})/2, ($s->{bottom}+$s->{top})/2 );
 
-	die "Vertical Png size too small" 
+	die "Vertical size too small" 
 		if ( ($s->{bottom} - $s->{top}) <= 0 );
-	die "Horizontal Png size too small"
+	die "Horizontal size too small"
 		if ( ($s->{right} - $s->{left}) <= 0 );
 
 	# set up the data colour list if it doesn't exist yet.

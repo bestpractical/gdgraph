@@ -1,5 +1,6 @@
 use GD::Graph::bars;
 use GD::Graph::colour;
+require 'save.pl';
 
 print STDERR "Processing sample 1-1\n";
 
@@ -19,7 +20,5 @@ $my_graph->set(
 	y_label_skip => 2,
 );
 
-$my_graph->plot_to_png( "sample11.png", \@data );
-
-exit;
-
+$my_graph->plot(\@data);
+save_chart($my_graph, 'sample11');

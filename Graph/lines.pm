@@ -5,7 +5,7 @@
 #	Name:
 #		GD::Graph::lines.pm
 #
-# $Id: lines.pm,v 1.2 1999/12/11 12:50:48 mgjv Exp $
+# $Id: lines.pm,v 1.3 1999/12/24 11:23:56 mgjv Exp $
 #
 #==========================================================================
 
@@ -156,13 +156,12 @@ sub draw_line # ($xs, $ys, $xe, $ye, $type, $colour_index)
 	}
 }
 
-sub draw_legend_marker # (GD::Image, data_set_number, x, y)
+sub draw_legend_marker # (data_set_number, x, y)
 {
 	my $s = shift;
 	my $n = shift;
 	my $x = shift;
 	my $y = shift;
-	my $g = $s->{graph};
 
 	my $ci = $s->set_clr($s->pick_data_clr($n));
 	my $type = $s->pick_line_type($n);

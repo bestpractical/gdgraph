@@ -1,4 +1,5 @@
 use GD::Graph::bars;
+require 'save.pl';
 
 print STDERR "Processing sample 1-4\n";
 
@@ -32,15 +33,13 @@ $my_graph->set(
 
 	bar_spacing => 2,
 
-	logo => 'logo.png',
+	logo => 'logo.' . GD::Graph->export_format,
 	logo_position => 'BR',
 
 	transparent => 0,
 );
 
 $my_graph->set_legend( 'left axis', 'right axis');
-
-$my_graph->plot_to_png( "sample14.png", \@data );
-
-exit;
+$my_graph->plot(\@data);
+save_chart($my_graph, 'sample14');
 

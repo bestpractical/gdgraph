@@ -1,4 +1,5 @@
 use GD::Graph::bars;
+require 'save.pl';
 
 print STDERR "Processing sample 1-3\n";
 
@@ -18,7 +19,6 @@ $my_graph->set(
 	overwrite => 1,
 );
 
-$my_graph->plot_to_png( "sample13.png", \@data );
-
-exit;
+$my_graph->plot(\@data);
+save_chart($my_graph, 'sample13');
 

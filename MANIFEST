@@ -14,8 +14,9 @@ lib/GD/Graph/mixed.pm
 lib/GD/Graph/pie.pm
 lib/GD/Graph/points.pm
 lib/GD/Graph/utils.pm
-t/20thcent.ttf
-t/20thcent_Read_Me.txt
+20thcent.ttf
+20thcent_Read_Me.txt
+cetus.ttf
 t/area.t
 t/area1.png
 t/area2.png
@@ -60,6 +61,7 @@ samples/sample53.pl
 samples/sample54.pl
 samples/sample61.pl
 samples/sample62.pl
+samples/sample71.pl
 samples/sample91.pl
 samples/sample92.pl
 samples/sample93.pl

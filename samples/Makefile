@@ -1,31 +1,55 @@
-PERL = perl
-.SUFFIXES: .png .pl
+# This Makefile requires GNU make. If you have anything else, it is very
+# likely that you won't be able to use this. Two pieces of advice:
+# 
+# Get GNU make. It's free, and superior to many others
+#
+# Run the examples by hand, one by one, or do something like
+#
+# tcsh> foreach s (*.pl)
+# foreach> perl -I. -I../lib -Tw $s
+# foreach> ^D
+#
+# If you use an old version of GD that exports GIF, you will need to
+# have ImageMagick installed, or you need to provide another way to
+# convert logo.png to logo.gif.
+
 .SILENT:
-LIB = ../lib
-OPTIONS = -Tw
 
-PNGS =  sample11.png sample12.png sample13.png sample14.png \
-		sample15.png sample16.png \
-		sample21.png \
-		sample31.png \
-		sample41.png sample42.png\
-		sample51.png sample52.png sample53.png sample54.png \
-		sample61.png sample62.png \
-		sample91.png sample92.png sample93.png
+PERL = perl
+#OPTIONS = -I/home/mgjv/perl/GD1.19 -I. -I../lib -Tw
+OPTIONS = -I. -I../lib -Tw
 
-all: $(PNGS)
+EXT := \
+	$(shell perl $(OPTIONS) -MGD::Graph -e 'print GD::Graph::export_format')
 
-.pl.png:
-	$(PERL) $(OPTIONS) -I$(LIB) $<
+SAMPLES :=  \
+		sample11 sample12 sample13 sample14 sample15 sample16 \
+		sample21 \
+		sample31 \
+		sample41 sample42\
+		sample51 sample52 sample53 sample54 \
+		sample61 sample62 \
+		sample71 \
+		sample91 sample92 sample93
+
+IMAGES := $(SAMPLES:%=%.$(EXT))
+
+all: $(IMAGES)
+
+%.$(EXT): %.pl
+	$(PERL) $(OPTIONS) $<
+
+# Requires ImageMagick to be installed
+logo.gif: logo.png
+	convert logo.png logo.gif
 
 clean:
-	rm -f $(PNGS)
+	rm -f $(IMAGES) logo.gif
 
-test:
-	$(PERL) $(OPTIONS) -I$(LIB) -M$(MODULE) sample91.pl
+# Other dependencies
 
-# Dependencies
+sample14.$(EXT): logo.$(EXT)
+sample42.$(EXT): sample42.dat
+sample54.$(EXT): sample54.dat
+sample53.$(EXT): rgb.txt
 
-sample14.png: logo.png
-sample42.png: sample42.dat
-sample54.png: sample54.dat

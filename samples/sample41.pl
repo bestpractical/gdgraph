@@ -1,4 +1,5 @@
 use GD::Graph::linespoints;
+require 'save.pl';
 
 print STDERR "Processing sample 4-1\n";
 
@@ -21,8 +22,6 @@ $my_graph->set(
 );
 
 #$my_graph->set_legend( 'data set 1', 'data set 2' );
-
-$my_graph->plot_to_png( "sample41.png", \@data );
-
-exit;
+$my_graph->plot(\@data);
+save_chart($my_graph, 'sample41');
 

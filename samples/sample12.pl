@@ -1,4 +1,5 @@
 use GD::Graph::bars;
+require 'save.pl';
 
 print STDERR "Processing sample 1-2\n";
 
@@ -22,8 +23,6 @@ $my_graph->set(
 );
 
 $my_graph->set_legend( 'Data set 1', 'Data set 2' );
-
-$my_graph->plot_to_png( "sample12.png", \@data );
-
-exit;
+$my_graph->plot(\@data);
+save_chart($my_graph, 'sample12');
 

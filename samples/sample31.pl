@@ -1,4 +1,5 @@
 use GD::Graph::points;
+require 'save.pl';
 
 print STDERR "Processing sample 3-1\n";
 
@@ -24,8 +25,6 @@ $my_graph->set(
 );
 
 $my_graph->set_legend( qw( one two ) );
-
-$my_graph->plot_to_png( "sample31.png", \@data );
-
-exit;
+$my_graph->plot(\@data);
+save_chart($my_graph, 'sample31');
 

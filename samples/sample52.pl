@@ -1,4 +1,5 @@
 use GD::Graph::lines;
+require 'save.pl';
 
 print STDERR "Processing sample 5-2\n";
 
@@ -30,8 +31,6 @@ $my_graph->set(
 );
 
 $my_graph->set_legend("Us", "Them", "Others");
-
-$my_graph->plot_to_png( "sample52.png", \@data );
-
-exit;
+$my_graph->plot(\@data);
+save_chart($my_graph, 'sample52');
 

@@ -1,4 +1,5 @@
 use GD::Graph::lines;
+require 'save.pl';
 
 print STDERR "Processing sample 5-1\n";
 
@@ -24,7 +25,6 @@ $my_graph->set(
 	line_width => 3,
 );
 
-$my_graph->plot_to_png( "sample51.png", \@data );
-
-exit;
+$my_graph->plot(\@data);
+save_chart($my_graph, 'sample51');
 

@@ -5,7 +5,7 @@
 #	Name:
 #		GD::Graph::axestype.pm
 #
-# $Id: axestype.pm,v 1.2 1999/12/11 12:50:48 mgjv Exp $
+# $Id: axestype.pm,v 1.3 1999/12/24 11:23:56 mgjv Exp $
 #
 #==========================================================================
 
@@ -102,7 +102,7 @@ sub plot # (\@data)
 	$self->draw_data($data);
 	$self->draw_legend($self->{graph});
 
-	return $self->{graph}->png
+	return $self->{graph}
 }
 
 sub setup_text
@@ -118,6 +118,10 @@ sub setup_text
 	$self->{gdta_y_axis}->set(colour => $self->{alci});
 	$self->{xafh} = $self->{gdta_x_label}->get('height');
 	$self->{yafh} = $self->{gdta_x_label}->get('height');
+
+	$self->{gdta_title}->set(colour => $self->{tci});
+	$self->{gdta_title}->set_align('top', 'center');
+	$self->{tfh} = $self->{gdta_title}->get('height');
 
 	$self->{gdta_legend}->set(colour => $self->{fgci});
 	$self->{gdta_legend}->set_align('top', 'left');
@@ -276,10 +280,10 @@ sub setup_coords
 	($dum, $s->{zeropoint}) = $s->val_to_pixel(0, 0, 1);
 
 	# Check the size
-	die "Vertical Png size too small"
+	die "Vertical size too small"
 		if ( ($s->{bottom} - $s->{top}) <= 0 );
 
-	die "Horizontal Png size too small"	
+	die "Horizontal size too small"	
 		if ( ($s->{right} - $s->{left}) <= 0 );
 
 	# set up the data colour list if it doesn't exist yet.
@@ -1082,7 +1086,7 @@ sub draw_legend # (GD::Image)
 
 		next unless (defined($legend) && $legend ne "");
 
-		$s->draw_legend_marker($g, $i, $xe, $y);
+		$s->draw_legend_marker($i, $xe, $y);
 
 		$xe += $s->{legend_marker_width} + $s->{legend_spacing};
 		my $ys = int($y + $s->{lg_el_height}/2 - $s->{lgfh}/2);
@@ -1107,10 +1111,11 @@ sub draw_legend # (GD::Image)
 sub draw_legend_marker # (GD::Image, data_set_number, x, y)
 {
 	my $s = shift;
-	my $g = shift;
 	my $n = shift;
 	my $x = shift;
 	my $y = shift;
+
+	my $g = $s->{graph};
 
 	my $ci = $s->set_clr($s->pick_data_clr($n));
 

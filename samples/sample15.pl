@@ -1,4 +1,5 @@
 use GD::Graph::bars;
+require 'save.pl';
 
 print STDERR "Processing sample 1-5\n";
 
@@ -22,8 +23,6 @@ $my_graph->set(
 );
 
 $my_graph->set_legend( qw(offset increment more));
-
-$my_graph->plot_to_png( "sample15.png", \@data );
-
-exit;
+$my_graph->plot(\@data);
+save_chart($my_graph, 'sample15');
 

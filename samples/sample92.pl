@@ -1,4 +1,5 @@
 use GD::Graph::pie;
+require 'save.pl';
 
 print STDERR "Processing sample 9-2\n";
 
@@ -21,5 +22,6 @@ $my_graph->set_title_font('../20thcent.ttf', 18);
 $my_graph->set_label_font('../20thcent.ttf', 12);
 $my_graph->set_value_font('../cetus.ttf', 10);
 
-$my_graph->plot_to_png( "sample92.png", \@data );
+$my_graph->plot(\@data);
+save_chart($my_graph, 'sample92');
 

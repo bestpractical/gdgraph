@@ -1,4 +1,5 @@
 use GD::Graph::pie;
+require 'save.pl';
 
 print STDERR "Processing sample 9-1\n";
 
@@ -17,7 +18,6 @@ $my_graph->set(
 	pie_height => 36,
 );
 
-$my_graph->plot_to_png( "sample91.png", \@data );
-
-exit;
+$my_graph->plot(\@data);
+save_chart($my_graph, 'sample91');
 

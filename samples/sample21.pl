@@ -1,4 +1,5 @@
 use GD::Graph::area;
+require 'save.pl';
 
 print STDERR "Processing sample 2-1\n";
 
@@ -20,8 +21,6 @@ $my_graph->set(
 );
 
 $my_graph->set_legend( 'one', 'two' );
-
-$my_graph->plot_to_png( "sample21.png", \@data );
-
-exit;
+$my_graph->plot(\@data);
+save_chart($my_graph, 'sample21');
 

@@ -1,5 +1,6 @@
 use GD::Graph::lines;
 use GD::Graph::colour;
+require 'save.pl';
 
 GD::Graph::colour::read_rgb("rgb.txt") or 
 	die "Cannot read colours from rgb.txt";
@@ -35,8 +36,6 @@ $my_graph->set(
 );
 
 $my_graph->set_legend( 'one', 'two', undef, 'four' );
-
-$my_graph->plot_to_png( "sample53.png", \@data );
-
-exit;
+$my_graph->plot(\@data);
+save_chart($my_graph, 'sample53');
 

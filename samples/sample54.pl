@@ -1,9 +1,7 @@
 use GD::Graph::lines;
+require 'save.pl';
 
 print STDERR "Processing sample 5-4\n";
-
-# The reverse is in here, because I thought the falling line was 
-# depressing, but I was too lazy to retype the data set
 
 @data = read_data("sample54.dat") 
 	or die "Cannot read data from sample54.dat";
@@ -29,10 +27,9 @@ $my_graph->set(
 );
 
 $my_graph->set_legend('Thanks to Scott Prahl');
+$my_graph->plot(\@data);
+save_chart($my_graph, 'sample54');
 
-$my_graph->plot_to_png( "sample54.png", \@data );
-
-exit;
 
 sub read_data
 {

@@ -1,5 +1,5 @@
 # This -*- perl -*- script makes the Makefile
-# $Id: Makefile.PL,v 1.3 1999/12/29 12:14:40 mgjv Exp $
+# $Id: Makefile.PL,v 1.4 2000/01/02 23:00:53 mgjv Exp $
  
 #--- Distribution section ---
  
@@ -8,7 +8,7 @@ BEGIN { require 5.005 }
 use ExtUtils::MakeMaker;
 use Config;
  
-my @clean = qw(*% *.html *.b[ac]k *.old .[A-z]* tags);
+my @clean = qw(*.old *.save tags);
 push @clean, map { "*/$_" } @clean;
  
 WriteMakefile(
@@ -35,13 +35,16 @@ WriteMakefile(
         'clean'   => { 'FILES' => join(" ", @clean), },
 );
 
-sub MY::postamble {
-	my $postamble =<<END;
+sub MY::postamble 
+{
+qq(
 samples: all
 	\@(cd samples && make PERL=$Config{'perl'})
 	\@echo Samples have been created in samples directory
-END
-	$postamble;
+
+tags:
+	ptags lib/GD/*.pm lib/GD/Graph/*.pm
+)
 }
 
 print <<END;

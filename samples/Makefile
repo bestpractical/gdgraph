@@ -16,9 +16,8 @@
 .SILENT:
 
 PERL = perl
-OPTIONS = -I. -I../blib/lib -w
-#OPTIONS = -I/home/mgjv/perl/GD1.19 -I. -I../blib/lib -Tw
-#OPTIONS = -I/opt/gd2/lib -I. -I../blib/lib -Tw
+EXTRA_OPTS = 
+OPTIONS = -I. -I../blib/lib $(EXTRA_OPTS) -w
 
 EXT := $(shell perl $(OPTIONS) -MGD::Graph \
 		-e 'print scalar GD::Graph::export_format')
@@ -43,6 +42,15 @@ all: $(IMAGES)
 	echo ""
 	echo These samples are both examples and test cases. Therefore
 	echo some of them might look slightly unrealistic.
+
+info: 
+	$(PERL) $(OPTIONS) -le 'print "Perl ", $$]'
+	$(PERL) $(OPTIONS) -MGD -le 'print "GD ", $$GD::VERSION'
+	$(PERL) $(OPTIONS) -MGD::Text \
+	    -le 'print "GD::Text ", $$GD::Text::VERSION'
+	$(PERL) $(OPTIONS) -MGD::Graph \
+	    -le 'print "GD::Graph ", $$GD::Graph::VERSION'
+	$(PERL) $(OPTIONS) -le 'for (@INC) {print}'
 
 %.$(EXT) %-h.$(EXT): %.pl
 	$(PERL) $(OPTIONS) $<

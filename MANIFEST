@@ -16,6 +16,7 @@ Graph/points.pm
 Graph/utils.pm
 Graph/Data.pm
 Graph/Error.pm
+Graph/FAQ.pod
 20thcent.ttf
 20thcent_Read_Me.txt
 cetus.ttf

@@ -1,0 +1,53 @@
+=head1 NAME
+
+GD::Graph - Frequently asked questions
+
+=head1 DESCRIPTION
+
+=head2 I am drawing a bar chart, and the chart area is a lot smaller than the image. What is going on?
+
+As of version 1.30, GD::Graph automatically corrects the width of the
+plotting area of a chart if it needs to draw bars (i.e. for bars and
+some mixed charts). This is necessary, because rounding errors cause
+irregular gaps between or overlaps of bars if the bar is not an exact
+integer number of pixels wide.  
+
+If you want the old behaviour back, set the correct_with attribute to a
+false value.
+
+
+=head2 I have my data in some format that doesn't look at all like the array that I am supposed to give to GD::Graph's plot method.
+
+Check out the GD::Graph::Data class. 
+
+
+=head2 Where is the ActiveState ppm of GD::Graph?
+
+Ask them. I have asked them, but didn't get an answer. I don't know what
+to do to get it included in their set of ppms, and I really do not have
+the time to keep asking them.
+
+
+=head2 Do you have some example code for me?
+
+The distribution has a large set of examples in it. If you don't have
+the original distribution, please get it from CPAN (http://www.cpan.org/
+or some local mirror). 
+
+
+=head2 Will you support X or Y?
+
+If you send me a patch that (in a decent manner) adds the functionality
+to the latest version, I may very well add it for the next release. If
+you don't send me a patch, but just a question, you will have to be
+patient.
+
+=head1 AUTHOR
+
+Martien Verbruggen E<lt>mgjv@comdyn.com.auE<gt>
+
+Copyright (c) 2000 Martien Verbruggen.
+
+All rights reserved. This package is free software; you can redistribute
+it and/or modify it under the same terms as Perl itself.
+

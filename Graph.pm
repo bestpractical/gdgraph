@@ -18,7 +18,7 @@
 #		GD::Graph::pie
 #		GD::Graph::mixed
 #
-# $Id: Graph.pm,v 1.29 2000/05/06 09:34:41 mgjv Exp $
+# $Id: Graph.pm,v 1.30 2000/05/06 10:01:32 mgjv Exp $
 #
 #==========================================================================
 
@@ -30,8 +30,8 @@
 
 package GD::Graph;
 
-$GD::Graph::prog_version = '$Revision: 1.29 $' =~ /\s([\d.]+)/;
-$GD::Graph::VERSION = '1.31';
+$GD::Graph::prog_version = '$Revision: 1.30 $' =~ /\s([\d.]+)/;
+$GD::Graph::VERSION = '1.32';
 
 use strict;
 use GD;
@@ -1373,4 +1373,11 @@ And some people whose real name I don't know, and whose email address
 I'd rather not publicise without their consent.
 
 =cut
+
+=head1 SEE ALSO
+
+L<GD::Graph::FAQ>, 
+L<GD::Graph::Data>, 
+L<GD::Graph::Error>,
+L<GD::Graph::colour>
 

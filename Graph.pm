@@ -18,7 +18,7 @@
 #		GD::Graph::pie
 #		GD::Graph::mixed
 #
-# $Id: Graph.pm,v 1.27 2000/05/01 10:39:48 mgjv Exp $
+# $Id: Graph.pm,v 1.28 2000/05/03 11:51:41 mgjv Exp $
 #
 #==========================================================================
 
@@ -30,7 +30,7 @@
 
 package GD::Graph;
 
-$GD::Graph::prog_version = '$Revision: 1.27 $' =~ /\s([\d.]+)/;
+$GD::Graph::prog_version = '$Revision: 1.28 $' =~ /\s([\d.]+)/;
 $GD::Graph::VERSION = '1.31';
 
 use strict;
@@ -407,9 +407,18 @@ sub gd
 sub export_format
 {
 	my $proto = shift;
-	GD::Image->can('png') and return 'png';
-	GD::Image->can('gif') and return 'gif';
-	return;
+	my @f = grep { GD::Image->can($_) } qw(gif png jpeg xbm xpm gd gd2);
+	wantarray ? @f : $f[0];
+}
+
+# The following method is undocumented, and will not be supported as
+# part of the interface. There isn't really much reason to do so.
+sub import_format
+{
+	my $proto = shift;
+	# For now, exclude xpm, as it's buggy
+	my @f = grep { GD::Image->can("newFrom\u$_") } qw(gif png jpeg xbm gd gd2);
+	wantarray ? @f : $f[0];
 }
 
 sub can_do_ttf
@@ -634,8 +643,11 @@ colour is correct and for setting transparency.
 
 =item $graph-E<gt>export_format()
 
-Query the export format of the GD library in use. Returns 'gif', 'png'
-or undefined. Can be called as a class or object method
+Query the export format of the GD library in use.  In scalar context, it
+returns 'gif', 'png' or undefined, which is sufficient for most people's
+use. In a list context, it returns a list of all the formats that are
+supported by the current version of GD. It can be called as a class or
+object method
 
 =item $graph-E<gt>can_do_ttf()
 

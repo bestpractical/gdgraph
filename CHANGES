@@ -1,3 +1,8 @@
+16 June 2003
+
+- Fixed when zero axis inclusion is done for bar and are charts.
+- Fixed code to reserve area for hbar charts last y axis label
+
 11 June 2003
 
 - Added no_axes option, changed sample56 to reflect this

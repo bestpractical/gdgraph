@@ -5,13 +5,13 @@
 #   Name:
 #       GD::Graph::axestype.pm
 #
-# $Id: axestype.pm,v 1.39 2003/06/16 01:27:29 mgjv Exp $
+# $Id: axestype.pm,v 1.40 2003/06/16 02:04:12 mgjv Exp $
 #
 #==========================================================================
 
 package GD::Graph::axestype;
 
-($GD::Graph::axestype::VERSION) = '$Revision: 1.39 $' =~ /\s([\d.]+)/;
+($GD::Graph::axestype::VERSION) = '$Revision: 1.40 $' =~ /\s([\d.]+)/;
 
 use strict;
  
@@ -523,13 +523,26 @@ sub setup_right_boundary
     }
     else
     {
-        if ($self->{right} >= $self->{width} - $self->{r_margin})
-        {
-            # TODO also take y2 labels into account
-            # TODO Don't assume rightmost label is the same as the
-            # longest label
-            $self->{right} -= int(($self->{y_label_len}[1] + 1)/2);
-        }
+	# Adjust right margin to allow last label of y axes. Only do
+	# this when the right margin doesn't have enough space
+	# already.
+	#
+	# TODO Don't assume rightmost label is the same as the
+	# longest label (stored in y_label_len) The worst that can
+	# happen now is that we reserve too much space.
+
+	my $max_len = $self->{y_label_len}[1];
+	if ($self->{two_axes})
+	{
+	    $max_len = $self->{y_label_len}[2] if 
+		$self->{y_label_len}[2] > $max_len;
+	}
+	$max_len = int ($max_len/2);
+
+	if ($self->{right} + $max_len >= $self->{width} - $self->{r_margin})
+	{
+	    $self->{right} -= $max_len;
+	}
     }
 }
 

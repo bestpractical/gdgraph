@@ -18,7 +18,7 @@
 #		GD::Graph::pie
 #		GD::Graph::mixed
 #
-# $Id: Graph.pm,v 1.31 2000/05/06 23:16:38 mgjv Exp $
+# $Id: Graph.pm,v 1.32 2000/05/29 10:28:45 mgjv Exp $
 #
 #==========================================================================
 
@@ -30,8 +30,8 @@
 
 package GD::Graph;
 
-$GD::Graph::prog_version = '$Revision: 1.31 $' =~ /\s([\d.]+)/;
-$GD::Graph::VERSION = '1.32';
+$GD::Graph::prog_version = '$Revision: 1.32 $' =~ /\s([\d.]+)/;
+$GD::Graph::VERSION = '1.33';
 
 use strict;
 use GD;
@@ -1186,6 +1186,29 @@ Controls the length of the dashes in the line types. default: 6.
 
 The width of the line used in I<lines> and I<linespoints> graphs, in pixels.
 Default: 1.
+
+=item skip_undef
+
+For all other axes graph types, the default behaviour is (by their
+nature) to not draw a point when the Y value is C<undef>. For line
+charts the point gets skipped as well, but the line is drawn between the
+points n-1 to n+1 directly. If C<skip_undef> has a true value, there
+will be a gap in the chart where a Y value is undefined.
+
+Note that a line will not be drawn unless there are I<at least two>
+consecutive data points exist that have a defined value. The following
+data set will only plot a very short line towards the end if
+C<skip_undef> is set:
+
+  @data = (
+    [ qw( Jan Feb Mar Apr May Jun Jul Aug Sep Oct ) ],
+    [ 1, undef, 2, undef, 3, undef, 4, undef, 5, 6 ]
+  );
+
+This option is useful when you have a consecutive gap in your data, or
+with linespoints charts. If you have data where you have intermittent
+gaps, be careful when you use this.
+Default value: 0
 
 =back
 

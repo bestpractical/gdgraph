@@ -5,13 +5,13 @@
 #	Name:
 #		GD::Graph::axestype.pm
 #
-# $Id: axestype.pm,v 1.26 2000/05/06 23:23:41 mgjv Exp $
+# $Id: axestype.pm,v 1.27 2000/05/29 10:28:45 mgjv Exp $
 #
 #==========================================================================
 
 package GD::Graph::axestype;
 
-$GD::Graph::axestype::VERSION = '$Revision: 1.26 $' =~ /\s([\d.]+)/;
+$GD::Graph::axestype::VERSION = '$Revision: 1.27 $' =~ /\s([\d.]+)/;
 
 use strict;
  
@@ -154,6 +154,9 @@ my %Defaults = (
 
 	# Which line types to use
 	line_types		=> [1],
+
+	# Skip undefined values, and don't draw them at all
+	skip_undef		=> 0,
 
 	# XXX bars
 	# Spacing between the bars

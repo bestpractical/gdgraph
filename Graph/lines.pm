@@ -5,13 +5,13 @@
 #	Name:
 #		GD::Graph::lines.pm
 #
-# $Id: lines.pm,v 1.11 2000/04/30 08:32:38 mgjv Exp $
+# $Id: lines.pm,v 1.12 2000/05/29 10:28:45 mgjv Exp $
 #
 #==========================================================================
 
 package GD::Graph::lines;
 
-$GD::Graph::lines::VERSION = '$Revision: 1.11 $' =~ /\s([\d.]+)/;
+$GD::Graph::lines::VERSION = '$Revision: 1.12 $' =~ /\s([\d.]+)/;
 
 use strict;
  
@@ -50,7 +50,12 @@ sub draw_data_set
 
 	for (my $i = 0; $i < @values; $i++)
 	{
-		next unless defined $values[$i];
+		if (!defined $values[$i])
+		{
+			($xb, $yb) = () if $self->{skip_undef};
+			next;
+		}
+
 		my ($xe, $ye);
 
 		if (defined($self->{x_min_value}) && defined($self->{x_max_value}))

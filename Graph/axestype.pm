@@ -5,13 +5,13 @@
 #   Name:
 #       GD::Graph::axestype.pm
 #
-# $Id: axestype.pm,v 1.36 2003/02/22 13:00:30 mgjv Exp $
+# $Id: axestype.pm,v 1.37 2003/02/25 05:50:34 mgjv Exp $
 #
 #==========================================================================
 
 package GD::Graph::axestype;
 
-($GD::Graph::axestype::VERSION) = '$Revision: 1.36 $' =~ /\s([\d.]+)/;
+($GD::Graph::axestype::VERSION) = '$Revision: 1.37 $' =~ /\s([\d.]+)/;
 
 use strict;
  
@@ -500,7 +500,7 @@ sub setup_left_boundary
 sub setup_right_boundary
 {
     my $self = shift;
-    $self->{right} = $self->{width} - $self->{r_margin};
+    $self->{right} = $self->{width} - $self->{r_margin} - 1;
 
     if (! $self->{rotate_chart})
     {

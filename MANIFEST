@@ -22,8 +22,6 @@ t/colour.t
 t/data.t
 t/error.t
 t/use.t
-20thcent.ttf
-20thcent_Read_Me.txt
 cetus.ttf
 samples/sample11.pl
 samples/sample12.pl

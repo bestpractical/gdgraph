@@ -48,7 +48,7 @@ $my_graph->set(
 	transparent => 0,
 );
 
-$my_graph->set_title_font('../20thcent.ttf', 18);
+$my_graph->set_title_font('../cetus.ttf', 18);
 $my_graph->set_x_label_font('../cetus.ttf', 10);
 $my_graph->set_y_label_font('../cetus.ttf', 10);
 $my_graph->set_x_axis_font('../cetus.ttf', 8);
@@ -66,7 +66,7 @@ if ($my_graph->can_do_ttf)
 
     $gdta = GD::Text::Align->new($gd,
 	text => 'GD::Graph',
-	font => '../20thcent.ttf',
+	font => '../cetus.ttf',
 	ptsize => 72,
 	colour => $pink,
 	valign => 'center',
@@ -89,7 +89,7 @@ if (0) {
 
     $gdta = GD::Text::Align->new($gd,
 	text => 'maximum',
-	font => '../20thcent.ttf',
+	font => '../cetus.ttf',
 	ptsize => 12,
 	colour => $red,
 	valign => 'bottom',

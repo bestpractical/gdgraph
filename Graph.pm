@@ -18,7 +18,7 @@
 #		GD::Graph::pie
 #		GD::Graph::mixed
 #
-# $Id: Graph.pm,v 1.4 1999/12/29 12:14:40 mgjv Exp $
+# $Id: Graph.pm,v 1.5 2000/01/02 05:22:00 mgjv Exp $
 #
 #==========================================================================
 
@@ -32,15 +32,15 @@ package GD::Graph;
 
 use strict;
 
-use GD '1.18';
+use GD;
 use GD::Text::Align;
 use Carp;
 
-$GD::Graph::prog_rcs_rev = q{$Revision: 1.4 $};
+$GD::Graph::prog_rcs_rev = q{$Revision: 1.5 $};
 $GD::Graph::prog_version = 
 	($GD::Graph::prog_rcs_rev =~ /\s+(\d*\.\d*)/) ? $1 : "0.0";
 
-$GD::Graph::VERSION = '1.20';
+$GD::Graph::VERSION = '1.21';
 
 # Some tools and utils
 use GD::Graph::colour qw(:colours);

@@ -24,7 +24,7 @@ EXT := \
 
 SAMPLES :=  \
 		sample11 sample12 sample13 sample14 sample15 sample16 sample17 \
-		sample21 \
+		sample21 sample22 \
 		sample31 \
 		sample41 sample42\
 		sample51 sample52 sample53 sample54 sample55 \

@@ -1,9 +1,11 @@
 UNRESOLVED BUGS
 
-? Have not been able to reproduce this, as far as I can tell, $type is
+? mgjv -
+  Have not been able to reproduce this, as far as I can tell, $type is
   never tainted inherently. If it is ever tainted, it got tainted in the
   calling program, and should be untainted there.
 
+  report:
   when running in tained mode (-T), I get an error about the $type in
   draw_data_set is insecure in the eval-line. I fixed this "the ugly" way by
   adding a line to tain it within the module:
@@ -16,19 +18,10 @@ UNRESOLVED BUGS
 
   Reported by Martin Lorensen <mlo@uni2.dk>
 
-? Sometimes, for one graph, the values are 0 everywhere (for examples
-  for a    disk with no activity) and GIFgraph fails with a "Illegal
-  division by zero", check _best_ends
-  "Benjamin Yang" <byang@betasphere.com>
-+ The order of the determination of minima and maxima, and the calculation
-  tick numbers by _best_ends needs to be revaluated.
-+ two_axes doesn't work correctly with negative numbers and zero_axis
-+ y_max_value doesn't get adapted for bars and area if all negative values
-+ init_graph does too much work for pies. Needs to be split up.
 + area chart doesn't do overwrite? Workaround: sum up your data sets, 
   and order them backwards (highest one first). Output graph will look 
   like it's incremental.
-+ only bar charts do overwrite. Necessary to implement generally?
+  only bar charts do overwrite. Necessary to implement generally?
 + mixed graphs, overwrite = 1 has no effect
   Yolanda Herbert <herbert@odo.edwards.af.mil>
 
@@ -40,13 +33,23 @@ NOT REALLY BUGS
   or negative
 - A positive y_min_value doesn't work with bars or area, bars and area 
   always are set off against 0. Wether this is a bug, or wanted behaviour
-  might be a point for discussion.
-- y_min_value doesn't automatically get adapted for bars and area if 0
-  is not included in the range, but only if user sets it. If left to
-  figure it out itself, GIFgraph does it right.
+  might be a point for discussion. I've decided that it's wanted.
 - Do I really need to create the GD object right at the start? And if I
   do, can't I be a bit more clever about allowing people to draw on it
   before plotting the graph?
+- init_graph does too much work for pies. Needs to be split up. Very low
+  priority.
+
+FIXED IN 1.21
+! y_min_value doesn't automatically get adapted for bars and area if 0
+  is not included in the range, but only if user sets it. If left to
+  figure it out itself, GIFgraph does it right.
+! infinite loop when two data sets with only one point, two_axes option,
+  and one data set has a negative member
+! two_axes doesn't work correctly with negative numbers and zero_axis
+! y_max_value doesn't get adapted for bars and area if all negative values
+! The order of the determination of minima and maxima, and the calculation
+  tick numbers by _best_ends needs to be revaluated.
 
 FIXED IN 1.20
 
@@ -61,6 +64,10 @@ FIXED IN 1.20
   Reported by acl <acl@cyberdeck.net>, Mon, 17 May 1999 12:21:42 +0200
 ! legend text now has its own colour. Previously was drawn in same colour
   as axes. Silly.
+! (retrospectively documented) Sometimes, for one graph, the values are
+  0 everywhere (for examples for a    disk with no activity) and
+  GIFgraph fails with a "Illegal division by zero", check _best_ends
+  "Benjamin Yang" <byang@betasphere.com>
 
 FIXED IN 1.11
 

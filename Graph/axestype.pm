@@ -5,7 +5,7 @@
 #	Name:
 #		GD::Graph::axestype.pm
 #
-# $Id: axestype.pm,v 1.4 1999/12/29 12:14:40 mgjv Exp $
+# $Id: axestype.pm,v 1.5 2000/01/02 05:22:00 mgjv Exp $
 #
 #==========================================================================
 
@@ -762,10 +762,20 @@ sub set_max_min
 	# This has to work for all subclasses
 	my ($subclass) = ref($s) =~ m/.*::(.*)$/;
 
-	if (defined $subclass and $subclass eq 'bars' or $subclass eq 'area')
+	if (defined $subclass and ($subclass eq 'bars' or $subclass eq 'area'))
 	{
-		$s->{y_min}[1] = 0 if $s->{y_min}[1] > 0;
-		$s->{y_min}[2] = 0 if $s->{y_min}[2] && $s->{y_min}[2] > 0;
+		for my $i (1..($s->{two_axes} ? 2 : 1))
+		{
+			#print "in:  $i $s->{y_min}[$i] - $s->{y_max}[$i]\n";
+			# If at the same side of the zero axis
+			if ($s->{y_max}[$i] && $s->{y_min}[$i]/$s->{y_max}[$i] > 0)
+			{
+				$s->{y_min}[$i] > 0 ? 
+				$s->{y_min}[$i] = 0 : 
+				$s->{y_max}[$i] = 0 ;
+			}
+			#print "out: $i $s->{y_min}[$i] - $s->{y_max}[$i]\n";
+		}
 	}
 
 	# Overwrite these with any user supplied ones
@@ -783,6 +793,44 @@ sub set_max_min
 
 	$s->{x_min}    = $s->{x_min_value}  if defined $s->{x_min_value};
 	$s->{x_max}    = $s->{x_max_value}  if defined $s->{x_max_value};
+
+	if ($s->{two_axes} and 
+		defined $subclass and 
+		($subclass eq 'bars' or $subclass eq 'area'))
+	{
+		# If we have two axes, we need to make sure that the zero is at
+		# the same spot.
+
+		#print "beg: $_ $s->{y_min}[$_] - $s->{y_max}[$_]\n" for (1..2);
+
+		my $l_range = $s->{y_max}[1] - $s->{y_min}[1];
+		my $r_range = $s->{y_max}[2] - $s->{y_min}[2];
+
+		my $l_top = $s->{y_max}[1]/$l_range;
+		my $r_top = $s->{y_max}[2]/$r_range;
+		my $l_bot = $s->{y_min}[1]/$l_range;
+		my $r_bot = $s->{y_min}[2]/$r_range;
+
+		if ($l_top > $r_top)
+		{
+			$s->{y_max}[2] = $l_top * $r_range;
+		}
+		else
+		{
+			$s->{y_max}[1] = $r_top * $l_range;
+		}
+
+		if (abs($l_bot) > abs($r_bot))
+		{
+			$s->{y_min}[2] = $l_bot * $r_range;
+		}
+		else
+		{
+			$s->{y_min}[1] = $r_bot * $l_range;
+		}
+
+		#print "end: $_ $s->{y_min}[$_] - $s->{y_max}[$_]\n" for (1..2);
+	}
 
 	# Check to see if we have sensible values
 	if ( $s->{two_axes} ) 
@@ -895,10 +943,13 @@ sub _best_ends
 	my ($min, $max, @n) = @_;
 	my ($best_min, $best_max, $best_num) = ($min, $max, 1);
 
-	# fix endpoints, fix intervals, set defaults
-	($min, $max) = ($max, $min) if ($min > $max);
+	# Check that min and max are not the same, and not 0
 	($min, $max) = ($min) ? ($min * 0.5, $min * 1.5) : (-1,1) 
 		if ($max == $min);
+	# mgjv - Sometimes, for odd values, and only one data set, this will be
+	# necessary _after_ the previous step, not before. Data sets of one
+	# long with negative values were causing infinite loops later on.
+	($min, $max) = ($max, $min) if ($min > $max);
 
 	@n = (3..6) if (@n <= 0 || $n[0] =~ /auto/i);
 
@@ -911,21 +962,20 @@ sub _best_ends
 	while ($s > $range) { $s /= 10 }
 	my @step = map {$_ * $s} (0.2, 0.5, 1, 2, 5);
 
-	for (@n) 
+	for my $n (@n) 
 	{								
 		# Try all numbers of intervals
-		my $n = $_;
 		next if ($n < 1);
 
-		for (@step) 
+		for my $step (@step) 
 		{
-			next if ($n != 1) && ($_ < $range/$n); # $step too small
+			next if ($n != 1) && ($step < $range/$n); # $step too small
 
-			my $nice_min   = $_ * int($min/$_);
-			$nice_min  -= $_ if ($nice_min > $min);
+			my $nice_min   = $step * int($min/$step);
+			$nice_min  -= $step if ($nice_min > $min);
 			my $nice_max   = ($n == 1) 
-				? $_ * int($max/$_ + 1) 
-				: $nice_min + $n * $_;
+				? $step * int($max/$step + 1) 
+				: $nice_min + $n * $step;
 			my $nice_range = $nice_max - $nice_min;
 
 			next if ($nice_max < $max);	# $nice_min too small

@@ -38,9 +38,9 @@ for my $my_graph (GD::Graph::bars->new(600,400),
 	long_ticks          => 1,
 	two_axes            => 1,
 	legend_placement    => 'RT',
-	x_labels_vertical   => 1,
 	x_label_position    => 1/2,
 
+	bgclr		    => 'white',
 	fgclr               => 'white',
 	boxclr              => 'dblue',
 	accentclr           => 'dblue',
@@ -60,7 +60,6 @@ for my $my_graph (GD::Graph::bars->new(600,400),
 	t_margin            => 10,
 
 	show_values         => 1,
-	values_vertical     => 1,
 	values_format       => "%4.1f",
 
     ) or warn $my_graph->error;
@@ -68,17 +67,24 @@ for my $my_graph (GD::Graph::bars->new(600,400),
     if ($name =~ /-h$/)
     {
 	$my_graph->set(x_labels_vertical => 0, values_vertical => 0);
+	$my_graph->set_legend('bottom axis', 'top axis');
+    }
+    else
+    {
+	$my_graph->set(x_labels_vertical => 1, values_vertical => 1);
+	$my_graph->set_legend('left axis', 'right axis');
     }
 
-    $my_graph->set_y_label_font('../cetus.ttf', 12);
-    $my_graph->set_x_label_font('../cetus.ttf', 12);
-    $my_graph->set_y_axis_font('../cetus.ttf', 10);
-    $my_graph->set_x_axis_font('../cetus.ttf', 10);
-    $my_graph->set_title_font('../cetus.ttf', 18);
-    $my_graph->set_legend_font('../cetus.ttf', 8);
-    $my_graph->set_values_font('../cetus.ttf', 8);
+    my $font_spec = "../cetus.ttf";
 
-    $my_graph->set_legend( 'left axis', 'right axis');
+    $my_graph->set_y_label_font($font_spec, 12);
+    $my_graph->set_x_label_font($font_spec, 12);
+    $my_graph->set_y_axis_font($font_spec, 10);
+    $my_graph->set_x_axis_font($font_spec, 10);
+    $my_graph->set_title_font($font_spec, 18);
+    $my_graph->set_legend_font($font_spec, 8);
+    $my_graph->set_values_font($font_spec, 8);
+
     $my_graph->plot($data) or die $my_graph->error;
     save_chart($my_graph, $name);
 }

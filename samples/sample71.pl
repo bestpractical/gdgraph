@@ -77,6 +77,28 @@ if ($my_graph->can_do_ttf)
 }
 
 $my_graph->plot(\@data);
-save_chart($my_graph, 'sample71');
 
+# Use a hotspot to draw some extra text on the chart
+# XXX This doesn't work nicely. Need a nicer way to get the maximum.
+if (0) {
+    my $gd = $my_graph->gd;
+    my $red = $gd->colorResolve(255,0,0);
+    my @l = $my_graph->get_hotspot(1, 3);
+    my ($x, $y) = ( ($l[1] + $l[3])/2, ($l[2] + $l[4])/2 );
+    my $gdta;
+
+    $gdta = GD::Text::Align->new($gd,
+	text => 'maximum',
+	font => '../20thcent.ttf',
+	ptsize => 12,
+	colour => $red,
+	valign => 'bottom',
+	halign => 'center',
+    ) or warn $gdta->error;
+    
+    $gdta->draw($x, $y + 2);
+}
+
+
+save_chart($my_graph, 'sample71');
 

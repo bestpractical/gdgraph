@@ -42,6 +42,18 @@ to the latest version, I may very well add it for the next release. If
 you don't send me a patch, but just a question, you will have to be
 patient.
 
+=head2 Why does export_format give me a weird string, instead of just 'png' or 'gif'?
+
+As of version 1.31, export_format in a list context returns all formats
+that GD can export. If you are only interested in the answer 'gif' or
+'png', make sure that you call it in a scalar context.
+
+  $export_format = GD::Graph->export_format;
+  $export_format = $graph->export_format;
+  print "Export format is ", scalar $graph->export_format, "\n";
+  print "Export format is " .  $graph->export_format . "\n";
+  @export_formats = $graph->export_format;
+
 =head1 AUTHOR
 
 Martien Verbruggen E<lt>mgjv@comdyn.com.auE<gt>

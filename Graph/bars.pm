@@ -5,13 +5,13 @@
 #	Name:
 #		GD::Graph::bars.pm
 #
-# $Id: bars.pm,v 1.17 2000/04/30 08:32:38 mgjv Exp $
+# $Id: bars.pm,v 1.18 2000/05/06 23:16:38 mgjv Exp $
 #
 #==========================================================================
  
 package GD::Graph::bars;
 
-$GD::Graph::bars::VERSION = '$Revision: 1.17 $' =~ /\s([\d.]+)/;
+$GD::Graph::bars::VERSION = '$Revision: 1.18 $' =~ /\s([\d.]+)/;
 
 use strict;
 
@@ -20,6 +20,8 @@ use GD::Graph::utils qw(:all);
 use GD::Graph::colour qw(:colours);
 
 @GD::Graph::bars::ISA = qw(GD::Graph::axestype);
+
+use constant PI => 4 * atan2(1,1);
 
 sub initialise
 {
@@ -132,6 +134,59 @@ sub draw_data_set
 	}
 
 	return $ds;
+}
+
+sub draw_values
+{
+	my $self = shift;
+	
+	return $self unless $self->{show_values};
+	
+	my $text_angle = $self->{values_vertical} ? PI/2 : 0;
+
+	for (my $dsn = 1; $dsn <= $self->{_data}->num_sets; $dsn++)
+	{
+		my @values = $self->{_data}->y_values($dsn) or
+			return $self->_set_error("Impossible illegal data set: $dsn",
+				$self->{_data}->error);
+		my @display = $self->{show_values}->y_values($dsn) or next;
+
+		for (my $i; $i < @values; $i++)
+		{
+			next unless defined $display[$i];
+			my ($xp, $yp);
+			if (defined($self->{x_min_value}) && defined($self->{x_max_value}))
+			{
+				($xp, $yp) = $self->val_to_pixel(
+					$self->{_data}->get_x($i), $values[$i], $dsn);
+			}
+			else	
+			{
+				($xp, $yp) = $self->val_to_pixel($i+1, $values[$i], $dsn);
+			}
+			$yp -= $self->{values_space};
+
+			my $value = $display[$i];
+			if (defined $self->{values_format})
+			{
+				$value = ref $self->{values_format} eq 'CODE' ?
+					&{$self->{values_format}}($value) :
+					sprintf($self->{values_format}, $value);
+			}
+
+			unless ($self->{overwrite})
+			{
+				$xp = $xp 
+					- $self->{x_step}/2
+					+ ($dsn - 0.5) * $self->{x_step}/$self->{_data}->num_sets;
+			}
+
+			$self->{gdta_values}->set_text($value);
+			$self->{gdta_values}->draw($xp, $yp, $text_angle);
+		}
+	}
+
+	return $self
 }
 
 "Just another true value";

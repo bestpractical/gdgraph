@@ -9,8 +9,6 @@ print STDERR "Processing sample 1-1\n";
     [    1,    2,    5,    6,    3,  1.5,    1,     3,     4],
 );
 
-$my_graph = new GD::Graph::bars();
-
 $my_graph->set( 
 	x_label => 'X Label',
 	y_label => 'Y label',

@@ -1,5 +1,6 @@
 use GD::Graph::lines;
 use GD::Graph::colour;
+use GD::Graph::Data;
 require 'save.pl';
 
 GD::Graph::colour::read_rgb("rgb.txt") or 
@@ -7,13 +8,13 @@ GD::Graph::colour::read_rgb("rgb.txt") or
 
 print STDERR "Processing sample 5-3\n";
 
-@data = ( 
+$data = ([
     ["1st","2nd","3rd","4th","5th","6th","7th", "8th", "9th"],
     [    1,    2,    5,    6,    3,  1.5,   -1,    -3,    -4],
     [   -4,   -3,    1,    1,   -3, -1.5,   -2,    -1,     0],
     [    9,    8,    9,  8.4,  7.1,  7.5,    8,     3,    -3],
-	[  0.1,  0.2,  0.5,  0.4,  0.3,  0.5,  0.1,     0,   0.4],
-);
+	[  0.1,  0.0, -0.3, -0.4,  0.1,  0.5,  0.1,     0,   0.4],
+]);
 
 $my_graph = new GD::Graph::lines();
 
@@ -33,9 +34,12 @@ $my_graph->set(
 	line_type_scale => 8,
 	legend_marker_width => 24,
 	line_width => 3,
-);
+
+	show_values => 1,
+
+) or warn $my_graph->error;
 
 $my_graph->set_legend( 'one', 'two', undef, 'four' );
-$my_graph->plot(\@data);
+$my_graph->plot($data) or die $my_graph->error;
 save_chart($my_graph, 'sample53');
 

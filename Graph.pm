@@ -18,7 +18,7 @@
 #		GD::Graph::pie
 #		GD::Graph::mixed
 #
-# $Id: Graph.pm,v 1.30 2000/05/06 10:01:32 mgjv Exp $
+# $Id: Graph.pm,v 1.31 2000/05/06 23:16:38 mgjv Exp $
 #
 #==========================================================================
 
@@ -30,7 +30,7 @@
 
 package GD::Graph;
 
-$GD::Graph::prog_version = '$Revision: 1.30 $' =~ /\s([\d.]+)/;
+$GD::Graph::prog_version = '$Revision: 1.31 $' =~ /\s([\d.]+)/;
 $GD::Graph::VERSION = '1.32';
 
 use strict;
@@ -85,6 +85,8 @@ my %Defaults = (
 	axislabelclr  => 'dblue',	# values on axes
 	legendclr	  => 'dblue',	# Text for the legend
 	textclr       => 'dblue',	# All text, apart from the following 2
+
+	valuesclr     => 'dblue',	# values printed above the points
 	
 	# data set colours
 	dclrs => [ qw(lred lgreen lblue lyellow lpurple cyan lorange)], 
@@ -200,6 +202,7 @@ sub set_text_clr # (colour name)
 		textclr       => $clr,
 		labelclr      => $clr,
 		axislabelclr  => $clr,
+		valuesclr     => $clr,
 	);
 }
 
@@ -248,6 +251,27 @@ sub check_data # \@data
 
 	$self->{_data}->num_sets > 0 && $self->{_data}->num_points > 0
 		or return $self->_set_error('No data sets or points');
+	
+	if ($self->{show_values})
+	{
+		# If this isn't a GD::Graph::Data compatible structure, then
+		# we'll just use the data structure.
+		#
+		# XXX We should probably check a few more things here, e.g.
+		# similarity between _data and show_values.
+		#
+		my $ref = ref($self->{show_values});
+		if (! $ref || ($ref ne 'GD::Graph::Data' && $ref ne 'ARRAY'))
+		{
+			$self->{show_values} = $self->{_data}
+		}
+		elsif ($ref eq 'ARRAY')
+		{
+			$self->{show_values} =
+				GD::Graph::Data->new($self->{show_values})
+				or return $self->_set_error(GD::Graph::Data->error);
+		}
+	}
 
 	return $self;
 }
@@ -275,6 +299,7 @@ sub init_graph
 	$self->{lci}  = $self->set_clr(_rgb($self->{labelclr}));
 	$self->{alci} = $self->set_clr(_rgb($self->{axislabelclr}));
 	$self->{acci} = $self->set_clr(_rgb($self->{accentclr}));
+	$self->{valuesci} = $self->set_clr(_rgb($self->{valuesclr}));
 	$self->{legendci} = $self->set_clr(_rgb($self->{legendclr}));
 	$self->{boxci} = $self->set_clr(_rgb($self->{boxclr})) 
 		if $self->{boxclr};
@@ -685,8 +710,10 @@ See L<"FONTS">.
 
 =item $graph-E<gt>set_y_axis_font(font specification)
 
-Set the font for the x and y axis label, and for the x and y axis
-value labels.
+=item $graph-E<gt>set_values_font(font specification)
+
+Set the font for the x and y axis label, the x and y axis
+value labels, and for the values printed above the data points.
 See L<"FONTS">.
 
 =item $graph-E<gt>get_hotspot($dataset, $point)
@@ -766,11 +793,11 @@ Depth of a shadow, positive for right/down shadow, negative for left/up
 shadow, 0 for no shadow (default).
 Also see the C<shadowclr> and C<bar_spacing> options.
 
-=item labelclr, axislabelclr, legendclr, textclr
+=item labelclr, axislabelclr, legendclr, valuesclr, textclr
 
 Text Colours used for the chart: label (labels for the axes or pie),
 axis label (misnomer: values printed along the axes, or on a pie slice),
-legend text, and all other text.
+legend text, shown values text, and all other text.
 
 All colours should have a valid value as described in L<"COLOURS">.
 
@@ -1033,6 +1060,56 @@ small, you may need to manually switch this off, or consider using
 something else than a bar type for your chart.
 
 Default: 1 for bar, calculated at runtime for mixed charts, 0 for others.
+
+=back
+
+=head2 Plotting data point values with the data point
+
+Sometimes you will want to plot the value of a data point or bar above
+the data point for clarity. GD::Graph allows you to control this in a
+generic manner, or even down to the single point.
+
+=over 4
+
+=item show_values
+
+Set this to 1 to display the value of each data point above the point or
+bar itself. No effort is being made to ensure that there is enough space
+for the text.
+
+Set this to a GD::Graph::Data object, or an array reference of the same
+shape, with the same dimensions as your data object that you pass in to
+the plot method. The reason for this option is that it allows you to
+make a copy of your data set, and selectively set points to C<undef> to
+disable plotting of them.
+
+  my $data = GD::Graph::Data->new( 
+  	[ [ 'A', 'B', 'C' ], [ 1, 2, 3 ], [ 11, 12, 13 ] ]);
+  my $values = $data->copy;
+  $values->set_y(1, 1, undef);
+  $values->set_y(2, 0, undef);
+
+  $graph->set(show_values => $values);
+  $graph->plot($data);
+
+Default: 0.
+
+=item values_vertical
+
+If set to a true value, the values will be printed vertically, instead
+of horizontally. This can be handy if the values are long numbers.
+Default: 0.
+
+=item values_space
+
+Space to insert between the data point and the value to print.
+Default: 4.
+
+=item values_format
+
+How to format the values for display. See y_number_format for more
+information.
+Default: undef.
 
 =back
 

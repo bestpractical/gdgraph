@@ -5,13 +5,13 @@
 #	Name:
 #		GD::Graph::axestype.pm
 #
-# $Id: axestype.pm,v 1.24 2000/05/06 10:16:49 mgjv Exp $
+# $Id: axestype.pm,v 1.25 2000/05/06 23:16:38 mgjv Exp $
 #
 #==========================================================================
 
 package GD::Graph::axestype;
 
-$GD::Graph::axestype::VERSION = '$Revision: 1.24 $' =~ /\s([\d.]+)/;
+$GD::Graph::axestype::VERSION = '$Revision: 1.25 $' =~ /\s([\d.]+)/;
 
 use strict;
  
@@ -99,6 +99,12 @@ my %Defaults = (
 	legend_placement		=> 'BC',		# '[BR][LCR]'
 	lg_cols					=> undef,
 
+	# Display the y values above the bar or point in the graph.
+	show_values				=> undef,
+	values_vertical			=> undef,	# vertical?
+	values_space			=> 4,		# extra spacing
+	values_format			=> undef,	# how to format the value
+
 	# CONTRIB Edwin Hildebrand
 	# How narrow is a dataset allowed to become before we drop the
 	# accents?
@@ -185,6 +191,7 @@ sub initialise
 	$self->set_x_axis_font(GD::gdTinyFont);
 	$self->set_y_axis_font(GD::gdTinyFont);
 	$self->set_legend_font(GD::gdTinyFont);
+	$self->set_values_font(GD::gdTinyFont);
 }
 
 # PUBLIC
@@ -202,6 +209,7 @@ sub plot
 	$self->draw_axes();
 	$self->draw_ticks()					or return;
 	$self->draw_data()					or return;
+	$self->draw_values()				or return;
 	$self->draw_legend();
 
 	return $self->{graph}
@@ -270,6 +278,16 @@ sub setup_text
 	$self->{gdta_legend}->set_align('top', 'left');
 	$self->{lgfh} = $self->{gdta_legend}->get('height');
 
+	$self->{gdta_values}->set(colour => $self->{valuesci});
+	if ($self->{values_vertical})
+	{
+		$self->{gdta_values}->set_align('center', 'left');
+	}
+	else
+	{
+		$self->{gdta_values}->set_align('bottom', 'center');
+	}
+
 	return $self;
 }
 
@@ -293,6 +311,12 @@ sub set_y_axis_font # (fontname)
 {
 	my $self = shift;
 	$self->_set_font('gdta_y_axis', @_);
+}
+
+sub set_values_font
+{
+	my $self = shift;
+	$self->_set_font('gdta_values', @_);
 }
 
 sub set_legend # List of legend keys
@@ -895,6 +919,52 @@ sub draw_data
 	for (my $dsn = 1; $dsn <= $self->{_data}->num_sets; $dsn++)
 	{
 		$self->draw_data_set($dsn) or return;
+	}
+
+	return $self
+}
+
+sub draw_values
+{
+	my $self = shift;
+	
+	return $self unless $self->{show_values};
+	
+	my $text_angle = $self->{values_vertical} ? PI/2 : 0;
+
+	for (my $dsn = 1; $dsn <= $self->{_data}->num_sets; $dsn++)
+	{
+		my @values = $self->{_data}->y_values($dsn) or
+			return $self->_set_error("Impossible illegal data set: $dsn",
+				$self->{_data}->error);
+		my @display = $self->{show_values}->y_values($dsn) or next;
+
+		for (my $i; $i < @values; $i++)
+		{
+			next unless defined $display[$i];
+			my ($xp, $yp);
+			if (defined($self->{x_min_value}) && defined($self->{x_max_value}))
+			{
+				($xp, $yp) = $self->val_to_pixel(
+					$self->{_data}->get_x($i), $values[$i], $dsn);
+			}
+			else	
+			{
+				($xp, $yp) = $self->val_to_pixel($i+1, $values[$i], $dsn);
+			}
+			$yp -= $self->{values_space};
+
+			my $value = $display[$i];
+			if (defined $self->{values_format})
+			{
+				$value = ref $self->{values_format} eq 'CODE' ?
+					&{$self->{values_format}}($value) :
+					sprintf($self->{values_format}, $value);
+			}
+
+			$self->{gdta_values}->set_text($value);
+			$self->{gdta_values}->draw($xp, $yp, $text_angle);
+		}
 	}
 
 	return $self

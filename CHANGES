@@ -1,4 +1,9 @@
-20 Feb
+27 Feb 2000
+
+- Added cumulate attribute, needs more code changes to fully replace
+  'overwrite == 2'.
+
+20 Feb 2000
 
 - Added correct_width option
 - Fixed bug in pie. If one of the slices ended up at exactly 90 degrees,

@@ -5,14 +5,14 @@
 #	Name:
 #		GD::Graph::pie.pm
 #
-# $Id: pie.pm,v 1.12 2000/02/20 08:08:44 mgjv Exp $
+# $Id: pie.pm,v 1.13 2000/02/27 11:08:21 mgjv Exp $
 #
 #==========================================================================
 
 package GD::Graph::pie;
 
 $GD::Graph::pie::VERSION = 
-	(q($Revision: 1.12 $) =~ /\s([\d.]+)/ ? $1 : "0.0");
+	(q($Revision: 1.13 $) =~ /\s([\d.]+)/ ? $1 : "0.0");
 
 use strict;
 
@@ -396,7 +396,9 @@ sub _get_pie_front_coords # (angle 1, angle 2)
 sub in_front
 {
 	my $a = level_angle(shift);
-	return $a > ($ANGLE_OFFSET - 180 + 0.5) && $a < $ANGLE_OFFSET - 0.5;
+	return 
+		$a > ($ANGLE_OFFSET - 180 + 0.00000001) && 
+		$a < $ANGLE_OFFSET - 0.000000001;
 }
 
 # XXX Ugh! I need to fix this. See the GD::Text module for better ways

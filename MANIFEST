@@ -15,6 +15,7 @@ lib/GD/Graph/pie.pm
 lib/GD/Graph/points.pm
 lib/GD/Graph/utils.pm
 lib/GD/Graph/Data.pm
+lib/GD/Graph/Error.pm
 20thcent.ttf
 20thcent_Read_Me.txt
 cetus.ttf

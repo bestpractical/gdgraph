@@ -5,14 +5,14 @@
 #	Name:
 #		GD::Graph::axestype.pm
 #
-# $Id: axestype.pm,v 1.16 2000/02/20 08:08:44 mgjv Exp $
+# $Id: axestype.pm,v 1.17 2000/02/27 11:08:21 mgjv Exp $
 #
 #==========================================================================
 
 package GD::Graph::axestype;
 
 $GD::Graph::axestype::VERSION = 
-	(q($Revision: 1.16 $) =~ /\s([\d.]+)/ ? $1 : "0.0");
+	(q($Revision: 1.17 $) =~ /\s([\d.]+)/ ? $1 : "0.0");
 
 use strict;
  
@@ -72,6 +72,10 @@ my %Defaults = (
  
 	# Do you want bars to be drawn on top of each other, or side by side?
 	overwrite 			=> 0,
+
+	# This will replace 'overwrite = 2'. For now, it is hardcoded to set
+	# overwrite to 2
+	cumulate			=> 0,
 
 	# Do you want me to correct the width of the graph, so that bars are
 	# always drawn with a nice integer number of pixels?
@@ -205,28 +209,43 @@ sub plot
 
 sub set
 {
-	my $s = shift;
+	my $self = shift;
 	my %args = @_;
 
 	for (keys %args) 
 	{ 
 		/^tick_length$/ and do 
 		{
-			$s->{x_tick_length} = 
-			$s->{y_tick_length} = $args{$_};
+			$self->{x_tick_length} = 
+			$self->{y_tick_length} = $args{$_};
 			delete $args{$_};
 			next;
 		};
 		/^long_ticks$/ and do 
 		{
-			$s->{x_long_ticks} = 
-			$s->{y_long_ticks} = $args{$_};
+			$self->{x_long_ticks} = 
+			$self->{y_long_ticks} = $args{$_};
+			delete $args{$_};
+			next;
+		};
+		/^overwrite$/ and do
+		{
+			$self->{cumulate} = 1 if $args{$_} == 2;
+			$self->{overwrite} = $args{$_};
+			delete $args{$_};
+			next;
+		};
+		/^cumulate$/ and do
+		{
+			$self->{cumulate} = $args{$_};
+			# XXX And for now
+			$self->{overwrite} = 2 if $args{$_};
 			delete $args{$_};
 			next;
 		};
 	}
 
-	return $s->SUPER::set(%args);
+	return $self->SUPER::set(%args);
 }
 
 sub setup_text

@@ -18,7 +18,7 @@
 #		GD::Graph::pie
 #		GD::Graph::mixed
 #
-# $Id: Graph.pm,v 1.20 2000/02/20 08:08:44 mgjv Exp $
+# $Id: Graph.pm,v 1.21 2000/02/27 11:08:21 mgjv Exp $
 #
 #==========================================================================
 
@@ -31,7 +31,7 @@
 package GD::Graph;
 
 $GD::Graph::prog_version = 
-	(q($Revision: 1.20 $) =~ /\s([\d.]+)/ ? $1 : "0.0");
+	(q($Revision: 1.21 $) =~ /\s([\d.]+)/ ? $1 : "0.0");
 
 $GD::Graph::VERSION = '1.30';
 
@@ -42,7 +42,7 @@ use GD::Graph::Data;
 use GD::Graph::Error;
 use Carp;
 
-@GD::Graph::Data::ISA = qw( GD::Graph::Error );
+@GD::Graph::ISA = qw(GD::Graph::Error);
 
 # Some tools and utils
 use GD::Graph::colour qw(:colours);
@@ -986,17 +986,27 @@ elements are title and axis labels.
 
 Default: 8.
 
+=item cumulate
+
+If this attribute is set to a true value, the data sets will be
+cumulated. This means that they will be stacked on top of each other. A
+side effect of this is that C<overwrite> will be set to a true value.
+
+Notes: This only works for bar and area charts at the moment.
+
+If you have negative values in your data sets, setting this option might
+produce odd results. Of course, the graph itself would be quite
+meaningless.
+
 =item overwrite
 
 If set to 0, bars of different data sets will be drawn next to each
-other. If set to 1, they will be drawn in front of each other. If set
-to 2 they will be drawn on top of each other.
+other. If set to 1, they will be drawn in front of each other.
 Default: 0.
 
-If you have negative values in your data sets, setting overwrite to 2
-might produce odd results. Of course, the graph itself would be quite
-meaningless, because overwrite = 2 is meant to show some cumulative
-effect.
+Note: Setting overwrite to 2 to produce cumulative sets is deprecated,
+and may disappear in future versions of GD::Graph.
+Instead see the C<cumulate> attribute.
 
 =item correct_width
 
@@ -1258,6 +1268,11 @@ more restrictive behaviour).
 As with all Modules for Perl: Please stick to using the interface. If
 you try to fiddle too much with knowledge of the internals of this
 module, you could get burned. I may change them at any time.
+
+=head1 BUGS
+
+GD::Graph objects cannot be reused. To create a new plot, you have to
+create a new GD::Graph object.
 
 =head1 AUTHOR
 

@@ -19,7 +19,7 @@ $my_graph->set(
 	y_max_value => 50,
 	y_tick_number => 10,
 	y_label_skip => 2,
-	overwrite => 2,
+	cumulate => 1,
 	dclrs => [ qw(white cyan cyan) ],
 	borderclrs => [ qw(white black black) ],
 	bar_spacing => 4

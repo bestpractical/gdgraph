@@ -72,7 +72,7 @@ $graph->set(
    'x_ticks'          => 0,
    'x_label_position' => '.5',     # centered x label
    'y_label_position' => '.5',     # centered y label
-   'overwrite'        => 2,        # stacked x data
+   'cumulate'         => 1,        # stacked x data
 
    'bgclr'            => 'white',  # makes background transparent
    'transparent'      => 0,

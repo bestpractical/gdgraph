@@ -1,3 +1,20 @@
+From: "Feech" <feech@fastlane.net>
+
+  1) Is there any way to make the y-axis count upwards negative instead
+  of upwards positive?
+
+  Answer: negate all the value,s and use y_number_format with a sub
+  reference. (Make this into an example!)
+
+  2) Is there a way to set a minimum step value for axis ticks?  All of
+  my data are integers.  When I make a line graph, and the max is 2 and
+  the min is -1, the ticks are divided into 0.5 ticks.  No matter how
+  small the range in data, I'd like the minimum difference in ticks to
+  always not be less than 1.
+
+  Check whether this is doable
+
+
 ME:
 
 	Severe inaccuracies in left and right of bars. Needs fixing.

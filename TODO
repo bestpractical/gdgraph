@@ -1,10 +1,17 @@
 --Flexible colours. Allow #ffeedd notation, on the fly. Allow
 conversions. Allow addition of single colours, by name.
 
+john jeyasekharn <jeyasekharn@yahoo.com>
+
 -- dashed grid lines
 
-From: "Neil Cameron" <n.cameron@blueice.co.uk>o
+---	Make it possible to create image maps with this
+	This may create the necessity for some sort of dry-run mode, and
+	creation of the gd object on demand, instead of directly.
 
+	(work in progress)
+
+From: "Neil Cameron" <n.cameron@blueice.co.uk>o
 I'm using your clever little graph system and wonder if it can support
 nested data sets. I want to show two data sets side by side, but each
 data set itself consists of a set of data which I want to show piled one
@@ -38,7 +45,6 @@ From: "Feech" <feech@fastlane.net>
   always not be less than 1.
 
   Check whether this is doable
-
 
 3D
 

@@ -1,0 +1,15 @@
+--- axestype.pm.orig	2003-06-15 13:01:48.000000000 +0100
++++ axestype.pm	2003-06-15 13:03:24.000000000 +0100
+@@ -1451,10 +1451,12 @@
+         }
+         else
+         {
+             ($y_min, $y_max) = $self->{_data}->get_min_max_y_all;
+         }
++	$y_min = 0 if ($self->isa("GD::Graph::bars") or $self->isa("GD::Graph::area")) && $y_min > 0;
++	$y_max = 0 if ($self->isa("GD::Graph::bars") or $self->isa("GD::Graph::area")) && $y_min < 0;
+         ($self->{y_min}[1], $self->{y_max}[1], $self->{y_tick_number}) =
+ 	    _best_ends($y_min, $y_max, @$self{'y_tick_number','y_min_range'});
+     }
+ 
+     if (defined($self->{x_tick_number}))

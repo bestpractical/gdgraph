@@ -5,7 +5,7 @@
 #	Name:
 #		GD::Graph::axestype.pm
 #
-# $Id: axestype.pm,v 1.10 2000/01/09 12:43:58 mgjv Exp $
+# $Id: axestype.pm,v 1.11 2000/01/27 05:11:05 mgjv Exp $
 #
 #==========================================================================
 
@@ -85,6 +85,11 @@ my %Defaults = (
 	legend_spacing			=> 4,
 	legend_placement		=> 'BC',		# '[BR][LCR]'
 	lg_cols					=> undef,
+
+	# CONTRIB Edwin Hildebrand
+	# How narrow is a dataset allowed to become before we drop the
+	# accents?
+	accent_treshold			=> 4,
 
 	# Format of the numbers on the x and y axis
 	y_number_format			=> undef,

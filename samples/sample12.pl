@@ -20,6 +20,8 @@ $my_graph->set(
 	y_tick_number => 8,
 	y_label_skip => 2,
 	bar_spacing => 4,
+
+	accent_treshold => 200,
 );
 
 $my_graph->set_legend( 'Data set 1', 'Data set 2' );

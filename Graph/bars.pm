@@ -5,7 +5,7 @@
 #	Name:
 #		GD::Graph::bars.pm
 #
-# $Id: bars.pm,v 1.5 2000/01/07 13:44:42 mgjv Exp $
+# $Id: bars.pm,v 1.6 2000/01/27 05:11:05 mgjv Exp $
 #
 #==========================================================================
  
@@ -52,8 +52,7 @@ sub draw_data_overwrite
 
 	my $zero = $s->{zeropoint};
 
-	my $i;
-	for $i (0 .. $s->{numpoints}) 
+	for my $i (0 .. $s->{numpoints}) 
 	{
 		my $bottom = $zero;
 		my ($xp, $t);
@@ -62,8 +61,7 @@ sub draw_data_overwrite
 		my $bsd = $s->{shadow_depth} and
 			my $bsci = $s->set_clr(_rgb($s->{shadowclr}));
 			
-		my $j;
-		for $j (1 .. $s->{numsets}) 
+		for my $j (1 .. $s->{numsets}) 
 		{
 			next unless (defined $d->[$j][$i]);
 
@@ -96,7 +94,8 @@ sub draw_data_overwrite
 				$g->filledRectangle($l+$bsd, $t+$bsd, $r+$bsd, $bottom, $bsci)
 					if $bsd;
 				$g->filledRectangle($l, $t, $r, $bottom, $dsci);
-				$g->rectangle($l, $t, $r, $bottom, $brci);
+				$g->rectangle($l, $t, $r, $bottom, $brci) 
+					if ($r - $l > $s->{accent_treshold});
 			}
 			else
 			{
@@ -104,7 +103,8 @@ sub draw_data_overwrite
 				$g->filledRectangle($l+$bsd, $bottom, $r+$bsd, $t+$bsd, $bsci)
 					if $bsd;
 				$g->filledRectangle($l, $bottom, $r, $t, $dsci);
-				$g->rectangle($l, $bottom, $r, $t, $brci);
+				$g->rectangle($l, $bottom, $r, $t, $brci)
+					if ($r - $l > $s->{accent_treshold});
 			}
 
 			# reset $bottom to the top
@@ -130,8 +130,7 @@ sub draw_data_set
 	my $bsd = $s->{shadow_depth} and
 		my $bsci = $s->set_clr(_rgb($s->{shadowclr}));
 
-	my $i;
-	for $i (0 .. $s->{numpoints}) 
+	for my $i (0 .. $s->{numpoints}) 
 	{
 		next unless (defined $d->[$i]);
 
@@ -174,7 +173,8 @@ sub draw_data_set
 			$g->filledRectangle($l+$bsd, $t+$bsd, $r+$bsd, $s->{zeropoint}, 
 				$bsci) if $bsd;
 			$g->filledRectangle($l, $t, $r, $s->{zeropoint}, $dsci );
-			$g->rectangle($l, $t, $r, $s->{zeropoint}, $brci);
+			$g->rectangle($l, $t, $r, $s->{zeropoint}, $brci)
+				if ($r - $l > $s->{accent_treshold});
 		}
 		else
 		{
@@ -182,7 +182,8 @@ sub draw_data_set
 			$g->filledRectangle($l+$bsd, $s->{zeropoint}, $r+$bsd, $t+$bsd, 
 				$bsci) if $bsd;
 			$g->filledRectangle($l, $s->{zeropoint}, $r, $t, $dsci);
-			$g->rectangle($l, $s->{zeropoint}, $r, $t, $brci);
+			$g->rectangle($l, $s->{zeropoint}, $r, $t, $brci)
+				if ($r - $l > $s->{accent_treshold});
 		}
 	}
 }

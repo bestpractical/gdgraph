@@ -1,3 +1,8 @@
+27 Jan 2000
+
+- Added patch from Hildebrand, which allows non-drawing of accents on
+  bars with accent_treshold option
+
 09 Jan 2000
 
 - Rewrote some documentation to reflect new GD::Text behaviour.

@@ -1,3 +1,10 @@
+john jeyasekharn <jeyasekharn@yahoo.com>
+
+	Make it possible to create image maps with this
+
+	This may create the necessity for some sort of dry-run mode, and
+	creation of the gd object on demand, instead of directly.
+
 3D
 
 From: Jim Elliott <jimel@sco.COM>

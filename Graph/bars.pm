@@ -5,13 +5,13 @@
 #   Name:
 #       GD::Graph::bars.pm
 #
-# $Id: bars.pm,v 1.24 2003/02/10 22:12:41 mgjv Exp $
+# $Id: bars.pm,v 1.25 2003/06/11 00:43:49 mgjv Exp $
 #
 #==========================================================================
  
 package GD::Graph::bars;
 
-($GD::Graph::bars::VERSION) = '$Revision: 1.24 $' =~ /\s([\d.]+)/;
+($GD::Graph::bars::VERSION) = '$Revision: 1.25 $' =~ /\s([\d.]+)/;
 
 use strict;
 
@@ -36,20 +36,23 @@ sub draw_data
 
     $self->SUPER::draw_data() or return;
 
-    # redraw the 'zero' axis
-    if ($self->{rotate_chart})
+    unless ($self->{no_axes})
     {
-        $self->{graph}->line( 
-            $self->{zeropoint}, $self->{top},
-            $self->{zeropoint}, $self->{bottom},
-            $self->{fgci} );
-    }
-    else
-    {
-        $self->{graph}->line( 
-            $self->{left}, $self->{zeropoint}, 
-            $self->{right}, $self->{zeropoint}, 
-            $self->{fgci} );
+        # redraw the 'zero' axis
+        if ($self->{rotate_chart})
+        {
+            $self->{graph}->line( 
+                $self->{zeropoint}, $self->{top},
+                $self->{zeropoint}, $self->{bottom},
+                $self->{fgci} );
+        }
+        else
+        {
+            $self->{graph}->line( 
+                $self->{left}, $self->{zeropoint}, 
+                $self->{right}, $self->{zeropoint}, 
+                $self->{fgci} );
+        }
     }
     
     return $self;

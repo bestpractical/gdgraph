@@ -1,3 +1,7 @@
+11 June 2003
+
+- Added no_axes option, changed sample56 to reflect this
+
 30 May 2003
 
 - Added version number for GD::Text PREREQ_PM

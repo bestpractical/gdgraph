@@ -27,7 +27,7 @@ $my_graph->set(
 	x_label_skip => 2,
 	x_tick_offset => 2,
 
-	box_axis => 0,
+	no_axes => 1,
 	line_width => 2,
 	x_label_position => 1/2,
 	r_margin => 15,

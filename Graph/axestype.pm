@@ -5,13 +5,13 @@
 #   Name:
 #       GD::Graph::axestype.pm
 #
-# $Id: axestype.pm,v 1.37 2003/02/25 05:50:34 mgjv Exp $
+# $Id: axestype.pm,v 1.38 2003/06/11 00:43:49 mgjv Exp $
 #
 #==========================================================================
 
 package GD::Graph::axestype;
 
-($GD::Graph::axestype::VERSION) = '$Revision: 1.37 $' =~ /\s([\d.]+)/;
+($GD::Graph::axestype::VERSION) = '$Revision: 1.38 $' =~ /\s([\d.]+)/;
 
 use strict;
  
@@ -56,6 +56,10 @@ my %Defaults = (
  
     # Draw axes as a box? (otherwise just left and bottom)
     box_axis            => 1,
+
+    # Disable axes?
+    # undef -> all axes, 0 -> Only line for bars, other -> no axes at all.
+    no_axes             => undef,
  
     # Use two different axes for the first and second dataset. The first
     # will be displayed using the left axis, the second using the right
@@ -111,7 +115,7 @@ my %Defaults = (
     values_format           => undef,   # how to format the value
     
     # Draw the X axis left and the y1 axis at the bottom (y2 at top)
-    rotate_chart	    => undef,
+    rotate_chart            => undef,
 
     # CONTRIB Edwin Hildebrand
     # How narrow is a dataset allowed to become before we drop the
@@ -221,8 +225,11 @@ sub plot
     $self->setup_legend();
     $self->setup_coords()               or return;
     $self->draw_text();
-    $self->draw_axes();
-    $self->draw_ticks()                 or return;
+    unless (defined $self->{no_axes})
+    {
+        $self->draw_axes();
+        $self->draw_ticks()             or return;
+    }
     $self->draw_data()                  or return;
     $self->draw_values()                or return;
     $self->draw_legend();
@@ -296,25 +303,25 @@ sub setup_text
     $self->{gdta_values}->set(colour => $self->{valuesci});
     unless ($self->{rotate_chart})
     {
-	if ($self->{values_vertical})
-	{
-	    $self->{gdta_values}->set_align('center', 'left');
-	}
-	else
-	{
-	    $self->{gdta_values}->set_align('bottom', 'center');
-	}
+        if ($self->{values_vertical})
+        {
+            $self->{gdta_values}->set_align('center', 'left');
+        }
+        else
+        {
+            $self->{gdta_values}->set_align('bottom', 'center');
+        }
     }
     else
     {
-	if ($self->{values_vertical})
-	{
-	    $self->{gdta_values}->set_align('top', 'center');
-	}
-	else
-	{
-	    $self->{gdta_values}->set_align('center', 'left');
-	}
+        if ($self->{values_vertical})
+        {
+            $self->{gdta_values}->set_align('top', 'center');
+        }
+        else
+        {
+            $self->{gdta_values}->set_align('center', 'left');
+        }
     }
 
     return $self;
@@ -401,11 +408,11 @@ sub get_feature_coordinates
     my $feature = shift;
     if ($feature)
     {
-	$self->{_feat_coords}->{$feature};
+        $self->{_feat_coords}->{$feature};
     }
     else
     {
-	$self->{_feat_coords};
+        $self->{_feat_coords};
     }
 }
 
@@ -422,21 +429,21 @@ sub setup_bottom_boundary
     $self->{bottom} = $self->{height} - $self->{b_margin} - 1;
     if (! $self->{rotate_chart})
     {
-	# X label
-	$self->{bottom} -= $self->{xlfh} + $self->{text_space}
-	    if $self->{xlfh};
-	# X axis tick labels
-	$self->{bottom} -= $self->{x_label_height} + $self->{axis_space}
-	    if $self->{xafh};
+        # X label
+        $self->{bottom} -= $self->{xlfh} + $self->{text_space}
+            if $self->{xlfh};
+        # X axis tick labels
+        $self->{bottom} -= $self->{x_label_height} + $self->{axis_space}
+            if $self->{xafh};
     }
     else
     {
-	# Y1 label
-	$self->{bottom} -= $self->{ylfh} + $self->{text_space}
-	    if $self->{y1_label};
-	# Y1 axis labels
-	$self->{bottom} -= $self->{y_label_height}[1] + $self->{axis_space}
-	    if $self->{y_label_height}[1];
+        # Y1 label
+        $self->{bottom} -= $self->{ylfh} + $self->{text_space}
+            if $self->{y1_label};
+        # Y1 axis labels
+        $self->{bottom} -= $self->{y_label_height}[1] + $self->{axis_space}
+            if $self->{y_label_height}[1];
     }
 }
 #
@@ -451,20 +458,20 @@ sub setup_top_boundary
     $self->{top} += $self->{tfh} + $self->{text_space} if $self->{tfh};
     if (! $self->{rotate_chart})
     {
-	# Make sure the text for the y axis tick markers fits on the canvas
-	$self->{top} = $self->{yafh}/2 if $self->{top} == 0;
+        # Make sure the text for the y axis tick markers fits on the canvas
+        $self->{top} = $self->{yafh}/2 if $self->{top} == 0;
     }
     else
     {
-	if ($self->{two_axes})
-	{
-	    # Y2 label
-	    $self->{top} += $self->{ylfh} + $self->{text_space}
-		if $self->{y2_label};
-	    # Y2 axis labels
-	    $self->{top} += $self->{y_label_height}[2] + $self->{axis_space}
-		if $self->{y_label_height}[2];
-	}
+        if ($self->{two_axes})
+        {
+            # Y2 label
+            $self->{top} += $self->{ylfh} + $self->{text_space}
+                if $self->{y2_label};
+            # Y2 axis labels
+            $self->{top} += $self->{y_label_height}[2] + $self->{axis_space}
+                if $self->{y_label_height}[2];
+        }
     }
 }
 #
@@ -477,21 +484,21 @@ sub setup_left_boundary
     $self->{left} = $self->{l_margin};
     if (! $self->{rotate_chart})
     {
-	# Y1 label
-	$self->{left} += $self->{ylfh} + $self->{text_space}
-	    if $self->{y1_label};
-	# Y1 axis labels
-	$self->{left} += $self->{y_label_len}[1] + $self->{axis_space}
-	    if $self->{y_label_len}[1];
+        # Y1 label
+        $self->{left} += $self->{ylfh} + $self->{text_space}
+            if $self->{y1_label};
+        # Y1 axis labels
+        $self->{left} += $self->{y_label_len}[1] + $self->{axis_space}
+            if $self->{y_label_len}[1];
     }
     else
     {
-	# X label
-	$self->{left} += $self->{xlfh} + $self->{text_space}
-	    if $self->{x_label};
-	# X axis labels
-	$self->{left} += $self->{x_label_width} + $self->{axis_space}
-	    if $self->{x_label_width};
+        # X label
+        $self->{left} += $self->{xlfh} + $self->{text_space}
+            if $self->{x_label};
+        # X axis labels
+        $self->{left} += $self->{x_label_width} + $self->{axis_space}
+            if $self->{x_label_width};
     }
 }
 #
@@ -504,25 +511,25 @@ sub setup_right_boundary
 
     if (! $self->{rotate_chart})
     {
-	if ($self->{two_axes})
-	{
-	    # Y2 label
-	    $self->{right} -= $self->{ylfh} + $self->{text_space}
-		if $self->{y2_label};
-	    # Y2 axis label
-	    $self->{right} -= $self->{y_label_len}[2] + $self->{axis_space}
-		if $self->{y_label_len}[2];
-	}
+        if ($self->{two_axes})
+        {
+            # Y2 label
+            $self->{right} -= $self->{ylfh} + $self->{text_space}
+                if $self->{y2_label};
+            # Y2 axis label
+            $self->{right} -= $self->{y_label_len}[2] + $self->{axis_space}
+                if $self->{y_label_len}[2];
+        }
     }
     else
     {
-	if ($self->{right} >= $self->{width} - $self->{r_margin})
-	{
-	    # TODO also take y2 labels into account
-	    # TODO Don't assume rightmost label is the same as the
-	    # longest label
-	    $self->{right} -= int(($self->{y_label_len}[1] + 1)/2);
-	}
+        if ($self->{right} >= $self->{width} - $self->{r_margin})
+        {
+            # TODO also take y2 labels into account
+            # TODO Don't assume rightmost label is the same as the
+            # longest label
+            $self->{right} -= int(($self->{y_label_len}[1] + 1)/2);
+        }
     }
 }
 
@@ -537,22 +544,22 @@ sub _setup_boundaries
 
     if ($self->correct_width && !$self->{x_tick_number})
     {
-	if (! $self->{rotate_chart})
-	{
-	    # Make sure we have a nice integer number of pixels
-	    $self->{r_margin} += ($self->{right} - $self->{left}) %
-		($self->{_data}->num_points + 1);
-	    
-	    $self->setup_right_boundary();
-	}
-	else
-	{
-	    # Make sure we have a nice integer number of pixels
-	    $self->{b_margin} += ($self->{bottom} - $self->{top}) %
-		($self->{_data}->num_points + 1);
-	    
-	    $self->setup_bottom_boundary();
-	}
+        if (! $self->{rotate_chart})
+        {
+            # Make sure we have a nice integer number of pixels
+            $self->{r_margin} += ($self->{right} - $self->{left}) %
+                ($self->{_data}->num_points + 1);
+            
+            $self->setup_right_boundary();
+        }
+        else
+        {
+            # Make sure we have a nice integer number of pixels
+            $self->{b_margin} += ($self->{bottom} - $self->{top}) %
+                ($self->{_data}->num_points + 1);
+            
+            $self->setup_bottom_boundary();
+        }
     }
 
     return $self->_set_error('Vertical size too small')
@@ -720,7 +727,7 @@ sub create_y_labels
 
             $self->{y_labels}[$axis][$t] = $label;
 
-	    # TODO Allow vertical y labels
+            # TODO Allow vertical y labels
             $self->{y_label_len}[$axis] = $len 
                 if $len > $self->{y_label_len}[$axis];
             $self->{y_label_height}[$axis] = $self->{yafh};
@@ -758,39 +765,39 @@ sub create_x_labels
 
     if (defined $self->{x_tick_number})
     {
-	# We want to emulate numerical x axes
-	foreach my $t (0..$self->{x_tick_number})
-	{
-	    my $label =
-		$self->{x_min} +
-		$t * ($self->{x_max} - $self->{x_min})/$self->{x_tick_number};
+        # We want to emulate numerical x axes
+        foreach my $t (0..$self->{x_tick_number})
+        {
+            my $label =
+                $self->{x_min} +
+                $t * ($self->{x_max} - $self->{x_min})/$self->{x_tick_number};
 
-	    $self->{x_values}[$t] = $label;
+            $self->{x_values}[$t] = $label;
 
-	    if (defined $self->{x_number_format})
-	    {
-		$label = ref $self->{x_number_format} eq 'CODE' ?
-		    &{$self->{x_number_format}}($label) :
-		    sprintf($self->{x_number_format}, $label);
-	    }
+            if (defined $self->{x_number_format})
+            {
+                $label = ref $self->{x_number_format} eq 'CODE' ?
+                    &{$self->{x_number_format}}($label) :
+                    sprintf($self->{x_number_format}, $label);
+            }
 
-	    $self->{gdta_x_label}->set_text($label);
-	    my $len = $self->{gdta_x_label}->get('width');
+            $self->{gdta_x_label}->set_text($label);
+            my $len = $self->{gdta_x_label}->get('width');
 
-	    $self->{x_labels}[$t] = $label;
-	    $maxlen = $len 
-		if $len > $self->{x_label_height};
-	}
+            $self->{x_labels}[$t] = $label;
+            $maxlen = $len 
+                if $len > $self->{x_label_height};
+        }
     }
     else
     {
-	$maxlen = $self->get_x_axis_label_length;
+        $maxlen = $self->get_x_axis_label_length;
     }
 
     $self->{x_label_height} = $self->{x_labels_vertical} ?
-	$maxlen : $self->{xafh};
+        $maxlen : $self->{xafh};
     $self->{x_label_width} = $self->{x_labels_vertical} ?
-	$self->{xafh} : $maxlen;
+        $self->{xafh} : $maxlen;
 }
 
 #
@@ -807,7 +814,7 @@ sub draw_left_label
     $label->set_align('top', 'left');
     my $tx = $self->{l_margin};
     my $ty = $self->{bottom} - $align * ($self->{bottom} - $self->{top}) + 
-	$align * $label->get('width');
+        $align * $label->get('width');
     $label->draw($tx, $ty, PI/2);
 }
 
@@ -817,7 +824,7 @@ sub draw_bottom_label
 
     $label->set_align('bottom', 'left');
     my $tx = $self->{left} + $align * ($self->{right} - $self->{left}) - 
-	$align * $label->get('width');
+        $align * $label->get('width');
     my $ty = $self->{height} - $self->{b_margin};
     $label->draw($tx, $ty, 0);
 }
@@ -828,7 +835,7 @@ sub draw_top_label
 
     $label->set_align('top', 'left');
     my $tx = $self->{left} + $align * ($self->{right} - $self->{left}) - 
-	$align * $label->get('width');
+        $align * $label->get('width');
     my $ty = $self->{t_margin};
     $ty += $self->{tfh} + $self->{text_space} if $self->{tfh};
     $label->draw($tx, $ty, 0);
@@ -841,7 +848,7 @@ sub draw_right_label
     $label->set_align('bottom', 'left');
     my $tx = $self->{width} - $self->{r_margin};
     my $ty = $self->{bottom} - $align * ($self->{bottom} - $self->{top}) + 
-	$align * $label->get('width');
+        $align * $label->get('width');
     $label->draw($tx, $ty, PI/2);
 }
 
@@ -850,20 +857,20 @@ sub draw_x_label
     my $self = shift;
     my ($tx, $ty, $a);
 
-    my @coords;	# coordinates of the label drawn
+    my @coords; # coordinates of the label drawn
 
     return unless $self->{x_label};
 
     $self->{gdta_x_label}->set_text($self->{x_label});
     if ($self->{rotate_chart})
     {
-	@coords = $self->draw_left_label($self->{gdta_x_label}, 
-	                       $self->{x_label_position});
+        @coords = $self->draw_left_label($self->{gdta_x_label}, 
+                               $self->{x_label_position});
     }
     else
     {
-	@coords = $self->draw_bottom_label($self->{gdta_x_label}, 
-	                       $self->{x_label_position});
+        @coords = $self->draw_bottom_label($self->{gdta_x_label}, 
+                               $self->{x_label_position});
     }
     $self->_set_text_feature_coords("x_label", @coords);
 }
@@ -877,33 +884,33 @@ sub draw_y_labels
     if (defined $self->{y1_label}) 
     {
         $self->{gdta_y_label}->set_text($self->{y1_label});
-	if ($self->{rotate_chart})
-	{
-	    @coords = $self->draw_bottom_label($self->{gdta_y_label}, 
-	                             $self->{y_label_position});
-	}
-	else
-	{
-	    @coords = $self->draw_left_label($self->{gdta_y_label}, 
-	                           $self->{y_label_position});
-	}
-	$self->_set_text_feature_coords("y1_label", @coords);
-	$self->_set_text_feature_coords("y_label", @coords);
+        if ($self->{rotate_chart})
+        {
+            @coords = $self->draw_bottom_label($self->{gdta_y_label}, 
+                                     $self->{y_label_position});
+        }
+        else
+        {
+            @coords = $self->draw_left_label($self->{gdta_y_label}, 
+                                   $self->{y_label_position});
+        }
+        $self->_set_text_feature_coords("y1_label", @coords);
+        $self->_set_text_feature_coords("y_label", @coords);
     }
     if ( $self->{two_axes} && defined $self->{y2_label} ) 
     {
         $self->{gdta_y_label}->set_text($self->{y2_label});
-	if ($self->{rotate_chart})
-	{
-	    @coords = $self->draw_top_label($self->{gdta_y_label}, 
-	                          $self->{y_label_position});
-	}
-	else
-	{
-	    @coords = $self->draw_right_label($self->{gdta_y_label}, 
-	                            $self->{y_label_position});
-	}
-	$self->_set_text_feature_coords("y2_label", @coords);
+        if ($self->{rotate_chart})
+        {
+            @coords = $self->draw_top_label($self->{gdta_y_label}, 
+                                  $self->{y_label_position});
+        }
+        else
+        {
+            @coords = $self->draw_right_label($self->{gdta_y_label}, 
+                                    $self->{y_label_position});
+        }
+        $self->_set_text_feature_coords("y2_label", @coords);
     }
 }
 
@@ -917,7 +924,7 @@ sub draw_text
         $self->{gdta_title}->set_align('top', 'center');
         $self->{gdta_title}->set_text($self->{title});
         my @coords = $self->{gdta_title}->draw($xc, $self->{t_margin});
-	$self->_set_text_feature_coords("title", @coords);
+        $self->_set_text_feature_coords("title", @coords);
     }
 
     $self->draw_x_label();
@@ -1001,16 +1008,16 @@ sub draw_y_ticks_h
                 if $t % ($self->{y_label_skip}) || ! $self->{y_plot_values};
 
             $self->{gdta_y_axis}->set_text($label);
-	    if ($axis == 1)
-	    {
-		$self->{gdta_y_axis}->set_align('top', 'center');
-		$y += $self->{axis_space};
-	    }
-	    else
-	    {
-		$self->{gdta_y_axis}->set_align('bottom', 'center');
-		$y -= $self->{axis_space};
-	    }
+            if ($axis == 1)
+            {
+                $self->{gdta_y_axis}->set_align('top', 'center');
+                $y += $self->{axis_space};
+            }
+            else
+            {
+                $self->{gdta_y_axis}->set_align('bottom', 'center');
+                $y -= $self->{axis_space};
+            }
             $self->{gdta_y_axis}->draw($x, $y);
         }
     }
@@ -1054,16 +1061,16 @@ sub draw_y_ticks_v
                 if $t % ($self->{y_label_skip}) || ! $self->{y_plot_values};
 
             $self->{gdta_y_axis}->set_text($label);
-	    if ($axis == 1)
-	    {
-		$self->{gdta_y_axis}->set_align('center', 'right');
-		$x -= $self->{axis_space};
-	    }
-	    else
-	    {
-		$self->{gdta_y_axis}->set_align('center', 'left');
-		$x += $self->{axis_space};
-	    }
+            if ($axis == 1)
+            {
+                $self->{gdta_y_axis}->set_align('center', 'right');
+                $x -= $self->{axis_space};
+            }
+            else
+            {
+                $self->{gdta_y_axis}->set_align('center', 'left');
+                $x += $self->{axis_space};
+            }
             $self->{gdta_y_axis}->draw($x, $y);
         }
     }
@@ -1118,17 +1125,17 @@ sub draw_x_ticks_h
 
         $self->{gdta_x_axis}->set_text($self->{_data}->get_x($i));
 
-	my $angle = 0;
+        my $angle = 0;
         if ($self->{x_labels_vertical})
         {
             $self->{gdta_x_axis}->set_align('bottom', 'center');
-	    $angle = PI/2;
+            $angle = PI/2;
         }
         else
         {
             $self->{gdta_x_axis}->set_align('center', 'right');
         }
-	$self->{gdta_x_axis}->draw($x - $self->{axis_space}, $y, $angle);
+        $self->{gdta_x_axis}->draw($x - $self->{axis_space}, $y, $angle);
     }
 
     return $self;
@@ -1171,17 +1178,17 @@ sub draw_x_ticks_v
 
         $self->{gdta_x_axis}->set_text($self->{_data}->get_x($i));
 
-	my $angle = 0;
+        my $angle = 0;
         if ($self->{x_labels_vertical})
         {
             $self->{gdta_x_axis}->set_align('center', 'right');
-	    $angle = PI/2;
+            $angle = PI/2;
         }
         else
         {
             $self->{gdta_x_axis}->set_align('top', 'center');
         }
-	$self->{gdta_x_axis}->draw($x, $y + $self->{axis_space}, $angle);
+        $self->{gdta_x_axis}->draw($x, $y + $self->{axis_space}, $angle);
     }
 
     return $self;
@@ -1328,8 +1335,8 @@ sub draw_data
     if ($self->{bar_width})
     {
         my $chart_width = $self->{rotate_chart} ? 
-	    $self->{right} - $self->{left} :
-	    $self->{bottom} - $self->{top};
+            $self->{right} - $self->{left} :
+            $self->{bottom} - $self->{top};
         my $n_bars = $self->{_data}->num_points;
         my $n_sets = $self->{_data}->num_sets;
         my $bar_space = $chart_width/($n_bars + 1) /
@@ -1424,21 +1431,21 @@ sub set_max_min
     # First, calculate some decent values
     if ( $self->{two_axes} ) 
     {
-	my $min_range_1 = defined($self->{min_range_1})
-		? $self->{min_range_1}
-		: $self->{min_range};
-	my $min_range_2 = defined($self->{min_range_2})
-		? $self->{min_range_2}
-		: $self->{min_range};
-	(
-		$self->{y_min}[1], $self->{y_max}[1],
-		$self->{y_min}[2], $self->{y_max}[2],
-		$self->{y_tick_number}
-	) = _best_dual_ends(
-		$self->{_data}->get_min_max_y(1), $min_range_1,
-		$self->{_data}->get_min_max_y(2), $min_range_2,
-		$self->{y_tick_number}
-	);
+        my $min_range_1 = defined($self->{min_range_1})
+                ? $self->{min_range_1}
+                : $self->{min_range};
+        my $min_range_2 = defined($self->{min_range_2})
+                ? $self->{min_range_2}
+                : $self->{min_range};
+        (
+                $self->{y_min}[1], $self->{y_max}[1],
+                $self->{y_min}[2], $self->{y_max}[2],
+                $self->{y_tick_number}
+        ) = _best_dual_ends(
+                $self->{_data}->get_min_max_y(1), $min_range_1,
+                $self->{_data}->get_min_max_y(2), $min_range_2,
+                $self->{y_tick_number}
+        );
     } 
     else 
     {
@@ -1454,7 +1461,7 @@ sub set_max_min
             ($y_min, $y_max) = $self->{_data}->get_min_max_y_all;
         }
         ($self->{y_min}[1], $self->{y_max}[1], $self->{y_tick_number}) =
-	    _best_ends($y_min, $y_max, @$self{'y_tick_number','y_min_range'});
+            _best_ends($y_min, $y_max, @$self{'y_tick_number','y_min_range'});
     }
 
     if (defined($self->{x_tick_number}))
@@ -1469,8 +1476,8 @@ sub set_max_min
             ($self->{true_x_min}, $self->{true_x_max}) = 
                 $self->{_data}->get_min_max_x;
             ($self->{x_min}, $self->{x_max}, $self->{x_tick_number}) =
-		_best_ends($self->{true_x_min}, $self->{true_x_max},
-		        @$self{'y_tick_number','y_min_range'});
+                _best_ends($self->{true_x_min}, $self->{true_x_max},
+                        @$self{'y_tick_number','y_min_range'});
  
         }
     }
@@ -1565,10 +1572,10 @@ sub set_max_min
 #           use 5 intervals
 #       ($nmin,$nmax,$nint) = _best_ends(247, 508, [4..7]);   
 #           best of 4,5,6,7 intervals
-#	($nmin,$nmax,$nint) = _best_ends(247, 508, 'auto');
-#	    best of 3,4,5,6 intervals
-#	($nmin,$nmax,$nint) = _best_ends(247, 508, [2..5]);
-#	    best of 2,3,4,5 intervals
+#       ($nmin,$nmax,$nint) = _best_ends(247, 508, 'auto');
+#           best of 3,4,5,6 intervals
+#       ($nmin,$nmax,$nint) = _best_ends(247, 508, [2..5]);
+#           best of 2,3,4,5 intervals
 sub _best_ends 
 {
     my ($min, $max, $n_ref, $min_range) = @_;
@@ -1585,17 +1592,17 @@ sub _best_ends
 
     # Check that min and max are not the same, and not 0
     ($min, $max) = ($min) ? ($min * 0.5, $min * 1.5) : (-1,1)
-	if ($max == $min);
+        if ($max == $min);
     
     my @n = ref($n_ref) ? @$n_ref : $n_ref;
 
     if (@n <= 0)
     {
-	@n = (3..6);
+        @n = (3..6);
     }
     else
     {
-	@n = map { ref($_) ? @$_ : /(\d+)/i ? $1 : (3..6) } @n;
+        @n = map { ref($_) ? @$_ : /(\d+)/i ? $1 : (3..6) } @n;
     }
 
     my $best_fit = 1e30;
@@ -1616,14 +1623,14 @@ sub _best_ends
         {
             next if ($n != 1) && ($step < $range/$n); # $step too small
 
-	    my ($nice_min, $nice_max, $fit)
-		    = _fit_interval($min, $max, $n, $step);
+            my ($nice_min, $nice_max, $fit)
+                    = _fit_interval($min, $max, $n, $step);
 
             next if $best_fit <= $fit;
 
             $best_min = $nice_min;
             $best_max = $nice_max;
-	    $best_fit = $fit;
+            $best_fit = $fit;
             $best_num = $n;
         }
     }
@@ -1658,54 +1665,56 @@ sub _best_dual_ends
     $scale_1 = defined($scale_2) ? $scale_2 : 1 unless defined($scale_1);
     $scale_2 = $scale_1 unless defined($scale_2);
 
+    # XXX Should we check that $scale_2 isn't 0 here? It should never
+    # be, but just to make sure?
     my $ratio = $scale_1 / $scale_2;
     my $fact_1 = my $fact_2 = 1;
 
     while ($ratio < sqrt(0.1))
     {
-	$ratio *= 10;
-	$fact_2 *= 10;
+        $ratio *= 10;
+        $fact_2 *= 10;
     }
     while ($ratio > sqrt(10))
     {
-	$ratio /= 10;
-	$fact_1 *= 10;
+        $ratio /= 10;
+        $fact_1 *= 10;
     }
 
     my ($best_min_1, $best_max_1, $best_min_2, $best_max_2, $best_n, $best_fit)
-	    = ($min_1, $max_1, $min_2, $max_2, 1, 1e10);
+            = ($min_1, $max_1, $min_2, $max_2, 1, 1e10);
 
     # Now try all of the ratios of "simple numbers" in the right size-range
     foreach my $frac
     (
-	[1,1], [1,2], [1,3], [2,1], [2,3], [2,5],
-	[3,1], [3,2], [3,4], [3,5], [3,8], [3,10],
-	[4,3], [4,5], [5,2], [5,3], [5,4], [5,6],
-	[5,8], [6,5], [8,3], [8,5], [10,3]
+        [1,1], [1,2], [1,3], [2,1], [2,3], [2,5],
+        [3,1], [3,2], [3,4], [3,5], [3,8], [3,10],
+        [4,3], [4,5], [5,2], [5,3], [5,4], [5,6],
+        [5,8], [6,5], [8,3], [8,5], [10,3]
     )
     {
-	my $bfact_1 = $frac->[0] * $fact_1;
-	my $bfact_2 = $frac->[1] * $fact_2;
+        my $bfact_1 = $frac->[0] * $fact_1;
+        my $bfact_2 = $frac->[1] * $fact_2;
 
-	my $min = _min( $min_1/$bfact_1, $min_2/$bfact_2 );
-	my $max = _max( $max_1/$bfact_1, $max_2/$bfact_2 );
+        my $min = _min( $min_1/$bfact_1, $min_2/$bfact_2 );
+        my $max = _max( $max_1/$bfact_1, $max_2/$bfact_2 );
 
-	my ($bmin, $bmax, $n) = _best_ends($min, $max, @rem_args);
-	my ($bmin_1, $bmax_1) = ($bfact_1*$bmin, $bfact_1*$bmax);
-	my ($bmin_2, $bmax_2) = ($bfact_2*$bmin, $bfact_2*$bmax);
+        my ($bmin, $bmax, $n) = _best_ends($min, $max, @rem_args);
+        my ($bmin_1, $bmax_1) = ($bfact_1*$bmin, $bfact_1*$bmax);
+        my ($bmin_2, $bmax_2) = ($bfact_2*$bmin, $bfact_2*$bmax);
 
-	my $fit = _measure_interval_fit($bmin_1, $min_1, $max_1, $bmax_1)
-		+ _measure_interval_fit($bmin_2, $min_2, $max_2, $bmax_2);
+        my $fit = _measure_interval_fit($bmin_1, $min_1, $max_1, $bmax_1)
+                + _measure_interval_fit($bmin_2, $min_2, $max_2, $bmax_2);
 
-	next if $best_fit < $fit;
+        next if $best_fit < $fit;
 
-	(
-	    $best_min_1, $best_max_1, $best_min_2, $best_max_2, 
-	    $best_n,     $best_fit
-	) = (
-	    $bmin_1,     $bmax_1,     $bmin_2,     $bmax_2,
-	    $n,          $fit
-	);
+        (
+            $best_min_1, $best_max_1, $best_min_2, $best_max_2, 
+            $best_n,     $best_fit
+        ) = (
+            $bmin_1,     $bmax_1,     $bmin_2,     $bmax_2,
+            $n,          $fit
+        );
     }
 
     return ($best_min_1, $best_max_1, $best_min_2, $best_max_2, $best_n);
@@ -1722,8 +1731,8 @@ sub _fit_interval
     my $nice_min = $step_size * int($min/$step_size);
     $nice_min  -= $step_size if ($nice_min > $min);
     my $nice_max   = ($step_count == 1)
-	    ? $step_size * int($max/$step_size + 1)
-	    : $nice_min + $step_count * $step_size;
+            ? $step_size * int($max/$step_size + 1)
+            : $nice_min + $step_count * $step_size;
 
     my $fit = _measure_interval_fit($nice_min, $min, $max, $nice_max);
 
@@ -1740,12 +1749,12 @@ sub _fit_vals_range
 
     if (defined($min_range) and $min_range > $max - $min)
     {
-	my $nice_min = $min_range * int($min/$min_range);
-	$nice_min = $nice_min - $min_range if $min < $nice_min;
-	my $nice_max = $max < $nice_min + $min_range
-		? $nice_min + $min_range
-		: $max;
-	($min, $max) = ($nice_min, $nice_max);
+        my $nice_min = $min_range * int($min/$min_range);
+        $nice_min = $nice_min - $min_range if $min < $nice_min;
+        my $nice_max = $max < $nice_min + $min_range
+                ? $nice_min + $min_range
+                : $max;
+        ($min, $max) = ($nice_min, $nice_max);
     }
     return ($min, $max);
 }
@@ -1763,8 +1772,8 @@ sub _measure_interval_fit
     my $brange = $bmax - $bmin;
 
     return $brange < 10 * $range
-	    ? ($brange / $range)
-	    : 10;
+            ? ($brange / $range)
+            : 10;
  }
 
 sub _get_bottom
@@ -1775,10 +1784,10 @@ sub _get_bottom
 
     if ($self->{cumulate} && $ds > 1)
     {
-	my $left;
+        my $left;
         my $pvalue = $self->{_data}->get_y_cumulative($ds - 1, $np);
         ($left, $bottom) = $self->val_to_pixel($np + 1, $pvalue, $ds);
-	$bottom = $left if $self->{rotate_chart};
+        $bottom = $left if $self->{rotate_chart};
     }
 
     return $bottom;
@@ -1801,8 +1810,8 @@ sub val_to_pixel    # ($x, $y, $i) in real coords ($Dataspace),
         $self->{y_max}[2] : $self->{y_max}[1];
 
     my $y_step = $self->{rotate_chart} ?
-	abs(($self->{right} - $self->{left})/($y_max - $y_min)) :
-	abs(($self->{bottom} - $self->{top})/($y_max - $y_min));
+        abs(($self->{right} - $self->{left})/($y_max - $y_min)) :
+        abs(($self->{bottom} - $self->{top})/($y_max - $y_min));
 
     my $ret_x;
     my $origin = $self->{rotate_chart} ? $self->{top} : $self->{left};
@@ -1814,15 +1823,15 @@ sub val_to_pixel    # ($x, $y, $i) in real coords ($Dataspace),
     else
     {
         $ret_x = ($self->{x_tick_number} ? $self->{x_offset} : $origin) 
-	    + $x * $self->{x_step};
+            + $x * $self->{x_step};
     }
     my $ret_y = $self->{rotate_chart} ? 
-	$self->{left} + ($y - $y_min) * $y_step :
-	$self->{bottom} - ($y - $y_min) * $y_step;
+        $self->{left} + ($y - $y_min) * $y_step :
+        $self->{bottom} - ($y - $y_min) * $y_step;
 
     return $self->{rotate_chart} ?
-	(_round($ret_y), _round($ret_x)) :
-	(_round($ret_x), _round($ret_y));
+        (_round($ret_y), _round($ret_x)) :
+        (_round($ret_x), _round($ret_y));
 }
 
 #

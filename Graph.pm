@@ -19,7 +19,7 @@
 #       GD::Graph::pie
 #       GD::Graph::mixed
 #
-# $Id: Graph.pm,v 1.49 2003/03/06 23:10:25 mgjv Exp $
+# $Id: Graph.pm,v 1.50 2003/06/11 00:43:49 mgjv Exp $
 #
 #==========================================================================
 
@@ -31,8 +31,8 @@
 
 package GD::Graph;
 
-($GD::Graph::prog_version) = '$Revision: 1.49 $' =~ /\s([\d.]+)/;
-$GD::Graph::VERSION = '1.40';
+($GD::Graph::prog_version) = '$Revision: 1.50 $' =~ /\s([\d.]+)/;
+$GD::Graph::VERSION = '1.41';
 
 use strict;
 use GD;
@@ -1019,6 +1019,15 @@ y_label_skip>.  Default: 1 for both.
 
 Draw the axes as a box, if true.
 Default: 1.
+
+=item no_axes
+
+Draw no axes at all. If this is set to undef, all axes are drawn. If
+it is set to 0, the zero axis will be drawn, I<for bar charts only>.
+If this is set to a true value, no axes will be drawns at all. Value
+labels on the axes and ticks will also not be drawn, but axis lables
+are drawn.
+Default: undef.
 
 =item two_axes
 

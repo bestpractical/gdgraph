@@ -27,6 +27,7 @@ for my $my_graph (GD::Graph::bars->new, GD::Graph::hbars->new)
 	borderclrs      => $my_graph->{dclrs},
 	#cycle_clrs      => 2,
 	bar_spacing     => 4,
+	#shadow_depth	=> 4,
 
 	transparent     => 0,
     );

@@ -5,13 +5,13 @@
 #   Name:
 #       GD::Graph::mixed.pm
 #
-# $Id: mixed.pm,v 1.10 2002/06/09 03:15:16 mgjv Exp $
+# $Id: mixed.pm,v 1.11 2002/06/12 10:14:20 mgjv Exp $
 #
 #==========================================================================
 
 package GD::Graph::mixed;
  
-$GD::Graph::mixed::VERSION = '$Revision: 1.10 $' =~ /\s([\d.]+)/;
+$GD::Graph::mixed::VERSION = '$Revision: 1.11 $' =~ /\s([\d.]+)/;
 
 use strict;
  
@@ -30,6 +30,7 @@ use Carp;
 
 @GD::Graph::mixed::ISA = qw( 
     GD::Graph::axestype 
+    GD::Graph::bars
     GD::Graph::lines 
     GD::Graph::points 
 );
@@ -70,6 +71,7 @@ sub draw_data_set
     if ($@)
     {
         carp "Set $ds, unknown type $type, assuming $self->{default_type}";
+	#carp "Error message: $@";
 
         $rc = eval '$self->GD::Graph::'.
             $self->{default_type}.'::draw_data_set(@_)';

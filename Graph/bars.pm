@@ -5,13 +5,13 @@
 #   Name:
 #       GD::Graph::bars.pm
 #
-# $Id: bars.pm,v 1.22 2002/06/09 03:15:16 mgjv Exp $
+# $Id: bars.pm,v 1.23 2002/06/12 10:14:20 mgjv Exp $
 #
 #==========================================================================
  
 package GD::Graph::bars;
 
-$GD::Graph::bars::VERSION = '$Revision: 1.22 $' =~ /\s([\d.]+)/;
+$GD::Graph::bars::VERSION = '$Revision: 1.23 $' =~ /\s([\d.]+)/;
 
 use strict;
 
@@ -55,6 +55,75 @@ sub draw_data
     return $self;
 }
 
+sub _top_values
+{
+    my $self = shift;
+    my @topvalues;
+
+    if ($self->{cumulate})
+    {
+	my $data = $self->{_data};
+	for my $i (0 .. $data->num_points - 1)
+	{
+	    push @topvalues, $data->get_y_cumulative($data->num_sets, $i);
+	}
+    }
+
+    return \@topvalues;
+}
+
+#
+# Draw the shadow
+#
+sub _draw_shadow
+{
+    my $self = shift;
+    my ($ds, $i, $value, $topvalues, $l, $t, $r, $b) = @_;
+    my $bsd = $self->{shadow_depth} or return;
+    my $bsci = $self->set_clr(_rgb($self->{shadowclr}));
+
+    if ($self->{cumulate})
+    {
+	return if $ds > 1;
+	$value = $topvalues->[$i];
+	if ($self->{rotate_chart})
+	{
+	    $r = ($self->val_to_pixel($i + 1, $value, $ds))[0];
+	}
+	else
+	{
+	    $t = ($self->val_to_pixel($i + 1, $value, $ds))[1];
+	}
+    }
+
+    # XXX Clean this up
+    if ($value >= 0)
+    {
+	if ($self->{rotate_chart})
+	{
+	    $self->{graph}->filledRectangle(
+		$l, $t + $bsd, $r - $bsd, $b + $bsd, $bsci);
+	}
+	else
+	{
+            $self->{graph}->filledRectangle(
+                $l + $bsd, $t + $bsd, $r + $bsd, $b, $bsci);
+	}
+    }
+    else
+    {
+	if ($self->{rotate_chart})
+	{
+	    $self->{graph}->filledRectangle(
+		$l + $bsd, $t, $r + $bsd, $b, $bsci);
+	}
+	else
+	{
+            $self->{graph}->filledRectangle(
+                $l + $bsd, $b, $r + $bsd, $t + $bsd, $bsci);
+	}
+    }
+}
 
 sub draw_data_set_h
 {
@@ -68,15 +137,13 @@ sub draw_data_set_h
     # contrib "Bremford, Mike" <mike.bremford@gs.com>
     my $brci = $self->set_clr($self->pick_border_clr($ds));
 
-    # CONTRIB Jeremy Wadsack, shadows
-    my $bsd = $self->{shadow_depth} and
-        my $bsci = $self->set_clr(_rgb($self->{shadowclr}));
-
     my @values = $self->{_data}->y_values($ds) or
         return $self->_set_error("Impossible illegal data set: $ds",
             $self->{_data}->error);
 
-    for (my $i = 0; $i < @values; $i++) 
+    my $topvalues = $self->_top_values;
+
+    for my $i (0 .. $#values) 
     {
         my $value = $values[$i];
         next unless defined $value;
@@ -118,12 +185,10 @@ sub draw_data_set_h
         }
 
         # draw the bar
+	$self->_draw_shadow($ds, $i, $value, $topvalues, $l, $t, $r, $b);
         if ($value >= 0)
         {
             # positive value
-            $self->{graph}->filledRectangle(
-                $l, $t + $bsd, $r - $bsd, $b + $bsd, $bsci
-            ) if $bsd;
             $self->{graph}->filledRectangle($l, $t, $r, $b, $dsci)
                 if defined $dsci;
             $self->{graph}->rectangle($l, $t, $r, $b, $brci) 
@@ -134,9 +199,6 @@ sub draw_data_set_h
         else
         {
             # negative value
-            $self->{graph}->filledRectangle(
-                $l + $bsd, $t, $r + $bsd, $b, $bsci
-            ) if $bsd;
             $self->{graph}->filledRectangle($r, $t, $l, $b, $dsci)
                 if defined $dsci;
             $self->{graph}->rectangle($l, $t, $r, $b, $brci) 
@@ -161,13 +223,11 @@ sub draw_data_set_v
     # contrib "Bremford, Mike" <mike.bremford@gs.com>
     my $brci = $self->set_clr($self->pick_border_clr($ds));
 
-    # CONTRIB Jeremy Wadsack, shadows
-    my $bsd = $self->{shadow_depth} and
-        my $bsci = $self->set_clr(_rgb($self->{shadowclr}));
-
     my @values = $self->{_data}->y_values($ds) or
         return $self->_set_error("Impossible illegal data set: $ds",
             $self->{_data}->error);
+
+    my $topvalues = $self->_top_values;
 
     for (my $i = 0; $i < @values; $i++) 
     {
@@ -211,12 +271,10 @@ sub draw_data_set_v
         }
 
         # draw the bar
+	$self->_draw_shadow($ds, $i, $value, $topvalues, $l, $t, $r, $bottom);
         if ($value >= 0)
         {
             # positive value
-            $self->{graph}->filledRectangle(
-                $l + $bsd, $t + $bsd, $r + $bsd, $bottom, $bsci
-            ) if $bsd;
             $self->{graph}->filledRectangle($l, $t, $r, $bottom, $dsci)
                 if defined $dsci;
             $self->{graph}->rectangle($l, $t, $r, $bottom, $brci) 
@@ -227,9 +285,6 @@ sub draw_data_set_v
         else
         {
             # negative value
-            $self->{graph}->filledRectangle(
-                $l + $bsd, $bottom, $r + $bsd, $t + $bsd, $bsci
-            ) if $bsd;
             $self->{graph}->filledRectangle($l, $bottom, $r, $t, $dsci)
                 if defined $dsci;
             $self->{graph}->rectangle($l, $bottom, $r, $t, $brci) 

@@ -25,6 +25,7 @@ for my $my_graph (GD::Graph::bars->new, GD::Graph::hbars->new)
 	y_tick_number   => 8,
 	y_label_skip    => 2,
 	bar_spacing     => 3,
+	shadow_depth    => 4,
 
 	accent_treshold => 200,
 

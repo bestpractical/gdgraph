@@ -1,76 +1,95 @@
+use Test;
+use strict;
+
+BEGIN { plan tests => 26 }
+
 use GD::Graph::Data;
+ok(1);
 use Data::Dumper;
+ok(1);
 
 my @data = (
-	[qw( undef undef )],
-	[qw( 11 12 )],
-	[qw( 21 )],
-	[qw( 31 32 33 34 )],
+	[qw( Jan Feb Mar )],
+	[11, 12],
+	[21],
+	[31, 32, 33, 34],
 );
 
-my $data = GD::Graph::Data->new() or die GD::Graph::Data->error;
+# Test setting up of object
+my $data = GD::Graph::Data->new();
+ok($data);
+ok($data->isa("GD::Graph::Data"));
 
 $GD::Graph::Error::Debug = 4;
 
-#$data->get_min_max_x or warn $data->error;
-$data->get_min_max_x;
+# Test that empty object is empty
+my @l = $data->get_min_max_x;
+ok(@l, 0);
 
-#$data->copy_from(\@data) or warn $data->error;
-#$data->copy_from(\@data);
+my $err_ar_ref = $data->clear_errors;
+ok(@{$err_ar_ref}, 1);
 
-#$data->add_point(qw(X3 13 23 33 43));
-#$data->set_y(-2, -3, "Grub") || warn $data->error;
-$data->set_y(-2, -3, "Grub");
-#$data->set_y(4, 2, 21);
+# Fill with the data above
+my $rc = $data->copy_from(\@data);
+ok($rc);
 
-#$data->make_strict;
-#$data->cumulate;
+#@l = $data->get_min_max_x;
+#ok(@l, 2);
+#ok("@l", "Jan Jan"); # Nonsensical test for non-numeric data
 
-#my @foo = $data->y_values(3) ;
-#print scalar @foo, "@foo\n";
+@l = $data->get_min_max_y(1);
+ok(@l, 2);
+ok("@l", "11 12");
 
-$data->_set_error([2, "One error"], [0, "Two error"], [1, "Three error"]);
-$data->_set_error([19, "Here we go"]);
-die $data->error if $data->has_error;
+my $nd = $data->num_sets;
+ok($nd, 3);
+
+@l = $data->get_min_max_y($nd);
+ok(@l, 2);
+ok("@l", "31 34");
+
+my $np = $data->num_points;
+my $y = $data->get_y($nd, $np-1);
+ok($np, 3);
+ok($y, 33);
+
+$data->add_point(qw(X3 13 23 35));
+$nd = $data->num_sets;
+$np = $data->num_points;
+$y = $data->get_y($nd, $np-1);
+ok($nd, 3);
+ok($np, 4);
+ok($y, 35);
+
+@l = $data->y_values(3) ;
+ok(@l, 4);
+ok("@l", "31 32 33 35");
+
+$data->cumulate(preserve_undef => 0) ;
+@l = $data->y_values(3);
+ok(@l, 4);
+ok("@l", "63 44 33 71");
+
+$data->reverse;
+@l = $data->y_values(1) ;
+ok(@l, 4);
+ok("@l", "63 44 33 71");
+
+@l = $data->get_min_max_y_all;
+ok(@l, 2);
+ok("@l", "0 71");
+
+my $data2 = $data->copy;
+ok($data2);
+ok($data2->isa("GD::Graph::Data"));
+ok(Dumper($data2), Dumper($data));
+
+__END__
+# TODO
+# tests for data file reading
 
 $data->read(file => '/tmp/foo.dat', delimiter => qr/\s+/) or 
-	die $data->error;
-
+        die $data->error;
 die $data->error if $data->error;
 
-#print $data->num_sets, "\n";
-#my @mm = $data->get_min_max_y_all() or die $data->error;
-#print "@mm\n";
-
-$data->add_point('Foo', 12, 13, 9, 4);
-#$data->reverse;
-
-#my @mm = $data->get_min_max_y(1) or die $data->error;
-#print "@mm\n";
-
-for (my $foo = 1; $foo <= $data->num_sets; $foo++)
-{
-	print "$foo: ", $data->get_y($foo, 3), " -> ",
-		$data->get_y_cumulative($foo, 3), "\n";
-}
-
-print $data->error;
-
-__END__
-$data->reverse;
-$data->cumulate(apreserve_undef => 1);
-
-my $dd = Data::Dumper->new([$data], ['data']);
-$dd->Deepcopy(1);
-
-print $dd->Dumpxs;
-__END__
-
-#$data->cumulate;
-$data = $data->copy();
-$data->wanted(3, 1, 2);
-die $data->error if $data->error;
-
-$dd = Data::Dumper->new([$data], ['data']);
-$dd->Deepcopy(1);
-print $dd->Dumpxs;
+# Should compare $data2 to $data with Data::Dumper.

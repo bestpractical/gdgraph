@@ -18,7 +18,7 @@
 #		GD::Graph::pie
 #		GD::Graph::mixed
 #
-# $Id: Graph.pm,v 1.36 2000/10/23 12:21:05 mgjv Exp $
+# $Id: Graph.pm,v 1.37 2001/01/09 11:27:37 mgjv Exp $
 #
 #==========================================================================
 
@@ -30,7 +30,7 @@
 
 package GD::Graph;
 
-$GD::Graph::prog_version = '$Revision: 1.36 $' =~ /\s([\d.]+)/;
+$GD::Graph::prog_version = '$Revision: 1.37 $' =~ /\s([\d.]+)/;
 $GD::Graph::VERSION = '1.34';
 
 use strict;
@@ -871,6 +871,11 @@ I<area> charts.
 
 =over 4
 
+=item x_label, y_label
+
+The labels to be printed next to, or just below, the axes. Note that if
+you use the two_axes option that you need to use y1_label and y2_label.
+
 =item long_ticks, tick_length
 
 If I<long_ticks> is a true value, ticks will be drawn the same length
@@ -997,7 +1002,14 @@ Default: 1.
 Use two separate axes for the first and second data set. The first
 data set will be set against the left axis, the second against the
 right axis. If this is set to a true value, trying to use anything
-else than 2 datasets will generate an error.  Default: 0.
+else than 2 datasets will generate an error.  
+
+Note that if you use this option, that you need to use y1_label and
+y2_label, instead of just y_label, if you want the two axes to have
+different labels. The same goes for some other options starting with the
+letter 'y' and an underscore.
+
+Default: 0.
 
 =item zero_axis
 

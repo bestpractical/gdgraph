@@ -1,6 +1,11 @@
 use GD::Graph::bars;
 require 'save.pl';
 
+# CONTRIB Edwin Hildebrand.
+#
+# See changes in bars.pm: Check for bar height rounding errors when 
+# stacking bars.
+
 print STDERR "Processing sample 1-8\n";
 
 @dat = qw(

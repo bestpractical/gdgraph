@@ -24,6 +24,7 @@ samples/sample14.pl
 samples/sample15.pl
 samples/sample16.pl
 samples/sample17.pl
+samples/sample18.pl
 samples/sample21.pl
 samples/sample22.pl
 samples/sample31.pl
@@ -40,6 +41,7 @@ samples/sample71.pl
 samples/sample91.pl
 samples/sample92.pl
 samples/sample93.pl
+samples/sample94.pl
 samples/sample42.dat
 samples/sample54.dat
 samples/save.pl

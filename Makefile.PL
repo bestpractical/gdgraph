@@ -1,5 +1,5 @@
 # This -*- perl -*- script makes the Makefile
-# $Id: Makefile.PL,v 1.6 2000/01/09 12:43:58 mgjv Exp $
+# $Id: Makefile.PL,v 1.7 2000/04/15 04:42:19 mgjv Exp $
  
 #--- Distribution section ---
  
@@ -37,7 +37,7 @@ sub MY::postamble
 {
 qq(
 samples: all
-	\@(cd samples && make PERL=$Config{'perl'})
+	\@(cd samples && make PERL=$Config{'perlpath'})
 	\@echo Samples have been created in samples directory
 
 tags:

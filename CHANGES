@@ -4,6 +4,7 @@
 - Allow GD::Graph::Data::read() to read from file handle, instead of
   file
 - Added tests for data file reading, and test data
+- Release version 1.40
 
 24 Feb 2003
 

@@ -5,7 +5,7 @@
 #	Name:
 #		GD::Graph::Data.pm
 #
-# $Id: Data.pm,v 1.4 2000/02/11 13:38:42 mgjv Exp $
+# $Id: Data.pm,v 1.5 2000/02/13 03:55:43 mgjv Exp $
 #
 #==========================================================================
 
@@ -385,7 +385,7 @@ sub reset
 
 Make all data set lists the same length as the X list by truncating data
 sets that are too long, and filling data sets that are too short with
-undef values.
+undef values. always returns a true value.
 
 =cut
 
@@ -555,13 +555,13 @@ I<file>, mandatory. The file name of the file to read from.
 
   $data->read(file => '/data/foo.dat') or die $data->error;
 
-I<no_comment>. Give this a true value if you don't want lines with an
-initial # to be skipped.
+I<no_comment>, optional. Give this a true value if you don't want lines
+with an initial # to be skipped.
 
   $data->read(file => '/data/foo.dat', no_comment => 1);
 
-I<delimiter>. A regular expression that will become the delimiter
-instead of a single tab.
+I<delimiter>, optional. A regular expression that will become the
+delimiter instead of a single tab.
 
   $data->read(file => '/data/foo.dat', delimiter => '\s+');
   $data->read(file => '/data/foo.dat', delimiter => qr/\s+/);
@@ -651,6 +651,14 @@ sub error
 	my $self = shift;
 	return unless exists $Errors{$self};
 	wantarray ? @{$Errors{$self}} : $Errors{$self}->[-1];
+}
+
+sub _dump
+{
+	my $self = shift;
+	require Data::Dumper;
+	my $dd = Data::Dumper->new([$self], ['me']);
+	$dd->Dumpxs;
 }
 
 =head1 NOTES

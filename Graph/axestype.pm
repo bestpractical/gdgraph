@@ -5,7 +5,7 @@
 #	Name:
 #		GD::Graph::axestype.pm
 #
-# $Id: axestype.pm,v 1.11 2000/01/27 05:11:05 mgjv Exp $
+# $Id: axestype.pm,v 1.12 2000/02/13 03:55:43 mgjv Exp $
 #
 #==========================================================================
 
@@ -174,9 +174,6 @@ sub initialise
 	$self->set_legend_font(GD::gdTinyFont);
 }
 
-
-#use Data::Dumper;
-
 # PUBLIC
 sub plot # (\@data)
 {
@@ -184,7 +181,7 @@ sub plot # (\@data)
 	my $data = shift;
 
 	$self->init_graph();
-	$self->check_data($data);
+	$self->check_data($data) or return;
 	$self->setup_text();
 	$self->setup_legend();
 	$self->setup_coords($data);
@@ -194,8 +191,6 @@ sub plot # (\@data)
 	$self->draw_data($data);
 	$self->draw_legend();
 
-#	print Dumper($self);
-
 	return $self->{graph}
 }
 
@@ -203,8 +198,6 @@ sub set
 {
 	my $s = shift;
 	my %args = @_;
-
-	$s->{_set_error} = 0;
 
 	for (keys %args) 
 	{ 
@@ -294,7 +287,7 @@ sub setup_coords
 	my $data = shift;
 
 	# Do some sanity checks
-	$s->{two_axes} = 0 if ( $s->{numsets} != 2 || $s->{two_axes} < 0 );
+	$s->{two_axes} = 0 if ( $s->{_data}->num_sets != 2 || $s->{two_axes} < 0 );
 	$s->{two_axes} = 1 if ( $s->{two_axes} > 1 );
 
 	delete $s->{y_label2} unless ($s->{two_axes});
@@ -354,7 +347,8 @@ sub setup_coords
 
 	# CONTRIB Scott Prahl
 	# make sure that we can generate valid x tick marks
-	undef($s->{x_tick_number}) if $s->{numpoints} < 2;
+	# XXX 2 or 1?
+	undef($s->{x_tick_number}) if $s->{_data}->num_points < 3;
 	undef($s->{x_tick_number}) if (
 			!defined $s->{x_max} || 
 			!defined $s->{x_min} ||
@@ -369,11 +363,12 @@ sub setup_coords
 		$s->{x_offset} = 
 			($s->{true_x_min} - $s->{x_min}) * $delta + $s->{left};
 		$s->{x_step} = 
-			($s->{true_x_max} - $s->{true_x_min}) * $delta/$s->{numpoints};
+			($s->{true_x_max} - $s->{true_x_min}) * 
+			$delta/($s->{_data}->num_points - 1);
 	}
 	else
 	{
-		$s->{x_step} = ($s->{right} - $s->{left})/($s->{numpoints} + 2);
+		$s->{x_step} = ($s->{right} - $s->{left})/($s->{_data}->num_points + 1);
 		$s->{x_offset} = $s->{left};
 	}
 
@@ -632,7 +627,7 @@ sub draw_x_ticks # \@data
 	my $d = shift;
 
 	my $i;
-	for $i (0 .. $s->{numpoints}) 
+	for $i (0 .. $s->{_data}->num_points - 1) 
 	{
 		my ($x, $y) = $s->val_to_pixel($i + 1, 0, 1);
 
@@ -641,7 +636,7 @@ sub draw_x_ticks # \@data
 		# CONTRIB  Damon Brodie for x_tick_offset
 		next if (!$s->{x_all_ticks} and 
 				($i - $s->{x_tick_offset}) % $s->{x_label_skip} and 
-				$i != $s->{numpoints} 
+				$i != $s->{_data}->num_points - 1 
 			);
 
 		if ($s->{x_ticks})
@@ -661,7 +656,7 @@ sub draw_x_ticks # \@data
 		# CONTRIB Damon Brodie for x_tick_offset
 		next if 
 			($i - $s->{x_tick_offset}) % ($s->{x_label_skip}) and 
-			$i != $s->{numpoints};
+			$i != $s->{_data}->num_points - 1;
 
 		$s->{gdta_x_axis}->set_text($d->[0][$i]);
 
@@ -693,7 +688,7 @@ sub draw_x_ticks_number # \@data
 	my $i;
 	for $i (0 .. $s->{x_tick_number})
 	{
-		my $value = $s->{numpoints}
+		my $value = ($s->{_data}->num_points - 1)
 					* ($s->{x_values}[$i] - $s->{true_x_min})
 					/ ($s->{true_x_max} - $s->{true_x_min});
 
@@ -762,7 +757,7 @@ sub draw_data # \@data
 	my $d = shift;
 
 	my $ds;
-	foreach $ds (1 .. $s->{numsets}) 
+	foreach $ds (1 .. $s->{_data}->num_sets) 
 	{
 		$s->draw_data_set($d->[$ds], $ds);
 	}
@@ -954,12 +949,12 @@ sub get_max_min_y_all # \@data
 	if ($s->{overwrite} == 2) 
 	{
 		my $i;
-		for $i (0 .. $s->{numpoints}) 
+		for $i (0 .. $s->{_data}->num_points - 1) 
 		{
 			my $sum = 0;
 
 			my $j;
-			for $j (1 .. $s->{numsets}) 
+			for $j (1 .. $s->{_data}->num_sets) 
 			{ 
 				$sum += $d->[$j][$i]; 
 			}
@@ -971,7 +966,7 @@ sub get_max_min_y_all # \@data
 	else 
 	{
 		my $i;
-		for $i ( 1 .. $s->{numsets} ) 
+		for $i ( 1 .. $s->{_data}->num_sets ) 
 		{
 			$max = _max( $max, get_max_y(@{$d->[$i]}) );
 			$min = _min( $min, get_min_y(@{$d->[$i]}) );
@@ -1097,7 +1092,7 @@ sub setup_legend
 			$maxlen = ($maxlen > $len) ? $maxlen : $len;
 			$num++;
 		}
-		last if ($num >= $s->{numsets});
+		last if ($num >= $s->{_data}->num_sets);
 	}
 
 	$s->{lg_num} = $num;
@@ -1202,7 +1197,7 @@ sub draw_legend
 	foreach $legend (@{$s->{legend}})
 	{
 		$i++;
-		last if ($i > $s->{numsets});
+		last if ($i > $s->{_data}->num_sets);
 
 		my $xe = $x;	# position within an element
 

@@ -68,6 +68,11 @@ FIRST PNG PORT as Chart::PNGgraph
 Steve Bonds
 sbonds@agora.rdrop.com
 
+MOST IMPORTANT CHANGES FOR VERSION 1.30
+
+- Added GD::Graph::Data as the preferred way of working with data sets.
+  Internally all code has been changed to use these objects.
+
 MOST IMPORTANT CHANGES FOR VERSION 1.20
 
 - Namespace change to GD::Graph

@@ -5,7 +5,7 @@
 #	Name:
 #		GD::Graph::pie.pm
 #
-# $Id: pie.pm,v 1.8 2000/01/27 11:12:11 mgjv Exp $
+# $Id: pie.pm,v 1.9 2000/02/13 03:55:43 mgjv Exp $
 #
 #==========================================================================
 
@@ -220,7 +220,7 @@ sub draw_data # (\@data, GD::Image)
 	my $j = 1; 						# for now, only one pie..
 
 	my $i;
-	for $i ( 0 .. $s->{numpoints} ) 
+	for $i (0 .. $s->{_data}->num_points - 1) 
 	{ 
 		$total += $data->[$j][$i]; 
 	}
@@ -231,7 +231,7 @@ sub draw_data # (\@data, GD::Image)
 
 	my $val = 0;
 
-	for $i (0 .. $s->{numpoints}) 
+	for $i (0 .. $s->{_data}->num_points - 1) 
 	{
 		# Set the data colour
 		my $dc = $s->set_clr_uniq($s->pick_data_clr($i + 1));
@@ -298,7 +298,7 @@ sub draw_data # (\@data, GD::Image)
 	# implementation, all the text is on top of the pie.
 
 	$pb = $s->{start_angle};
-	for $i (0 .. $s->{numpoints} ) 
+	for $i (0 .. $s->{_data}->num_points - 1) 
 	{
 		next unless $data->[0][$i];
 

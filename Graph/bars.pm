@@ -5,7 +5,7 @@
 #	Name:
 #		GD::Graph::bars.pm
 #
-# $Id: bars.pm,v 1.8 2000/02/07 13:41:55 mgjv Exp $
+# $Id: bars.pm,v 1.9 2000/02/13 03:55:43 mgjv Exp $
 #
 #==========================================================================
  
@@ -55,13 +55,13 @@ sub draw_data_overwrite
 	my $bsd = $s->{shadow_depth} and
 		my $bsci = $s->set_clr(_rgb($s->{shadowclr}));
 		
-	for my $i (0 .. $s->{numpoints}) 
+	for my $i (0 .. $s->{_data}->num_points - 1) 
 	{
 		my $bottom = $zero;
 		my ($xp, $t);
 
 		my $total = 0;
-		for my $j (1 .. $s->{numsets})
+		for my $j (1 .. $s->{_data}->num_sets)
 		{
 			next unless defined $d->[$j][$i];
 
@@ -134,7 +134,7 @@ sub draw_data_set
 	my $bsd = $s->{shadow_depth} and
 		my $bsci = $s->set_clr(_rgb($s->{shadowclr}));
 
-	for my $i (0 .. $s->{numpoints}) 
+	for my $i (0 .. $s->{_data}->num_points - 1) 
 	{
 		next unless (defined $d->[$i]);
 
@@ -162,11 +162,11 @@ sub draw_data_set
 		{
 			$l = $xp 
 				- _round($s->{x_step}/2)
-				+ _round(($ds - 1) * $s->{x_step}/$s->{numsets})
+				+ _round(($ds - 1) * $s->{x_step}/$s->{_data}->num_sets)
 				+ $bar_s;
 			$r = $xp 
 				- _round($s->{x_step}/2)
-				+ _round($ds * $s->{x_step}/$s->{numsets})
+				+ _round($ds * $s->{x_step}/$s->{_data}->num_sets)
 				- $bar_s;
 		}
 

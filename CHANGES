@@ -1,3 +1,8 @@
+12 Feb 2000
+
+- Removed ReadFile sub from GD::Graph.pm. I never got around to making
+  it part of the interface anyway. replaced by GD::Graph::Data.
+
 09 Feb 2000
 
 - Added GD::Graph::Data to distribution

@@ -5,7 +5,7 @@
 #	Name:
 #		GD::Graph::points.pm
 #
-# $Id: points.pm,v 1.3 2000/01/07 13:44:42 mgjv Exp $
+# $Id: points.pm,v 1.4 2000/02/13 03:55:43 mgjv Exp $
 #
 #==========================================================================
 
@@ -30,7 +30,7 @@ sub draw_data_set # \@data
 	my $dsci = $s->set_clr($s->pick_data_clr($ds));
 	my $type = $s->pick_marker($ds);
 
-	for my $i (0 .. $s->{numpoints}) 
+	for my $i (0 .. $s->{_data}->num_points - 1) 
 	{
 		next unless (defined $d->[$i]);
 		my ($xp, $yp) = $s->val_to_pixel($i+1, $d->[$i], $ds);

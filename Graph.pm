@@ -18,7 +18,7 @@
 #		GD::Graph::pie
 #		GD::Graph::mixed
 #
-# $Id: Graph.pm,v 1.14 2000/01/28 22:03:10 mgjv Exp $
+# $Id: Graph.pm,v 1.15 2000/02/13 03:55:43 mgjv Exp $
 #
 #==========================================================================
 
@@ -34,9 +34,10 @@ use strict;
 
 use GD;
 use GD::Text::Align;
+use GD::Graph::Data;
 use Carp;
 
-$GD::Graph::prog_rcs_rev = q{$Revision: 1.14 $};
+$GD::Graph::prog_rcs_rev = q{$Revision: 1.15 $};
 $GD::Graph::prog_version = 
 	($GD::Graph::prog_rcs_rev =~ /\s+(\d*\.\d*)/) ? $1 : "0.0";
 
@@ -153,7 +154,7 @@ sub set
 		# Enforce read-only attributes.
 		/^width$/ || /^height$/ and do 
 		{
-			$self->_error("Read-only attribute '$_' not set");
+			$self->_set_error("Read-only attribute '$_' not set");
 			next;
 		};
 
@@ -189,9 +190,6 @@ sub set_title_font # (fontname, size)
 	$self->_set_font('gdta_title', @_);
 }
 
-# XXX Notify Steve Bonds that set_title_TTF method has been removed. 
-# He'll need to create a wrapper for Chart::PNGgraph (or copy this
-# one)
 sub set_title_TTF 
 {
 	my $self = shift;
@@ -218,49 +216,6 @@ sub plot # (\@data)
 	my $s = shift;
 	$s->die_abstract( "sub plot missing," );
 }
-
-# Routine to read GNUplot style data files
-# NOT USEABLE AT THE MOMENT
-sub ReadFile 
-{
-	my $file = shift; 
-	my @cols = @_; 
-	my (@out, $i, $j);
-
-	@cols = 1 if ( $#cols < 1 );
-
-	open (DATA, $file) || do { 
-		carp "Cannot open file: $file"; 
-		return []; 
-	};
-
-	$i=0; 
-	while (defined(<DATA>)) 
-	{ 
-		s/^\s+|\s+$//;
-		next if ( /^#/ || /^!/ || /^[ \t]*$/ );
-		@_ = split(/[ \t]+/);
-		$out[0][$i] = $_[0];
-		$j=1;
-		foreach (@cols) 
-		{
-			if ( $_ > $#_ ) { 
-				carp "Data column $_ not present"; 
-				return []; 
-			}
-			$out[$j][$i] = $_[$_]; $j++;
-		}
-		$i++;
-	}
-	close(DATA);
-
-	return @out;
-
-} # ReadFile
-
-#
-# PRIVATE methods
-#
 
 # Set defaults that apply to all graph/chart types. 
 # This is called by the default initialise methods 
@@ -293,17 +248,15 @@ sub check_data # \@data
 	my $self = shift;
 	my $data = shift;
 
-	$self->{numsets} = $#$data;
-	$self->{numpoints} = $#{@$data[0]};
+	$self->{_data} = GD::Graph::Data->new($data) 
+		or return $self->_set_error(GD::Graph::Data->error);
+	
+	$self->{_data}->make_strict;
 
-	( $self->{numsets} < 1 || $self->{numpoints} < 0 ) and 
-		croak "GD::Graph: No Data";
+	$self->{_data}->num_sets > 0 && $self->{_data}->num_points > 0
+		or return $self->_set_error('No data sets or points');
 
-	for my $i ( 1..$self->{numsets} ) 
-	{
-		croak "Data array $i: length misfit"
-			unless ( $self->{numpoints} == $#{@$data[$i]} );
-	}
+	return $self;
 }
 
 # Open the graph output canvas by creating a new GD object.
@@ -463,16 +416,18 @@ sub die_abstract
 
 # XXX grumble. This really needs to be fixed up.
 # Simple error handler.
-sub _error {
+sub _set_error {
   my $self = shift;
-  my @msgs = @_;
-  push @{$self->{_errors}}, @msgs;
+  my @caller = caller;
+  push @{$self->{_errors}}, "($caller[0]:$caller[2]) @_" if @_;
+  return;
 }
 
 sub error
 {
 	my $self = shift;
-	ref $self->{_errors} ? join "\n", @{$self->{_errors}} : ""
+	return unless exists $self->{_errors};
+	wantarray ? @{$self->{_errors}} : $self->{_errors}->[-1];
 }
 
 sub gd 
@@ -1296,6 +1251,12 @@ Examples:
 
 (The above discussion is based on GD::Text 0.65. Older versions have
 more restrictive behaviour).
+
+=head1 NOTES
+
+As with all Modules for Perl: Please stick to using the interface. If
+you try to fiddle too much with knowledge of the internals of this
+module, you could get burned. I may change them at any time.
 
 =head1 AUTHOR
 

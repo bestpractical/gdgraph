@@ -5,7 +5,7 @@
 #	Name:
 #		GD::Graph::area.pm
 #
-# $Id: area.pm,v 1.6 2000/02/07 13:41:55 mgjv Exp $
+# $Id: area.pm,v 1.7 2000/02/13 03:55:43 mgjv Exp $
 #
 #==========================================================================
 
@@ -40,7 +40,7 @@ sub draw_data_set  # GD::Image, \@data, $ds
 
 	# Add the data points
 	my $i;
-	for $i (0 .. $s->{numpoints}) 
+	for $i (0 .. $s->{_data}->num_points - 1) 
 	{
 		next unless (defined $d->[$i]);
 
@@ -59,10 +59,10 @@ sub draw_data_set  # GD::Image, \@data, $ds
 	$g->polygon($poly, $brci);
 
 	# Draw the accent lines
-	if (($s->{right} - $s->{left})/($s->{numpoints} + 1) > 
+	if (($s->{right} - $s->{left})/($s->{_data}->num_points) > 
 			$s->{accent_treshold})
 	{
-		for $i (1 .. ($s->{numpoints} - 1)) 
+		for $i (1 .. ($s->{_data}->num_points - 2)) 
 		{
 			next unless (defined $d->[$i]);
 			($x, $y) = $s->val_to_pixel($i + 1, $d->[$i], $ds);

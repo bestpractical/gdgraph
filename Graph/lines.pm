@@ -5,7 +5,7 @@
 #	Name:
 #		GD::Graph::lines.pm
 #
-# $Id: lines.pm,v 1.5 2000/01/07 13:44:42 mgjv Exp $
+# $Id: lines.pm,v 1.6 2000/02/13 03:55:43 mgjv Exp $
 #
 #==========================================================================
 
@@ -34,7 +34,7 @@ sub draw_data_set # GD::Image, \@data
 		(undef, undef);
 
 	my $i;
-	for $i (1 .. $s->{numpoints}) 
+	for $i (1 .. $s->{_data}->num_points - 1) 
 	{
 		next unless (defined $d->[$i]);
 

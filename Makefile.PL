@@ -1,5 +1,5 @@
 # This -*- perl -*- script makes the Makefile
-# $Id: Makefile.PL,v 1.1 1999/12/11 02:40:37 mgjv Exp $
+# $Id: Makefile.PL,v 1.2 1999/12/24 11:33:20 mgjv Exp $
  
 #--- Distribution section ---
  
@@ -12,8 +12,8 @@ push @clean, map { "*/$_" } @clean;
  
 WriteMakefile(
 		'VERSION_FROM'		=> 'lib/GD/Graph.pm',	#finds $VERSION
-	      'DISTNAME'  		=> 'GDGraph',
-	      'NAME'      		=> 'GD::Graph',
+		'DISTNAME'  		=> 'GDGraph',
+		'NAME'				=> 'GD::Graph',
 
 		($] >= 5.005 ?
 			('ABSTRACT'		=> 'Produces charts with GD',
@@ -21,7 +21,10 @@ WriteMakefile(
 			) : ()
 		),
 
-		'PREREQ_PM'			=> { 'GD' => "1.18", },
+		'PREREQ_PM'			=> { 
+			'GD' => '1.18', 
+			'GD::Text::Align' => undef,
+		},
  
         'dist'    			=> {
 			'COMPRESS' 		=> 'gzip -9f',

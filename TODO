@@ -1,3 +1,5 @@
+-- Deal with antialiasing for GD 2 and up
+
 --Interesting Idea!
 
 I'd like to change "x" axis label color depending on current label value.

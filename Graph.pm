@@ -19,7 +19,7 @@
 #       GD::Graph::pie
 #       GD::Graph::mixed
 #
-# $Id: Graph.pm,v 1.50 2003/06/11 00:43:49 mgjv Exp $
+# $Id: Graph.pm,v 1.51 2003/06/16 01:25:29 mgjv Exp $
 #
 #==========================================================================
 
@@ -31,7 +31,7 @@
 
 package GD::Graph;
 
-($GD::Graph::prog_version) = '$Revision: 1.50 $' =~ /\s([\d.]+)/;
+($GD::Graph::prog_version) = '$Revision: 1.51 $' =~ /\s([\d.]+)/;
 $GD::Graph::VERSION = '1.41';
 
 use strict;
@@ -382,20 +382,27 @@ sub set_clr # GD::Image, r, g, b
 {
     my $self = shift; 
     return unless @_;
-    my $i;
+    my $gd = $self->{graph};
+
+    # All of this could potentially be done by using colorResolve
+    # The problem is that colorResolve doesn't return an error
+    # condition (-1) if it can't allocate a color. Instead it always
+    # returns 0.
 
     # Check if this colour already exists on the canvas
-    if (($i = $self->{graph}->colorExact(@_)) < 0) 
-    {
-        # if not, allocate a new one, and return its index
-        $i = $self->{graph}->colorAllocate(@_);
+    my $i = $gd->colorExact(@_);
+    # if not, allocate a new one, and return its index
+    $i = $gd->colorAllocate(@_) if $i < 0;
+    # if this fails, we should use colorClosest.
+    $i = $gd->colorClosest(@_)  if $i < 0;
 
-        # XXX if this fails, we should use colorClosest.
-        # All of this could potentially be done by using colorResolve
-        # The problem is that colorResolve doesn't return an error
-        # condition (-1) if it can't allocate a color. Instead it always
-        # returns 0.
-    } 
+    # TODO Deal with antialiasing here?
+    if (0 && $self->can("setAntiAliased"))
+    {
+	$self->setAntiAliased($i);
+	eval "$i = gdAntiAliased";
+    }
+
     return $i;
 }
 

@@ -5,7 +5,7 @@
 #	Name:
 #		GD::Graph::bars.pm
 #
-# $Id: bars.pm,v 1.11 2000/02/13 12:35:49 mgjv Exp $
+# $Id: bars.pm,v 1.12 2000/02/14 13:10:59 mgjv Exp $
 #
 #==========================================================================
  
@@ -39,7 +39,7 @@ sub draw_data_set
 	my $self = shift;
 	my $ds = shift;
 
-	my $bar_s = _round($self->{bar_spacing}/2);
+	my $bar_s = $self->{bar_spacing}/2;
 
 	# Pick a data colour
 	my $dsci = $self->set_clr($self->pick_data_clr($ds));
@@ -80,18 +80,18 @@ sub draw_data_set
 
 		if (ref $self eq 'GD::Graph::mixed' || $self->{overwrite})
 		{
-			$l = $xp - _round($self->{x_step}/2) + $bar_s;
-			$r = $xp + _round($self->{x_step}/2) - $bar_s;
+			$l = $xp - $self->{x_step}/2 + $bar_s + 1;
+			$r = $xp + $self->{x_step}/2 - $bar_s;
 		}
 		else
 		{
 			$l = $xp 
-				- _round($self->{x_step}/2)
-				+ _round(($ds - 1) * $self->{x_step}/$self->{_data}->num_sets)
-				+ $bar_s;
+				- $self->{x_step}/2
+				+ ($ds - 1) * $self->{x_step}/$self->{_data}->num_sets
+				+ $bar_s + 1;
 			$r = $xp 
-				- _round($self->{x_step}/2)
-				+ _round($ds * $self->{x_step}/$self->{_data}->num_sets)
+				- $self->{x_step}/2
+				+ $ds * $self->{x_step}/$self->{_data}->num_sets
 				- $bar_s;
 		}
 

@@ -32,7 +32,7 @@ $my_graph->set(
 	accentclr => 'dblue',
 	dclrs => [qw(lgreen lred)],
 
-	bar_spacing => 2,
+	bar_spacing => 1,
 
 	logo => 'logo.' . GD::Graph->export_format,
 	logo_position => 'BR',

@@ -5,7 +5,7 @@
 #	Name:
 #		GD::Graph::axestype.pm
 #
-# $Id: axestype.pm,v 1.13 2000/02/13 12:35:49 mgjv Exp $
+# $Id: axestype.pm,v 1.14 2000/02/14 13:10:59 mgjv Exp $
 #
 #==========================================================================
 
@@ -283,6 +283,59 @@ sub set_legend_font # (font name)
 
 # inherit check_data from GD::Graph
 
+sub _setup_boundaries
+{
+	my $self = shift;
+
+	# calculate the top and bottom of the bounding box for the graph
+	$self->{bottom} = $self->{height} - $self->{b_margin} - 1 -
+		# X axis tick labels
+		$self->{x_label_height} -
+		# X axis label
+		( $self->{xlfh} ? $self->{xlfh} + $self->{text_space} : 0 );
+
+	$self->{top} = $self->{t_margin} +
+				( $self->{tfh} ? $self->{tfh} + $self->{text_space} : 0 );
+	# Make sure the text for the y axis tick markers fits on the canvas
+	$self->{top} = $self->{yafh}/2 if $self->{top} == 0;
+
+	return $self->_set_error('Vertical size too small')
+		if $self->{bottom} <= $self->{top};
+	
+	# calculate the left and right of the bounding box for the graph
+	my $ls = $self->{y_label_len}[1];
+	$self->{left} = $self->{l_margin} +
+		# Space for tick values
+		($ls ? $ls + $self->{axis_space} : 0) +
+		# Space for the Y axis label
+		($self->{y1_label} ? $self->{ylfh} + $self->{text_space} : 0);
+
+	$ls = $self->{y_label_len}[2] if $self->{two_axes};
+	$self->{right} = $self->{width} - $self->{r_margin} - 1 -
+		$self->{two_axes} * (
+			($ls ? $ls + $self->{axis_space} : 0) +
+			($self->{y2_label} ? $self->{ylfh} + $self->{text_space} : 0)
+		);
+
+	unless ($self->{x_tick_number})
+	{
+		# Make sure we have a nice integer number of pixels
+		$self->{r_margin} += ($self->{right} - $self->{left}) %
+			($self->{_data}->num_points + 1);
+		
+		$self->{right} = $self->{width} - $self->{r_margin} - 1 -
+			$self->{two_axes} * (
+				($ls ? $ls + $self->{axis_space} : 0) +
+				($self->{y2_label} ? $self->{ylfh} + $self->{text_space} : 0)
+			);
+	}
+
+	return $self->_set_error('Horizontal size too small')	
+		if $self->{right} <= $self->{left};
+
+	return $self;
+}
+
 sub setup_coords
 {
 	my $s = shift;
@@ -306,59 +359,23 @@ sub setup_coords
 	$s->{xafh} = 0, $s->{xafw} = 0 unless $s->{x_plot_values}; 
 	$s->{yafh} = 0, $s->{yafw} = 0 unless $s->{y_plot_values};
 
-	# Get the height of the space needed for the X axis tick text
-	$s->{x_axis_label_height} = $s->get_x_axis_label_height;
-
-	# calculate the top and bottom of the bounding box for the graph
-	$s->{bottom} = $s->{height} - $s->{b_margin} - 1 -
-		# X axis tick labels
-		( $s->{x_axis_label_height} ? $s->{x_axis_label_height} : 0 ) -
-		# X axis label
-		( $s->{xlfh} ? $s->{xlfh} + $s->{text_space} : 0 );
-
-	$s->{top} = $s->{t_margin} +
-				( $s->{tfh} ? $s->{tfh} + $s->{text_space} : 0 );
-	# Make sure the text for the y axis tick markers fits on the canvas
-	$s->{top} = $s->{yafh}/2 if $s->{top} == 0;
-
-	return $s->_set_error('Vertical size too small')
-		if $s->{bottom} - $s->{top} <= 0;
-
+	# Calculate minima and maxima for the axes
 	$s->set_max_min() or return;
 
-	# Create the labels for the y_axes, and calculate the max length
-
+	# Create the labels for the axes, and calculate the max length
 	$s->create_y_labels();
 	$s->create_x_labels(); # CONTRIB Scott Prahl
 
-	# calculate the left and right of the bounding box for the graph
-	#my $ls = $s->{yafw} * $s->{y_label_len}[1];
-	my $ls = $s->{y_label_len}[1];
-	$s->{left} = $s->{l_margin} +
-				 # Space for tick values
-				 ( $ls ? $ls + $s->{axis_space} : 0 ) +
-				 # Space for the Y axis label
-				 ( $s->{y1_label} ? $s->{ylfh} + $s->{text_space} : 0 );
-
-	#$ls = $s->{yafw} * $s->{y_label_len}[2] if $s->{two_axes};
-	$ls = $s->{y_label_len}[2] if $s->{two_axes};
-	$s->{right} = $s->{width} - $s->{r_margin} - 1 -
-				  $s->{two_axes} * (
-					  ( $ls ? $ls + $s->{axis_space} : 0 ) +
-					  ( $s->{y2_label} ? $s->{ylfh} + $s->{text_space} : 0 )
-				  );
-
-	return $s->_set_error('Horizontal size too small')	
-		if $s->{right} - $s->{left} <= 0;
+	# Calculate the boundaries of the chart
+	$s->_setup_boundaries() or return;
 
 	# CONTRIB Scott Prahl
 	# make sure that we can generate valid x tick marks
 	undef($s->{x_tick_number}) if $s->{_data}->num_points < 3;
-	undef($s->{x_tick_number}) if (
-			!defined $s->{x_max} || 
-			!defined $s->{x_min} ||
-			$s->{x_max} == $s->{x_min}
-		);
+	undef($s->{x_tick_number}) if
+		!defined $s->{x_max} || 
+		!defined $s->{x_min} || 
+		$s->{x_max} == $s->{x_min};
 
 	# calculate the step size for x data
 	# CONTRIB Changes by Scott Prahl
@@ -381,9 +398,9 @@ sub setup_coords
 	(undef, $s->{zeropoint}) = $s->val_to_pixel(0, 0, 1);
 
 	# More sanity checks
-	$s->{x_label_skip} = 1 		if ( $s->{x_label_skip} < 1 );
-	$s->{y_label_skip} = 1 		if ( $s->{y_label_skip} < 1 );
-	$s->{y_tick_number} = 1		if ( $s->{y_tick_number} < 1 );
+	$s->{x_label_skip} = 1 		if $s->{x_label_skip}  < 1;
+	$s->{y_label_skip} = 1 		if $s->{y_label_skip}  < 1;
+	$s->{y_tick_number} = 1		if $s->{y_tick_number} < 1;
 
 	return $s;
 }
@@ -399,23 +416,17 @@ sub create_y_labels
 	{
 		for my $a (1 .. ($self->{two_axes} + 1))
 		{
-			my $label = 
-				$self->{y_min}[$a] +
-				$t * ($self->{y_max}[$a] - 
-					$self->{y_min}[$a])/$self->{y_tick_number};
+			my $label = $self->{y_min}[$a] +
+				$t * ($self->{y_max}[$a] - $self->{y_min}[$a]) /
+				$self->{y_tick_number};
 			
 			$self->{y_values}[$a][$t] = $label;
 
 			if (defined $self->{y_number_format})
 			{
-				if (ref $self->{y_number_format} eq 'CODE')
-				{
-					$label = &{$self->{y_number_format}}($label);
-				}
-				else
-				{
-					$label = sprintf($self->{y_number_format}, $label);
-				}
+				$label = ref $self->{y_number_format} eq 'CODE' ?
+					&{$self->{y_number_format}}($label) :
+					sprintf($self->{y_number_format}, $label);
 			}
 			
 			$self->{gdta_y_axis}->set_text($label);
@@ -423,20 +434,48 @@ sub create_y_labels
 
 			$self->{y_labels}[$a][$t] = $label;
 
-			($len > $self->{y_label_len}[$a]) and 
-				$self->{y_label_len}[$a] = $len;
+			$self->{y_label_len}[$a] = $len 
+				if $len > $self->{y_label_len}[$a];
 		}
 	}
+}
+
+sub get_x_axis_label_height
+{
+	my $self = shift;
+
+	return $self->{xafh} unless $self->{x_labels_vertical};
+
+	my @values = $self->{x_tick_number} ? 
+		@{$self->{x_values}} : 
+		$self->{_data}->x_values;
+
+	my $maxlen = 0;
+	foreach my $label (@values)
+	{
+		$self->{gdta_x_axis}->set_text($label);
+		my $len = $self->{gdta_x_axis}->get('width');
+		$maxlen = $len if $maxlen < $len;
+	}
+
+	return $maxlen;
 }
 
 # CONTRIB Scott Prahl
 sub create_x_labels
 {
 	my $self = shift;
-	return unless defined $self->{x_tick_number};
 
-	$self->{x_label_len} = 0;
+	$self->{x_label_height} = 0;
 
+	unless (defined $self->{x_tick_number})
+	{
+		$self->{x_label_height} = $self->{x_labels_vertical} ?
+			$self->get_x_axis_label_height : $self->{xafh};
+		return;
+	}
+
+	# We want to emulate numerical x axes
 	foreach my $t (0..$self->{x_tick_number})
 	{
 		my $label =
@@ -447,39 +486,18 @@ sub create_x_labels
 
 		if (defined $self->{x_number_format})
 		{
-			if (ref $self->{x_number_format} eq 'CODE')
-			{
-				$label = &{$self->{x_number_format}}($label);
-			}
-			else
-			{
-				$label = sprintf($self->{x_number_format}, $label);
-			}
+			$label = ref $self->{x_number_format} eq 'CODE' ?
+				&{$self->{x_number_format}}($label) :
+				sprintf($self->{x_number_format}, $label);
 		}
 
 		$self->{gdta_x_label}->set_text($label);
 		my $len = $self->{gdta_x_label}->get('width');
 
 		$self->{x_labels}[$t] = $label;
-
-		($len > $self->{x_label_len}) and $self->{x_label_len} = $len;
+		$self->{x_label_height} = $len 
+			if $len > $self->{x_label_height};
 	}
-}
-
-sub get_x_axis_label_height
-{
-	my $self = shift;
-
-	return $self->{xafh} unless $self->{x_labels_vertical};
-
-	my $len = 0;
-	foreach my $label ($self->{_data}->x_values)
-	{
-		$self->{gdta_x_axis}->set_text($label);
-		my $llen = $self->{gdta_x_axis}->get('width');
-		$len = $llen if $len < $llen;
-	}
-	return $len
 }
 
 # inherit open_graph from GD::Graph

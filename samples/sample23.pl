@@ -55,7 +55,7 @@ push(@data,\@sld);
 );
 
 # get graph object
-$graph = GD::Graph::area->new(640, 480);
+$graph = GD::Graph::area->new(600, 400);
 
 # set graph legend
 $graph->set_legend(@legend);

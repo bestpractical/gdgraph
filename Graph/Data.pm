@@ -5,14 +5,14 @@
 #	Name:
 #		GD::Graph::Data.pm
 #
-# $Id: Data.pm,v 1.9 2000/02/16 12:45:32 mgjv Exp $
+# $Id: Data.pm,v 1.10 2000/02/20 08:08:44 mgjv Exp $
 #
 #==========================================================================
 
 package GD::Graph::Data;
 
 $GD::Graph::Data::VERSION = 
-	(q($Revision: 1.9 $) =~ /\s([\d.]+)/ ? $1 : "0.0");
+	(q($Revision: 1.10 $) =~ /\s([\d.]+)/ ? $1 : "0.0");
 
 use strict;
 use GD::Graph::Error;
@@ -233,8 +233,8 @@ sub _get_min_max
 		$max = $val if !defined $max || $val > $max;
 	}
 
-	return $self->_set_error("No (defined) values in", 
-		$nd == 0 ? "X list" : "dataset $nd")
+	return $self->_set_error("No (defined) values in " . 
+		($nd == 0 ? "X list" : "dataset $nd"))
 			unless defined $min && defined $max;
 	
 	return ($min, $max);

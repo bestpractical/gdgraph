@@ -5,20 +5,22 @@
 #	Name:
 #		GD::Graph::Error.pm
 #
-# $Id: Error.pm,v 1.2 2000/02/17 12:38:35 mgjv Exp $
+# $Id: Error.pm,v 1.3 2000/02/20 08:08:44 mgjv Exp $
 #
 #==========================================================================
 
 package GD::Graph::Error;
 
 $GD::Graph::Error::VERSION = 
-	(q($Revision: 1.2 $) =~ /\s([\d.]+)/ ? $1 : "0.0");
+	(q($Revision: 1.3 $) =~ /\s([\d.]+)/ ? $1 : "0.0");
 
 use strict;
 use Carp;
 
 my %Errors;
 use vars qw( $Debug $ErrorLevel $CriticalLevel );
+
+$Debug = 0;
 
 # Warnings from 0 to 4, Errors from 5 to 9, and Critical 10 and above.
 $ErrorLevel    = 5;
@@ -72,6 +74,10 @@ Errors are more verbose about where the errors originated if the
 $GD::Graph::Error::Debug variable is set to a true value, and even more
 verbose if this value is larger than 5.
 
+If $Debug is larger than 3, both of these will always return the
+full list of errors and warnings (although the meaning of C<has_warning>
+and C<has_error> does not change).
+
 =cut
 
 sub _error
@@ -105,12 +111,14 @@ sub _error
 sub error
 {
 	my $self = shift;
+	$Debug > 3 and return $self->_error();
 	$self->_error($ErrorLevel);
 }
 
 sub warning
 {
 	my $self = shift;
+	$Debug > 3 and return $self->_error();
 	$self->_error(0, $ErrorLevel - 1);
 }
 
@@ -176,6 +184,8 @@ Subclasses.
 
 =head2 $object->_set_error(I<arg>) or Class->_set_error(I<arg>)
 
+=head2 $object->_set_warning(I<arg>) or Class->_set_warning(I<arg>)
+
 Subclasses call this to set an error. The argument can be a reference
 to an array, of which the first element should be the error level, and
 the second element the error message. Alternatively, it can just be the
@@ -186,30 +196,40 @@ If the error level is >= $CriticalLevel the program will die, using
 Carp::croak to display the current message, as well as all the other
 error messages pending.
 
+In the current implementation these are almost identical when called
+with a scalar argument, except that the default ewrror level is
+different. When called with an array reference, they are identical in
+function. This may change in the future. They're mainly here for code
+clarity.
+
 =cut
 
-sub _set_error
+# Private, for construction of error hash. This should probably be an
+# object, but that's too much work right now.
+sub __error_hash
 {
-	my $self = shift;
-	return unless @_;
+	my $caller  = shift;
+	my $default = shift;
+	my $msg     = shift;
 
-	my %error = ( caller   => [caller] );
+	my %error = (caller => $caller);
 
-	if (ref($_[0]) && ref($_[0]) eq 'ARRAY' && @{$_[0]} >= 2)
+	if (ref($msg) && ref($msg) eq 'ARRAY' && @{$msg} >= 2)
 	{
 		# Array reference
-		$error{level} = $_[0]->[0];
-		$error{msg}   = $_[0]->[1];
+		$error{level} = $msg->[0];
+		$error{msg}   = $msg->[1];
 	}
 	elsif (ref($_[0]) eq '')
 	{
 		# simple scalar
-		$error{level} = $ErrorLevel;
-		$error{msg}   = $_[0];
+		$error{level} = $default;
+		$error{msg}   = $msg;
 	}
 	else
 	{
 		# someting else, which I can't deal with
+		warn "Did you read the documentation for GD::Graph::Error?";
 		return;
 	}
 
@@ -219,18 +239,35 @@ sub _set_error
 		$error{whence} = [@c[0..2]];
 		$lvl++;
 	}
-	# The following should never happen, unless the call stack is only 1
-	# deep, in which case the user has called this directly. Just in
-	# case, though:
-	$error{whence} = $error{caller} unless $error{whence};
 
-	push @{$Errors{$self}}, \%error;
+	return \%error;
+}
 
-	if ($error{level} >= $CriticalLevel)
+sub _set_error
+{
+	my $self = shift;
+	return unless @_;
+
+	while (@_)
 	{
-		croak $self->error;
+		my $e_h = __error_hash([caller], $ErrorLevel, shift) or return;
+		push @{$Errors{$self}}, $e_h;
+		croak $self->error if $e_h->{level} >= $CriticalLevel;
 	}
+	return;
+}
 
+sub _set_warning
+{
+	my $self = shift;
+	return unless @_;
+
+	while (@_)
+	{
+		my $e_h = __error_hash([caller], $ErrorLevel, shift) or return;
+		push @{$Errors{$self}}, $e_h;
+		croak $self->error if $e_h->{level} >= $CriticalLevel;
+	}
 	return;
 }
 

@@ -5,14 +5,14 @@
 #	Name:
 #		GD::Graph::axestype.pm
 #
-# $Id: axestype.pm,v 1.15 2000/02/16 12:45:32 mgjv Exp $
+# $Id: axestype.pm,v 1.16 2000/02/20 08:08:44 mgjv Exp $
 #
 #==========================================================================
 
 package GD::Graph::axestype;
 
 $GD::Graph::axestype::VERSION = 
-	(q($Revision: 1.15 $) =~ /\s([\d.]+)/ ? $1 : "0.0");
+	(q($Revision: 1.16 $) =~ /\s([\d.]+)/ ? $1 : "0.0");
 
 use strict;
  
@@ -72,6 +72,12 @@ my %Defaults = (
  
 	# Do you want bars to be drawn on top of each other, or side by side?
 	overwrite 			=> 0,
+
+	# Do you want me to correct the width of the graph, so that bars are
+	# always drawn with a nice integer number of pixels?
+	#
+	# The GD::Graph::bars::initialise sub will switch this on.
+	correct_width		=> 0,
 
 	# XXX The following two need to get better defaults. Maybe computed.
 	# Draw the zero axis in the graph in case there are negative values
@@ -320,7 +326,7 @@ sub _setup_boundaries
 			($self->{y2_label} ? $self->{ylfh} + $self->{text_space} : 0)
 		);
 
-	unless ($self->{x_tick_number})
+	if ($self->{correct_width} && !$self->{x_tick_number})
 	{
 		# Make sure we have a nice integer number of pixels
 		$self->{r_margin} += ($self->{right} - $self->{left}) %

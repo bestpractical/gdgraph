@@ -10,7 +10,7 @@ my @data = (
 
 my $data = GD::Graph::Data->new() or die GD::Graph::Data->error;
 
-$GD::Graph::Error::Debug = 19;
+$GD::Graph::Error::Debug = 4;
 
 #$data->get_min_max_x or warn $data->error;
 $data->get_min_max_x;
@@ -29,6 +29,7 @@ $data->set_y(-2, -3, "Grub");
 #my @foo = $data->y_values(3) ;
 #print scalar @foo, "@foo\n";
 
+$data->_set_error([2, "One error"], [0, "Two error"], [1, "Three error"]);
 $data->_set_error([19, "Here we go"]);
 die $data->error if $data->has_error;
 

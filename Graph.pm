@@ -18,7 +18,7 @@
 #		GD::Graph::pie
 #		GD::Graph::mixed
 #
-# $Id: Graph.pm,v 1.19 2000/02/16 12:45:32 mgjv Exp $
+# $Id: Graph.pm,v 1.20 2000/02/20 08:08:44 mgjv Exp $
 #
 #==========================================================================
 
@@ -31,7 +31,7 @@
 package GD::Graph;
 
 $GD::Graph::prog_version = 
-	(q($Revision: 1.19 $) =~ /\s([\d.]+)/ ? $1 : "0.0");
+	(q($Revision: 1.20 $) =~ /\s([\d.]+)/ ? $1 : "0.0");
 
 $GD::Graph::VERSION = '1.30';
 
@@ -117,11 +117,10 @@ sub new  # ( width, height ) optional;
 	if (@_) 
 	{
 		# If there are any parameters, they should be the size
-		$self->{width} = shift;
+		return $self->set_error(
+			"Usage: GD::Graph::<type>::new(width, height)") unless @_ >= 2;
 
-		# If there's an x size, there should also be a y size.
-		croak "Usage: GD::Graph::<type>::new( [width, height] )\n" 
-			unless @_;
+		$self->{width} = shift;
 		$self->{height} = shift;
 	} 
 	else 
@@ -133,7 +132,7 @@ sub new  # ( width, height ) optional;
 
 	# Initialise all relevant parameters to defaults
 	# These are defined in the subclasses. See there.
-	$self->initialise();
+	$self->initialise() or return;
 
 	return $self;
 }
@@ -149,22 +148,25 @@ sub set
 {
 	my $self = shift;
 	my %args = @_;
+	my $w = 0;
 
 	foreach (keys %args) 
 	{ 
 		# Enforce read-only attributes.
 		/^width$/ || /^height$/ and do 
 		{
-			$self->_set_error("Read-only attribute '$_' not set");
+			$self->_set_warning("Read-only attribute '$_' not set");
+			$w++;
 			next;
 		};
 
 		$self->{$_} = $args{$_}, next if $self->_has_default($_); 
 
-		print "Hmmm to '$_'\n";
+		$w++;
+		$self->_set_warning("No attribute '$_'");
 	}
 
-	return $self->error ? undef : 1;
+	return $w ? undef : "No problems";
 }
 
 # Generic routine to instantiate GD::Text::Align objects for text
@@ -179,7 +181,7 @@ sub _set_font
 		$self->{$name} = GD::Text::Align->new($self->{graph}, 
 			valign => 'top',
 			halign => 'center',
-		) or return;
+		) or return $self->_set_error("Couldn't set font");
 	}
 
 	$self->{$name}->set_font(@_);
@@ -215,7 +217,7 @@ sub plot
 {
 	# ABSTRACT
 	my $self = shift;
-	$self->die_abstract( "sub plot missing," );
+	$self->die_abstract("sub plot missing,");
 }
 
 # Set defaults that apply to all graph/chart types. 
@@ -228,11 +230,11 @@ sub initialise
 
 	foreach (keys %Defaults) 
 	{
-		$self->set( $_ => $Defaults{$_} );
+		$self->set($_ => $Defaults{$_});
 	}
 
-	$self->open_graph() or return;
-	$self->set_title_font(GD::Font->Large) or return;
+	$self->open_graph() 					or return;
+	$self->set_title_font(GD::Font->Large) 	or return;
 }
 
 
@@ -370,11 +372,17 @@ sub set_clr # GD::Image, r, g, b
 	{
 		# if not, allocate a new one, and return its index
 		$i = $self->{graph}->colorAllocate(@_);
+
+		# XXX if this fails, we should use colorClosest.
+		# All of this could potentially be done by using colorResolve
 	} 
 	return $i;
 }
 
-# Set a colour, disregarding wether or not it already exists.
+# Set a colour, disregarding wether or not it already exists. This may
+# be necessary where one wants the same colour to have a different
+# index, as in pie slices of the same color as the edge.
+# Note that this could be cleaned up after needed, but we won't do that.
 
 sub set_clr_uniq # GD::Image, r, g, b
 {
@@ -400,64 +408,6 @@ sub pick_border_clr # number
 		_rgb($self->{accentclr});
 }
 
-# DEBUGGING
-# data_dump obsolete now, use Data::Dumper
-
-sub die_abstract
-{
-	my $self = shift;
-	my $msg = shift;
-	# ABSTRACT
-	confess
-		"Subclass (" .
-		ref($self) . 
-		") not implemented correctly: " .
-		(defined($msg) ? $msg : "unknown error");
-}
-
-sub _set_error {
-	my $self = shift;
-	return unless @_;
-
-	my %error = (
-		messages => "@_",
-		caller   => [caller],
-	);
-	my $lvl = 1;
-	while (my @c = caller($lvl))
-	{
-		$error{whence} = [@c[0..2]];
-		$lvl++;
-	}
-	push @{$self->{_errors}}, \%error;
-	return;
-}
-
-sub error
-{
-	my $self = shift;
-	return unless exists $self->{_errors};
-
-	my $error = $self->{_errors};
-
-	my @return;
-
-	@return = 
-		map { 
-			"$_->{messages}" .
-			($Debug ? " at $_->{whence}[1] line $_->{whence}[2]" : '') .
-			($Debug > 2 ? " => $_->{caller}[0]($_->{caller}[2])" : '') .
-			"\n"
-		} 
-		@$error;
-
-	wantarray && @return > 1 and  
-		$return[-1] =~ s/\n/\n\t/ or
-		$return[-1] =~ s/\n//;
-
-	return wantarray ? @return : $return[-1];
-}
-
 sub gd 
 {
 	my $self = shift;
@@ -476,6 +426,21 @@ sub can_do_ttf
 {
 	my $proto = shift;
 	return GD::Text->can_do_ttf;
+}
+
+# DEBUGGING
+# data_dump obsolete now, use Data::Dumper
+
+sub die_abstract
+{
+	my $self = shift;
+	my $msg = shift;
+	# ABSTRACT
+	confess
+		"Subclass (" .
+		ref($self) . 
+		") not implemented correctly: " .
+		(defined($msg) ? $msg : "unknown error");
 }
 
 "Just another true value";
@@ -1032,6 +997,15 @@ If you have negative values in your data sets, setting overwrite to 2
 might produce odd results. Of course, the graph itself would be quite
 meaningless, because overwrite = 2 is meant to show some cumulative
 effect.
+
+=item correct_width
+
+If this is set to a true value and C<x_tick_number> is false, then the
+width of the graph will be recalculated to make sure that each data
+point is exactly an integer number of pixels wide. You probably never
+want to fiddle with this.
+
+Default: 1 for bar and mixed charts, 0 for others.
 
 =back
 

@@ -5,14 +5,14 @@
 #	Name:
 #		GD::Graph::mixed.pm
 #
-# $Id: mixed.pm,v 1.6 2000/02/16 12:45:32 mgjv Exp $
+# $Id: mixed.pm,v 1.7 2000/02/20 08:08:44 mgjv Exp $
 #
 #==========================================================================
 
 package GD::Graph::mixed;
  
 $GD::Graph::mixed::VERSION = 
-	(q($Revision: 1.6 $) =~ /\s([\d.]+)/ ? $1 : "0.0");
+	(q($Revision: 1.7 $) =~ /\s([\d.]+)/ ? $1 : "0.0");
 
 use strict;
  
@@ -34,6 +34,13 @@ use Carp;
 	GD::Graph::lines 
 	GD::Graph::points 
 );
+
+sub initialise
+{
+	my $self = shift;
+	$self->SUPER::initialise();
+	$self->set(correct_width => 1);
+}
 
 sub draw_data_set
 {

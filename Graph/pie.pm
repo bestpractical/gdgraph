@@ -5,14 +5,14 @@
 #	Name:
 #		GD::Graph::pie.pm
 #
-# $Id: pie.pm,v 1.11 2000/02/16 12:45:32 mgjv Exp $
+# $Id: pie.pm,v 1.12 2000/02/20 08:08:44 mgjv Exp $
 #
 #==========================================================================
 
 package GD::Graph::pie;
 
 $GD::Graph::pie::VERSION = 
-	(q($Revision: 1.11 $) =~ /\s([\d.]+)/ ? $1 : "0.0");
+	(q($Revision: 1.12 $) =~ /\s([\d.]+)/ ? $1 : "0.0");
 
 use strict;
 
@@ -286,7 +286,8 @@ sub draw_data
 			foreach my $fill ($self->_get_pie_front_coords($pa, $pb)) 
 			{
 				$self->{graph}->fillToBorder(
-					$fill->[0], $fill->[1] + $self->{pie_height}/2, $ac, $dc);
+					$fill->[0], $fill->[1] + $self->{pie_height}/2, 
+					$ac, $dc);
 			}
 		}
 	}
@@ -390,10 +391,12 @@ sub _get_pie_front_coords # (angle 1, angle 2)
 }
 
 # return true if this angle is on the front of the pie
+# XXX UGLY! We need to leave a slight room for error because of rounding
+# problems
 sub in_front
 {
 	my $a = level_angle(shift);
-	return $a > ($ANGLE_OFFSET - 180) && $a < $ANGLE_OFFSET;
+	return $a > ($ANGLE_OFFSET - 180 + 0.5) && $a < $ANGLE_OFFSET - 0.5;
 }
 
 # XXX Ugh! I need to fix this. See the GD::Text module for better ways

@@ -1,3 +1,10 @@
+20 Feb
+
+- Added correct_width option
+- Fixed bug in pie. If one of the slices ended up at exactly 90 degrees,
+  or very close to it, The fill would cause GD to core dump. Ugly.
+  Introduced half a degree of relaxation there.
+
 15 - 17 Feb 2000
 
 - Added Error class, removed error checking code from Data

@@ -5,14 +5,14 @@
 #	Name:
 #		GD::Graph::bars.pm
 #
-# $Id: bars.pm,v 1.13 2000/02/16 12:45:32 mgjv Exp $
+# $Id: bars.pm,v 1.14 2000/02/20 08:08:44 mgjv Exp $
 #
 #==========================================================================
  
 package GD::Graph::bars;
 
 $GD::Graph::bars::VERSION = 
-	(q($Revision: 1.13 $) =~ /\s([\d.]+)/ ? $1 : "0.0");
+	(q($Revision: 1.14 $) =~ /\s([\d.]+)/ ? $1 : "0.0");
 
 use strict;
 
@@ -21,6 +21,13 @@ use GD::Graph::utils qw(:all);
 use GD::Graph::colour qw(:colours);
 
 @GD::Graph::bars::ISA = qw(GD::Graph::axestype);
+
+sub initialise
+{
+	my $self = shift;
+	$self->SUPER::initialise();
+	$self->set(correct_width => 1);
+}
 
 sub draw_data
 {

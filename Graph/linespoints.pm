@@ -5,7 +5,7 @@
 #	Name:
 #		GD::Graph::linespoints.pm
 #
-# $Id: linespoints.pm,v 1.1 1999/12/11 02:40:37 mgjv Exp $
+# $Id: linespoints.pm,v 1.2 1999/12/11 12:50:48 mgjv Exp $
 #
 #==========================================================================
 
@@ -23,40 +23,40 @@ use GD::Graph::points;
 
 @GD::Graph::linespoints::ISA = qw( GD::Graph::lines GD::Graph::points );
 
+sub initialise
 {
-	sub initialise()
-	{
-		my $s = shift;
+	my $s = shift;
 
-		$s->GD::Graph::lines::initialise();
-		$s->GD::Graph::points::initialise();
-	}
+	$s->GD::Graph::lines::initialise();
+	$s->GD::Graph::points::initialise();
+}
 
-	# PRIVATE
+# PRIVATE
 
-	sub draw_data_set($$$) # GD::Image, \@data, $ds
-	{
-		my $s = shift;
-		my $g = shift;
-		my $d = shift;
-		my $ds = shift;
+sub draw_data_set # GD::Image, \@data, $ds
+{
+	my $s = shift;
+	my $g = shift;
+	my $d = shift;
+	my $ds = shift;
 
-		$s->GD::Graph::points::draw_data_set( $g, $d, $ds );
-		$s->GD::Graph::lines::draw_data_set( $g, $d, $ds );
-	}
+	#print "points->\n";
+	$s->GD::Graph::points::draw_data_set( $g, $d, $ds );
+	#print "lines->\n";
+	$s->GD::Graph::lines::draw_data_set( $g, $d, $ds );
+	#print "done->\n";
+}
 
-	sub draw_legend_marker($$$$) # (GD::Image, data_set_number, x, y)
-	{
-		my $s = shift;
-		my $g = shift;
-		my $n = shift;
-		my $x = shift;
-		my $y = shift;
+sub draw_legend_marker # (GD::Image, data_set_number, x, y)
+{
+	my $s = shift;
+	my $g = shift;
+	my $n = shift;
+	my $x = shift;
+	my $y = shift;
 
-		$s->GD::Graph::points::draw_legend_marker($g, $n, $x, $y);
-		$s->GD::Graph::lines::draw_legend_marker($g, $n, $x, $y);
-	}
-
-} # End of package GD::Graph::linesPoints
+	$s->GD::Graph::points::draw_legend_marker($g, $n, $x, $y);
+	$s->GD::Graph::lines::draw_legend_marker($g, $n, $x, $y);
+}
 
 1;

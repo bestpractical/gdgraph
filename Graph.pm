@@ -19,7 +19,7 @@
 #		GD::Graph::pie
 #		GD::Graph::mixed
 #
-# $Id: Graph.pm,v 1.1 1999/12/11 02:40:37 mgjv Exp $
+# $Id: Graph.pm,v 1.2 1999/12/11 12:50:47 mgjv Exp $
 #
 #==========================================================================
 
@@ -30,7 +30,9 @@ use strict;
 use vars qw(@ISA);
 
 # Use Lincoln Stein's GD and Thomas Boutell's libgd
-use GD;
+# XXX Version numbers?
+use GD '1.18';
+use GD::Text::Align;
 
 #
 # GD::Graph
@@ -40,12 +42,11 @@ use GD;
 
 package GD::Graph;
 
-$GD::Graph::prog_name    = 'GD::Graph.pm';
-$GD::Graph::prog_rcs_rev = q{$Revision: 1.1 $};
+$GD::Graph::prog_rcs_rev = q{$Revision: 1.2 $};
 $GD::Graph::prog_version = 
 	($GD::Graph::prog_rcs_rev =~ /\s+(\d*\.\d*)/) ? $1 : "0.0";
 
-$GD::Graph::VERSION = '1.13';
+$GD::Graph::VERSION = '1.20';
 
 # Some tools and utils
 use GD::Graph::colour qw(:colours);
@@ -85,7 +86,7 @@ unless ($OS) {
 
 $GD::Graph::needs_binmode = $OS=~/^(WINDOWS|VMS|OS2)/;
 
-my %PNGsize = ( 
+my %GDsize = ( 
 	'x' => 400, 
 	'y' => 300 
 );
@@ -110,7 +111,9 @@ my %Defaults = (
 
 	# Write a transparent PNG?
 
-	transparent   => 1,
+	# XXX fix
+	#transparent   => 1,
+	transparent   => 0,
 
 	# Write an interlaced PNG?
 
@@ -149,19 +152,20 @@ my %Defaults = (
             $self->{width} = shift;
 
             # If there's an x size, there should also be a y size.
-            die "Usage: GD::Graph::<type>::new( [x_size, y_size] )\n" unless @_;
+            die "Usage: GD::Graph::<type>::new( [width, height] )\n" 
+				unless @_;
             $self->{height} = shift;
         } 
 		else 
 		{
             # There were obviously no parameters, so use defaults
-            $self->{width} = $PNGsize{'x'};
-            $self->{height} = $PNGsize{'y'};
+            $self->{width} = $GDsize{'x'};
+            $self->{height} = $GDsize{'y'};
         }
 
         # Initialise all relevant parameters to defaults
         # These are defined in the subclasses. See there.
-        $self->initialise( );
+        $self->initialise();
 
         return $self;
     }
@@ -171,26 +175,24 @@ my %Defaults = (
         my $s = shift;
         my %args = @_;
 	
-	$s->{_set_error} = 0;
+		$s->{_set_error} = 0;
 
         foreach (keys %args) 
 		{ 
-		  # Enforce read-only attributes.
-		  if ($_ eq "pngx" || $_ eq "pngy") {
-		    $s->Error("Attempt made to set read-only attribute '$_'-- not set");
-		    $s->{_set_error} = 1;
-		    next;
-		  }
-		  else {
-		    $s->{$_} = $args{$_}; 
-		  }
+			# Enforce read-only attributes.
+			if ($_ eq "width" || $_ eq "height") {
+				$s->Error(
+					"Attempt made to set read-only attribute '$_'-- not set");
+				$s->{_set_error} = 1;
+				next;
+			}
+			else 
+			{
+				$s->{$_} = $args{$_}; 
+			}
 		}
-	if ($s->{_set_error}) {
-	  return undef;
-	}
-	else {
-	  return 1;
-	}
+
+		return $s->{_set_error} ? undef : 1;
     }
 
     # These should probably not be used, or be rewritten to 
@@ -199,48 +201,37 @@ my %Defaults = (
     # But.. it's not nice to require the user to include GD.pm
     # just because she might want to change the font.
 
-    sub set_title_font # (fontname)
+	sub _set_font
 	{
-        my $self = shift;
+		my $self = shift;
+		my $name = shift;
 
-	if ( $self->{ttf_fontname} ) {
-	  &Error("Already specified a TrueType font for the title-- cannot use both GD and TrueType fonts.");
-	  return undef;
+		if (! exists $self->{$name})
+		{
+			$self->{$name} = GD::Text::Align->new($self->{graph}, 
+				valign => 'top',
+				halign => 'center',
+			) or return;
+		}
+
+		$self->{$name}->set_font(@_);
 	}
 
-        $self->{tf} = shift;
-        $self->set( 
-			tfw => $self->{tf}->width,
-			tfh => $self->{tf}->height,
-		);
+    sub set_title_font # (fontname, size)
+	{
+        my $self = shift;
+		$self->_set_font('gdta_title', @_);
     }
 
-    sub set_title_TTF {
-      my $self = shift;
-      # This is a reference to a hash containing at least the fontname
-      # and size in points.
-      my $hash_ref = shift;
+	# XXX Notify Steve Bonds that set_title_TTF method has been removed. 
+	# He'll need to create a wrapper for Chart::PNGgraph (or copy this
+	# one)
+    sub set_title_TTF 
+	{
+		my $self = shift;
+		my $hash_ref = shift;
 
-      my (@bounds);
-
-      unless(defined($hash_ref->{fontname})) {
-	&Error("No font name given-- e.g. /usr/local/fonts/fontname.ttf");
-	return undef;
-      }
-      unless(defined($hash_ref->{size})) {
-	&Error("No font size given (in points)");
-	return undef;
-      }
-
-      $self->{ttf_fontname} = $hash_ref->{fontname};
-      $self->{ttf_size} = $hash_ref->{size};
-      $self->{ttf_angle} = $hash_ref->{angle} || 0;
-
-      # It would be nice to put it here, but that would require the
-      # user to set the title before the font.  Kinda wierd.
-#      @bounds = GD::Image->stringTTF($self->{tci}, $self->{ttf_fontname}, $self->{ttf_size}, $self->{ttf_angle}, 0, 0, $self->{title});
-
-      return 1;
+		$self->set_title_font($hash_ref->{fontname}, $hash_ref->{size});
     }
 
     sub set_text_clr # (colour name)
@@ -262,6 +253,7 @@ my %Defaults = (
 		$s->die_abstract( "sub plot missing," );
 	}
 
+	# XXX Need to remove. Change to plot_to_file maybe?
     sub plot_to_png # ("file.png", \@data)
 	{
         my $s = shift;
@@ -278,7 +270,7 @@ my %Defaults = (
         close(PNGPLOT);
     }
 
-    # Routine to read GNU style data files
+    # Routine to read GNUplot style data files
 	# NOT USEABLE
 
     sub ReadFile 
@@ -335,9 +327,8 @@ my %Defaults = (
 			$self->set( $_ => $Defaults{$_} );
 		}
 
-        $self->set_title_font(GD::gdLargeFont);
-
-		$self->open_graph();
+		$self->open_graph() or return;
+        $self->set_title_font(GD::Font->Large) or return;
     }
 
 
@@ -349,7 +340,7 @@ my %Defaults = (
     # per set, and kills the process if there are no datapoints
     # in the sets, or if there are no data sets.
 
-    sub check_data($) # \@data
+    sub check_data # \@data
 	{
         my $self = shift;
         my $data = shift;
@@ -369,47 +360,40 @@ my %Defaults = (
 
     # Open the graph output canvas by creating a new GD object.
 
-    sub open_graph()
+    sub open_graph
 	{
         my $self = shift;
-		if ( !exists $self->{graph} )
-		{
-			my $graph = new GD::Image($self->{width}, $self->{height});
-			$self->{graph} = $graph;
-			return $graph;
-		}
-		else
-		{
-			return $self->{graph};
-		}
+		return $self->{graph} if exists $self->{graph};
+		$self->{graph} = GD::Image->new($self->{width}, $self->{height});
     }
 
     # Initialise the graph output canvas, setting colours (and getting back
     # index numbers for them) setting the graph to transparent, and 
     # interlaced, putting a logo (if defined) on there.
 
-    sub init_graph($) # GD::Image
+    sub init_graph # GD::Image
 	{
         my $self = shift;
-        my $graph = shift;
+        my $g = $self->{graph};
 
-        $self->{bgci} = $self->set_clr( $graph, _rgb($self->{bgclr}) );
-        $self->{fgci} = $self->set_clr( $graph, _rgb($self->{fgclr}) );
-        $self->{tci}  = $self->set_clr( $graph, _rgb($self->{textclr}) );
-        $self->{lci}  = $self->set_clr( $graph, _rgb($self->{labelclr}) );
-        $self->{alci} = $self->set_clr( $graph, _rgb($self->{axislabelclr}) );
-        $self->{acci} = $self->set_clr( $graph, _rgb($self->{accentclr}) );
-        $graph->transparent($self->{bgci}) if $self->{transparent};
-        $graph->interlaced($self->{interlaced});
-        $self->put_logo($graph);
+        $self->{bgci} = $self->set_clr(_rgb($self->{bgclr}));
+        $self->{fgci} = $self->set_clr(_rgb($self->{fgclr}));
+        $self->{tci}  = $self->set_clr(_rgb($self->{textclr}));
+        $self->{lci}  = $self->set_clr(_rgb($self->{labelclr}));
+        $self->{alci} = $self->set_clr(_rgb($self->{axislabelclr}));
+        $self->{acci} = $self->set_clr(_rgb($self->{accentclr}));
+        $g->transparent($self->{bgci}) if $self->{transparent};
+        $g->interlaced($self->{interlaced});
+        $self->put_logo();
     }
 
     # read in the logo, and paste it on the graph canvas
 
-    sub put_logo($) # GD::Image
+	# XXX Fix to make more independent of input format
+    sub put_logo # GD::Image
 	{
         my $self = shift;
-        my $graph = shift;
+		local (*LOGO);
 
 		return unless(defined($self->{logo}));
 
@@ -421,29 +405,28 @@ my %Defaults = (
         my $b_margin = (defined $self->{b_margin_abs}) ? 
             $self->{b_margin_abs} : $self->{b_margin};
 
-        open(PNGLOGO, $self->{logo}) || return;
-		binmode(PNGLOGO) if ($GD::Graph::needs_binmode);
-        unless ( $glogo = newFromPng GD::Image(\*PNGLOGO) ) 
+        open(LOGO, $self->{logo}) || return;
+		binmode(LOGO) if ($GD::Graph::needs_binmode);
+        unless ( $glogo = newFromPng GD::Image(\*LOGO) ) 
 		{
             warn "Problems reading $self->{logo}"; 
-			close(PNGLOGO); 
 			return;
         }
-        close(PNGLOGO);
+		close(LOGO);
 
         my ($w, $h) = $glogo->getBounds;
         LOGO: for ($self->{logo_position}) {
-            /UL/i && do {
+            /UL/i and do {
                 $x = $self->{l_margin};
                 $y = $self->{t_margin};
                 last LOGO;
             };
-            /UR/i && do {
+            /UR/i and do {
                 $x = $self->{width} - $r_margin - $w * $r;
                 $y = $self->{t_margin};
                 last LOGO;
             };
-            /LL/i && do {
+            /LL/i and do {
                 $x = $self->{l_margin};
                 $y = $self->{height} - $b_margin - $h * $r;
                 last LOGO;
@@ -453,17 +436,18 @@ my %Defaults = (
             $y = $self->{height} - $b_margin - $r * $h;
             last LOGO;
         }
-        $graph->copyResized($glogo, $x, $y, 0, 0, $r * $w, $r * $h, $w, $h);
+        $self->{graph}->copyResized($glogo, 
+			$x, $y, 0, 0, $r * $w, $r * $h, $w, $h);
         undef $glogo;
     }
 
     # Set a colour to work with on the canvas, by rgb value. 
     # Return the colour index in the palette
 
-    sub set_clr($$$$) # GD::Image, r, g, b
+    sub set_clr # GD::Image, r, g, b
 	{
         my $s = shift; 
-		my $g = shift; 
+		my $g = $s->{graph}; 
 		my $i;
 
         # Check if this colour already exists on the canvas
@@ -477,17 +461,17 @@ my %Defaults = (
     
     # Set a colour, disregarding wether or not it already exists.
 
-    sub set_clr_uniq($$$$) # GD::Image, r, g, b
+    sub set_clr_uniq # GD::Image, r, g, b
 	{
         my $s=shift; 
-        my $g=shift; 
+        my $g=$s->{graph}; 
 
         $g->colorAllocate( @_ ); 
     }
 
     # Return an array of rgb values for a colour number
 
-    sub pick_data_clr($) # number
+    sub pick_data_clr # number
 	{
         my $s = shift;
 
@@ -497,7 +481,7 @@ my %Defaults = (
     # DEBUGGING
 	# data_dump obsolete now, use Data::Dumper
 
-	sub die_abstract()
+	sub die_abstract
 	{
 		my $s = shift;
 		my $msg = shift;
@@ -509,17 +493,19 @@ my %Defaults = (
 			(defined($msg) ? $msg : "unknown error");
 	}
 
+	# XXX grumble
 	# Simple error handler.
-	sub Error() {
+	sub Error {
 	  my ($s) = shift;
 	  my ($msg) = shift;
 
 	  print "GD::Graph: $msg\n";
 	}
 
+	# XXX
     # Return the png contents
 
-    sub pngdata() 
+    sub pngdata 
 	{
         my $s = shift;
 
@@ -528,7 +514,7 @@ my %Defaults = (
 
 } # End of package GD::Graph
 
-$GD::Graph::prog_name;
+$GD::Graph::VERSION;
 
 __END__
 

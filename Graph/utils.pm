@@ -1,5 +1,5 @@
 #==========================================================================
-#              Copyright (c) 1995-1998 Martien Verbruggen
+#              Copyright (c) 1995-1999 Martien Verbruggen
 #--------------------------------------------------------------------------
 #
 #	Name:
@@ -8,7 +8,7 @@
 #	Description:
 #		Package of general utilities.
 #
-# $Id: utils.pm,v 1.1 1999/12/11 02:40:37 mgjv Exp $
+# $Id: utils.pm,v 1.2 1999/12/11 12:50:48 mgjv Exp $
 #
 #==========================================================================
  
@@ -25,36 +25,34 @@ require Exporter;
 %EXPORT_TAGS = ( all => [qw(_max _min _round)],);
 
 $GD::Graph::utils::prog_name    = 'GD::Graph::utils.pm';
-$GD::Graph::utils::prog_rcs_rev = '$Revision: 1.1 $';
+$GD::Graph::utils::prog_rcs_rev = '$Revision: 1.2 $';
 $GD::Graph::utils::prog_version = 
 	($GD::Graph::utils::prog_rcs_rev =~ /\s+(\d*\.\d*)/) ? $1 : "0.0";
 
-{
-    sub _max { 
-        my ($a, $b) = @_; 
-		return undef	if (!defined($a) and !defined($b));
-		return $a 		if (!defined($b));
-		return $b 		if (!defined($a));
-        ( $a >= $b ) ? $a : $b; 
-    }
+sub _max { 
+	my ($a, $b) = @_; 
+	return undef	if (!defined($a) and !defined($b));
+	return $a 		if (!defined($b));
+	return $b 		if (!defined($a));
+	( $a >= $b ) ? $a : $b; 
+}
 
-    sub _min { 
-        my ($a, $b) = @_; 
-		return undef	if (!defined($a) and !defined($b));
-		return $a 		if (!defined($b));
-		return $b 		if (!defined($a));
-        ( $a <= $b ) ? $a : $b; 
-    }
+sub _min { 
+	my ($a, $b) = @_; 
+	return undef	if (!defined($a) and !defined($b));
+	return $a 		if (!defined($b));
+	return $b 		if (!defined($a));
+	( $a <= $b ) ? $a : $b; 
+}
 
-    sub _round { 
-        my($n) = shift; 
-		sprintf("%.0f", $n);
-    }
+sub _round { 
+	my($n) = shift; 
+	sprintf("%.0f", $n);
+}
 
-    sub version {
-        $GD::Graph::utils::prog_version;
-    }
+sub version {
+	$GD::Graph::utils::prog_version;
+}
 
-    $GD::Graph::utils::prog_name;
+$GD::Graph::utils::prog_name;
 
-} # End of package MVU

@@ -9,7 +9,7 @@
 #		Package of colour manipulation routines, to be used 
 #		with GD::Graph.
 #
-# $Id: colour.pm,v 1.1 1999/12/11 02:40:37 mgjv Exp $
+# $Id: colour.pm,v 1.2 1999/12/11 12:50:48 mgjv Exp $
 #
 #==========================================================================
 
@@ -23,7 +23,7 @@ require Exporter;
 @GD::Graph::colour::ISA = qw( Exporter );
 
 $GD::Graph::colour::prog_name    = 'GD::Graph::colour.pm';
-$GD::Graph::colour::prog_rcs_rev = '$Revision: 1.1 $';
+$GD::Graph::colour::prog_rcs_rev = '$Revision: 1.2 $';
 $GD::Graph::colour::prog_version = 
 	($GD::Graph::colour::prog_rcs_rev =~ /\s+(\d*\.\d*)/) ? $1 : "0.0";
 
@@ -38,158 +38,155 @@ $GD::Graph::colour::prog_version =
 		files => [qw( read_rgb )],
 	);
 
+my %RGB = (
+	white	=> [0xFF,0xFF,0xFF], 
+	lgray	=> [0xBF,0xBF,0xBF], 
+	gray	=> [0x7F,0x7F,0x7F],
+	dgray	=> [0x3F,0x3F,0x3F],
+	black	=> [0x00,0x00,0x00],
+	lblue	=> [0x00,0x00,0xFF], 
+	blue	=> [0x00,0x00,0xBF],
+	dblue	=> [0x00,0x00,0x7F], 
+	gold	=> [0xFF,0xD7,0x00],
+	lyellow	=> [0xFF,0xFF,0x00], 
+	yellow	=> [0xBF,0xBF,0x00], 
+	dyellow	=> [0x7F,0x7F,0x00],
+	lgreen	=> [0x00,0xFF,0x00], 
+	green	=> [0x00,0xBF,0x00], 
+	dgreen	=> [0x00,0x7F,0x00],
+	lred	=> [0xFF,0x00,0x00], 
+	red		=> [0xBF,0x00,0x00],
+	dred	=> [0x7F,0x00,0x00],
+	lpurple	=> [0xFF,0x00,0xFF], 
+	purple	=> [0xBF,0x00,0xBF],
+	dpurple	=> [0x7F,0x00,0x7F],
+	lorange	=> [0xFF,0xB7,0x00], 
+	orange	=> [0xFF,0x7F,0x00],
+	pink	=> [0xFF,0xB7,0xC1], 
+	dpink	=> [0xFF,0x69,0xB4],
+	marine	=> [0x7F,0x7F,0xFF], 
+	cyan	=> [0x00,0xFF,0xFF],
+	lbrown	=> [0xD2,0xB4,0x8C], 
+	dbrown	=> [0xA5,0x2A,0x2A],
+);
+
+sub colour_list 
 {
-    my %RGB = (
-        white	=> [0xFF,0xFF,0xFF], 
-        lgray	=> [0xBF,0xBF,0xBF], 
-		gray	=> [0x7F,0x7F,0x7F],
-		dgray	=> [0x3F,0x3F,0x3F],
-		black	=> [0x00,0x00,0x00],
-        lblue	=> [0x00,0x00,0xFF], 
-		blue	=> [0x00,0x00,0xBF],
-        dblue	=> [0x00,0x00,0x7F], 
-		gold	=> [0xFF,0xD7,0x00],
-        lyellow	=> [0xFF,0xFF,0x00], 
-        yellow	=> [0xBF,0xBF,0x00], 
-		dyellow	=> [0x7F,0x7F,0x00],
-        lgreen	=> [0x00,0xFF,0x00], 
-        green	=> [0x00,0xBF,0x00], 
-		dgreen	=> [0x00,0x7F,0x00],
-        lred	=> [0xFF,0x00,0x00], 
-		red		=> [0xBF,0x00,0x00],
-		dred	=> [0x7F,0x00,0x00],
-        lpurple	=> [0xFF,0x00,0xFF], 
-        purple	=> [0xBF,0x00,0xBF],
-		dpurple	=> [0x7F,0x00,0x7F],
-        lorange	=> [0xFF,0xB7,0x00], 
-		orange	=> [0xFF,0x7F,0x00],
-        pink	=> [0xFF,0xB7,0xC1], 
-		dpink	=> [0xFF,0x69,0xB4],
-        marine	=> [0x7F,0x7F,0xFF], 
-		cyan	=> [0x00,0xFF,0xFF],
-        lbrown	=> [0xD2,0xB4,0x8C], 
-		dbrown	=> [0xA5,0x2A,0x2A],
-    );
+	my $n = ( $_[0] ) ? $_[0] : keys %RGB;
+	return (keys %RGB)[0 .. $n-1]; 
+}
 
-    sub colour_list 
-	{
-        my $n = ( $_[0] ) ? $_[0] : keys %RGB;
-		return (keys %RGB)[0 .. $n-1]; 
-    }
+sub sorted_colour_list 
+{
+	my $n = $_[0] ? $_[0] : keys %RGB;
+	return (sort by_luminance keys %RGB)[0 .. $n-1];
+	# return (sort by_hue keys %rgb)[0..$n-1];
 
-    sub sorted_colour_list 
-	{
-        my $n = $_[0] ? $_[0] : keys %RGB;
-        return (sort by_luminance keys %RGB)[0 .. $n-1];
-#        return (sort by_hue keys %rgb)[0..$n-1];
-
-        sub by_luminance 
-        { 
-            _luminance(@{$RGB{$b}}) <=> _luminance(@{$RGB{$a}}); 
-        }
-        sub by_hue 
-        { 
-            _hue(@{$RGB{$b}}) <=> _hue(@{$RGB{$a}}); 
-        }
-
-    }
-
-	# return the luminance of the colour (RGB)
-    sub _luminance 
+	sub by_luminance 
 	{ 
-		(0.212671 * $_[0] + 0.715160 * $_[1] + 0.072169 * $_[2])/0xFF; 
+		_luminance(@{$RGB{$b}}) <=> _luminance(@{$RGB{$a}}); 
 	}
-
-	# return the hue of the colour (RGB)
-    sub _hue 
+	sub by_hue 
 	{ 
-		($_[0] + $_[1] + $_[2])/(3 * 0xFF); 
+		_hue(@{$RGB{$b}}) <=> _hue(@{$RGB{$a}}); 
 	}
+}
 
-my %WarnedColours = ();
+# return the luminance of the colour (RGB)
+sub _luminance 
+{ 
+	(0.212671 * $_[0] + 0.715160 * $_[1] + 0.072169 * $_[2])/0xFF; 
+}
 
-	# return the RGB values of the colour name
-    sub _rgb 
-	{ 
-		my $clr = shift;
-		my $rgb_ref;
-		$rgb_ref = $RGB{$clr} or do {
-			$rgb_ref = $RGB{'black'};
-			unless ($WarnedColours{$clr})
-			{
-				$WarnedColours{$clr} = 1;
-				warn "Colour $clr is not defined, reverting to black"; 
-			}
-		};
-		@{$rgb_ref};
-	}
+# return the hue of the colour (RGB)
+sub _hue 
+{ 
+	($_[0] + $_[1] + $_[2])/(3 * 0xFF); 
+}
 
-    sub version 
-	{
-        return $GD::Graph::colour::prog_version;
-    }
+my %warned_clrs = ();
 
-	sub dump_colours
-	{
-		my $max = $_[0] ? $_[0] : keys %RGB;
-		my $n = 0;
-
-		my $clr;
-		foreach $clr (sorted_colour_list($max))
+# return the RGB values of the colour name
+sub _rgb 
+{ 
+	my $clr = shift;
+	my $rgb_ref;
+	$rgb_ref = $RGB{$clr} or do {
+		$rgb_ref = $RGB{'black'};
+		unless ($warned_clrs{$clr})
 		{
-			last if $n > $max;
-			print "colour: $clr, " . 
-				"${$RGB{$clr}}[0], ${$RGB{$clr}}[1], ${$RGB{$clr}}[2]\n"
+			$warned_clrs{$clr}++;
+			warn "Colour $clr is not defined, reverting to black"; 
 		}
-	}
+	};
+	@{$rgb_ref};
+}
 
-	#
-	# Read a rgb.txt file (X11)
-	#
-	# Expected format of the file:
-	#
-	# R G B colour name
-	#
-	# Fields can be separated by any number of whitespace
-	# Lines starting with an exclamation mark (!) are comment and 
-	# will be ignored.
-	#
-	# returns number of colours read
+sub version 
+{
+	return $GD::Graph::colour::prog_version;
+}
 
-	sub read_rgb($) # (filename)
+sub dump_colours
+{
+	my $max = $_[0] ? $_[0] : keys %RGB;
+	my $n = 0;
+
+	my $clr;
+	foreach $clr (sorted_colour_list($max))
 	{
-		my $fn = shift;
-		my $n = 0;
-		my $line;
-
-		open(RGB, $fn) or return 0;
-
-		while (defined($line = <RGB>))
-		{
-			next if ($line =~ /\s*!/);
-			chomp($line);
-
-			# remove leading white space
-			$line =~ s/^\s+//;
-
-			# get the colours
-			my ($r, $g, $b, $name) = split(/\s+/, $line, 4);
-			
-			# Ignore bad lines
-			next unless (defined $name);
-
-			$RGB{$name} = [$r, $g, $b];
-			$n++;
-		}
-
-		close(RGB);
-
-		return $n;
+		last if $n > $max;
+		print "colour: $clr, " . 
+			"${$RGB{$clr}}[0], ${$RGB{$clr}}[1], ${$RGB{$clr}}[2]\n"
 	}
- 
-    $GD::Graph::colour::prog_name;
+}
 
-} # End of package Colour
+#
+# Read a rgb.txt file (X11)
+#
+# Expected format of the file:
+#
+# R G B colour name
+#
+# Fields can be separated by any number of whitespace
+# Lines starting with an exclamation mark (!) are comment and 
+# will be ignored.
+#
+# returns number of colours read
+
+sub read_rgb($) # (filename)
+{
+	my $fn = shift;
+	my $n = 0;
+	my $line;
+
+	open(RGB, $fn) or return 0;
+
+	while (defined($line = <RGB>))
+	{
+		next if ($line =~ /\s*!/);
+		chomp($line);
+
+		# remove leading white space
+		$line =~ s/^\s+//;
+
+		# get the colours
+		my ($r, $g, $b, $name) = split(/\s+/, $line, 4);
+		
+		# Ignore bad lines
+		next unless (defined $name);
+
+		$RGB{$name} = [$r, $g, $b];
+		$n++;
+	}
+
+	close(RGB);
+
+	return $n;
+}
+
+$GD::Graph::colour::prog_name;
+
 
 __END__
 

@@ -18,7 +18,7 @@
 #		GD::Graph::pie
 #		GD::Graph::mixed
 #
-# $Id: Graph.pm,v 1.6 2000/01/02 05:37:15 mgjv Exp $
+# $Id: Graph.pm,v 1.7 2000/01/03 05:32:08 mgjv Exp $
 #
 #==========================================================================
 
@@ -36,7 +36,7 @@ use GD;
 use GD::Text::Align;
 use Carp;
 
-$GD::Graph::prog_rcs_rev = q{$Revision: 1.6 $};
+$GD::Graph::prog_rcs_rev = q{$Revision: 1.7 $};
 $GD::Graph::prog_version = 
 	($GD::Graph::prog_rcs_rev =~ /\s+(\d*\.\d*)/) ? $1 : "0.0";
 
@@ -541,11 +541,11 @@ Fill an array of arrays with the x values and the values of the data
 sets.  Make sure that every array is the same size, otherwise
 I<GD::Graph> will complain and refuse to compile the graph.
 
-    @data = ( 
-        ["1st","2nd","3rd","4th","5th","6th","7th", "8th", "9th"],
-        [    1,    2,    5,    6,    3,  1.5,    1,     3,     4]
-        [ sort { $a <=> $b } (1, 2, 5, 6, 3, 1.5, 1, 3, 4) ]
-    );
+  @data = ( 
+    ["1st","2nd","3rd","4th","5th","6th","7th", "8th", "9th"],
+    [    1,    2,    5,    6,    3,  1.5,    1,     3,     4]
+    [ sort { $a <=> $b } (1, 2, 5, 6, 3, 1.5, 1, 3, 4) ]
+  );
 
 If you don't have a value for a point in a certain dataset, you can
 use B<undef>, and the point will be skipped.
@@ -554,25 +554,75 @@ Create a new I<GD::Graph> object by calling the I<new> method on the
 graph type you want to create (I<chart> is I<bars, lines, points,
 linespoints>, I<mixed> or I<pie>).
 
-    $graph = GD::Graph::chart->new(400, 300);
+  $graph = GD::Graph::chart->new(400, 300);
 
 Set the graph options. 
 
-    $graph->set( 
-        x_label           => 'X Label',
-        y_label           => 'Y label',
-        title             => 'Some simple graph',
-        y_max_value       => 8,
-        y_tick_number     => 8,
-        y_label_skip      => 2 
-    );
+  $graph->set( 
+      x_label           => 'X Label',
+      y_label           => 'Y label',
+      title             => 'Some simple graph',
+      y_max_value       => 8,
+      y_tick_number     => 8,
+      y_label_skip      => 2 
+  );
 
 and plot the graph.
 
-    my $gd = $my_graph->plot(\@data);
+  my $gd = $my_graph->plot(\@data);
 
 Then do whatever your current version of GD allows you to do to save the
-file.
+file. For versions of GD older than 1.19, you'd do something like:
+
+  open(IMG, '>file.gif') or die $!;
+  binmode IMG;
+  print IMG $gd->gif;
+  close IMG;
+
+and for newer versions (1.20 and up) you'd write
+
+  open(IMG, '>file.png') or die $!;
+  binmode IMG;
+  print IMG $gd->png;
+
+or
+
+  open(IMG, '>file.gd2') or die $!;
+  binmode IMG;
+  print IMG $gd->gd2;
+
+Then there's also of course the possibility of using a shorter
+version (for each of the export functions that GD supports):
+
+  print IMG $my_graph->plot(\@data)->gif;
+  print IMG $my_graph->plot(\@data)->png;
+  print IMG $my_graph->plot(\@data)->gd;
+  print IMG $my_graph->plot(\@data)->gd2;
+
+If you want to write something that doesn't require your code to 'know'
+whether to use gif or png, you could do something like:
+
+  if ($gd->can('png')) { # blabla }
+
+or you can use the convenience method C<export_format>:
+
+  my $format = $my_graph->export_format;
+  open(IMG, ">file.$format") or die $!;
+  binmode IMG;
+  print IMG $my_graph->plot(\@data)->$format();
+  close IMG;
+
+or for CGI scripts:
+
+  use CGI qw(:standard);
+  #...
+  my $format = $my_graph->export_format;
+  print header("image/$format");
+  binmode STDOUT;
+  print $my_graph->plot(\@data)->$format();
+
+(the parentheses after $format are necessary, to help the compiler
+decide that you mean a method name there)
 
 =head1 METHODS AND FUNCTIONS
 

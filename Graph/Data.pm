@@ -5,7 +5,7 @@
 #	Name:
 #		GD::Graph::Data.pm
 #
-# $Id: Data.pm,v 1.6 2000/02/13 12:35:49 mgjv Exp $
+# $Id: Data.pm,v 1.7 2000/02/15 12:47:31 mgjv Exp $
 #
 #==========================================================================
 
@@ -79,6 +79,8 @@ or for quick changes to legacy code
 Create a new GD::Graph::Data object.
 
 =cut
+
+use vars qw( $Debug );
 
 #
 # Since we can't store any attributes in our objects, we'll keep a class
@@ -235,8 +237,9 @@ sub _get_min_max
 		$max = $val if !defined $max || $val > $max;
 	}
 
-	return $self->_set_error('No (defined) values in dataset $nd')
-		unless defined $min && defined $max;
+	return $self->_set_error("No (defined) values in", 
+		$nd == 0 ? "X list" : "dataset $nd")
+			unless defined $min && defined $max;
 	
 	return ($min, $max);
 }
@@ -681,18 +684,13 @@ or if you really are only interested in the last error:
 
   $data->read(file => '/foo/bar.data') or die scalar $data->error;
 
-You could even do something like:
+This implementation does not clear the error list, so if you don't die
+on errors, you will need to make sure to never ask for anything but the
+last error (put this in scalar context).
 
-  $data->read(file => '/foo/bar.data');
-  while (my @foo = $sth->fetchrow_array)
-  {
-	  $data->add_point(@foo);
-  }
-  $data->set_x(12, 'Foo');
-  die "ACK!:\n", $data->error if ($data->error);
-
-And in some cases (see L<"copy">) this is indeed the only way to
-check for errors.
+Errors are more verbose about where the errors originated if the
+$GD::Graph::Data::Debug variable is set to a true value, and even more
+verbose if this value is larger than 5.
 
 =cut
 
@@ -708,8 +706,19 @@ sub _move_errors
 sub _set_error
 {
 	my $self = shift;
-	my @caller = caller;
-	push @{$Errors{$self}}, "($caller[0]:$caller[2]) @_" if @_;
+	return unless @_;
+
+	my %error = (
+		messages => "@_",
+		caller   => [caller],
+	);
+	my $lvl = 1;
+	while (my @c = caller($lvl))
+	{
+		$error{whence} = [@c[0..2]];
+		$lvl++;
+	}
+	push @{$Errors{$self}}, \%error;
 	return;
 }
 
@@ -717,7 +726,49 @@ sub error
 {
 	my $self = shift;
 	return unless exists $Errors{$self};
-	wantarray ? @{$Errors{$self}} : $Errors{$self}->[-1];
+	my $error = $Errors{$self};
+
+	my @return;
+
+	@return = 
+		map { 
+			"$_->{messages}" .
+			($Debug ? " at $_->{whence}[1] line $_->{whence}[2]" : '') .
+			($Debug > 2 ? " => $_->{caller}[0]($_->{caller}[2])" : '') .
+			"\n"
+		} 
+		@$error;
+
+	wantarray && @return > 1 and  
+		$return[-1] =~ s/\n/\n\t/ or
+		$return[-1] =~ s/\n//;
+
+	return wantarray ? @return : $return[-1];
+}
+
+=head2 $data->has_error() OR GD::Graph::Data->has_error()
+
+Returns true if the object (or class) has errors pending, false if not.
+
+This allows you to do things like:
+
+  $data->read(file => '/foo/bar.data');
+  while (my @foo = $sth->fetchrow_array)
+  {
+	  $data->add_point(@foo);
+  }
+  $data->set_x(12, 'Foo');
+  die "ACK!:\n", $data->error if $data->has_error;
+
+And in some cases (see L<"copy">) this is indeed the only way to
+check for errors.
+
+=cut
+
+sub has_error
+{
+	my $self = shift;
+	exists $Errors{$self};
 }
 
 sub _dump

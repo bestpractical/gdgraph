@@ -2,7 +2,7 @@ use GD::Graph::Data;
 use Data::Dumper;
 
 my @data = (
-	[qw( X1 X2 )],
+	[qw( undef undef )],
 	[qw( 11 12 )],
 	[qw( 21 )],
 	[qw( 31 32 33 34 )],
@@ -10,10 +10,17 @@ my @data = (
 
 my $data = GD::Graph::Data->new() or die GD::Graph::Data->error;
 
-$data->copy_from(\@data) or warn $data->error;
+$GD::Graph::Data::Debug = 1;
+
+#$data->get_min_max_x or warn $data->error;
+$data->get_min_max_x;
+
+#$data->copy_from(\@data) or warn $data->error;
+#$data->copy_from(\@data);
 
 #$data->add_point(qw(X3 13 23 33 43));
 #$data->set_y(-2, -3, "Grub") || warn $data->error;
+$data->set_y(-2, -3, "Grub");
 #$data->set_y(4, 2, 21);
 
 #$data->make_strict;
@@ -22,7 +29,7 @@ $data->copy_from(\@data) or warn $data->error;
 #my @foo = $data->y_values(3) ;
 #print scalar @foo, "@foo\n";
 
-die $data->error if $data->error;
+die $data->error if $data->has_error;
 
 $data->read(file => '/tmp/foo.dat', delimiter => qr/\s+/) or 
 	die $data->error;

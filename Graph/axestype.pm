@@ -5,14 +5,13 @@
 #	Name:
 #		GD::Graph::axestype.pm
 #
-# $Id: axestype.pm,v 1.17 2000/02/27 11:08:21 mgjv Exp $
+# $Id: axestype.pm,v 1.18 2000/03/18 06:01:43 mgjv Exp $
 #
 #==========================================================================
 
 package GD::Graph::axestype;
 
-$GD::Graph::axestype::VERSION = 
-	(q($Revision: 1.17 $) =~ /\s([\d.]+)/ ? $1 : "0.0");
+$GD::Graph::axestype::VERSION = '$Revision: 1.18 $' =~ /\s([\d.]+)/;
 
 use strict;
  

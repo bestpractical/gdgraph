@@ -9,15 +9,14 @@
 #		Package of colour manipulation routines, to be used 
 #		with GD::Graph.
 #
-# $Id: colour.pm,v 1.4 2000/02/16 12:45:32 mgjv Exp $
+# $Id: colour.pm,v 1.5 2000/03/18 06:01:43 mgjv Exp $
 #
 #==========================================================================
 
  
 package GD::Graph::colour;
 
-$GD::Graph::colour::VERSION = 
-	(q($Revision: 1.4 $) =~ /\s([\d.]+)/ ? $1 : "0.0");
+$GD::Graph::colour::VERSION = '$Revision: 1.5 $' =~ /\s([\d.]+)/;
 
 use vars qw( @EXPORT_OK %EXPORT_TAGS );
 use strict;

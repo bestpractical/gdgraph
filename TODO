@@ -1,3 +1,28 @@
+--Flexible colours. Allow #ffeedd notation, on the fly. Allow
+conversions. Allow addition of single colours, by name.
+
+-- dashed grid lines
+
+From: "Neil Cameron" <n.cameron@blueice.co.uk>o
+
+I'm using your clever little graph system and wonder if it can support
+nested data sets. I want to show two data sets side by side, but each
+data set itself consists of a set of data which I want to show piled one
+on top of the other.
+
+I tried the following data set, with two_axes set to 1 and overwrite set
+to 2. I didn't like it. Any ideas.
+
+@data = (
+    ["1st","2nd","3rd","4th","5th","6th","7th", "8th", "9th"],
+	    [    [5,5,5],   [5,5,5],   [5,5,5],   [5,5,5],   [5,5,5],
+		[5,5,5],
+		+[5,5,5],    [5,5,5],    [5,5,5]],
+		    [    [5,5,5],   [5,5,5],   [5,5,5],   [5,5,5],   [5,5,5],
+			[5,5,5],
+			+[5,5,5],    [5,5,5],    [5,5,5]],
+			);
+
 From: "Feech" <feech@fastlane.net>
 
   1) Is there any way to make the y-axis count upwards negative instead

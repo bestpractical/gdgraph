@@ -8,14 +8,13 @@
 #	Description:
 #		Package of general utilities.
 #
-# $Id: utils.pm,v 1.4 2000/02/16 12:45:32 mgjv Exp $
+# $Id: utils.pm,v 1.5 2000/03/18 06:01:43 mgjv Exp $
 #
 #==========================================================================
  
 package GD::Graph::utils;
 
-$GD::Graph::utils::VERSION = 
-	(q($Revision: 1.4 $) =~ /\s([\d.]+)/ ? $1 : "0.0");
+$GD::Graph::utils::VERSION = '$Revision: 1.5 $' =~ /\s([\d.]+)/;
 
 use strict;
 

@@ -5,7 +5,7 @@
 #	Name:
 #		GD::Graph::axestype.pm
 #
-# $Id: axestype.pm,v 1.9 2000/01/07 13:44:42 mgjv Exp $
+# $Id: axestype.pm,v 1.10 2000/01/09 12:43:58 mgjv Exp $
 #
 #==========================================================================
 
@@ -70,6 +70,7 @@ my %Defaults = (
 	# Do you want bars to be drawn on top of each other, or side by side?
 	overwrite 			=> 0,
 
+	# XXX The following two need to get better defaults. Maybe computed.
 	# Draw the zero axis in the graph in case there are negative values
 	zero_axis			=>	0,
 
@@ -82,7 +83,8 @@ my %Defaults = (
 	legend_marker_height	=> 8,
 	legend_marker_width		=> 12,
 	legend_spacing			=> 4,
-	legend_placement		=> 'BC',		# '[B][LCR]'
+	legend_placement		=> 'BC',		# '[BR][LCR]'
+	lg_cols					=> undef,
 
 	# Format of the numbers on the x and y axis
 	y_number_format			=> undef,
@@ -93,6 +95,8 @@ my %Defaults = (
 	y_label			=> undef,
 	y1_label		=> undef,
 	y2_label		=> undef,
+	x_min_value		=> undef,
+	x_max_value		=> undef,
 	y_min_value 	=> undef,
 	y1_min_value 	=> undef,
 	y2_min_value 	=> undef,
@@ -1172,7 +1176,6 @@ sub setup_legend
 			$s->{lg_xs} =  
 				int($s->{l_margin} + $width/2 - $s->{lg_x_size}/2);
 		}
-
 	}
 }
 

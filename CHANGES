@@ -1,3 +1,16 @@
+09 Jan 2000
+
+- Rewrote some documentation to reflect new GD::Text behaviour.
+
+08 Jan 2000
+
+- Rewrote set method to only accept documented attributes.
+- Made sure all documented attributes are part of the %Defaults hashes.
+- Changed inheritance slightly, because changing the set method and
+  using access to file scoped variables didn't work very well with
+  multiple inheritance in mixed and linespoints. All file scoped
+  material now is kept in the common ancestor of these, i.e. axestype.
+
 06 Jan 2000
 
 - Added shadow patch from Jeremy Wadsack, changed a few things: Allow

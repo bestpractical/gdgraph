@@ -1,5 +1,5 @@
 # This -*- perl -*- script makes the Makefile
-# $Id: Makefile.PL,v 1.5 2000/01/05 12:51:58 mgjv Exp $
+# $Id: Makefile.PL,v 1.6 2000/01/09 12:43:58 mgjv Exp $
  
 #--- Distribution section ---
  
@@ -17,7 +17,7 @@ WriteMakefile(
 		($] >= 5.005 ?
 			('ABSTRACT'		=> 'Produces charts with GD',
 			 'AUTHOR'		=> 'Martien Verbruggen <mgjv@comdyn.com.au>',
-			) : ()
+			):()
 		),
 
 		'PREREQ_PM'			=> { 

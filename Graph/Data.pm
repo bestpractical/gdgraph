@@ -5,13 +5,13 @@
 #   Name:
 #       GD::Graph::Data.pm
 #
-# $Id: Data.pm,v 1.18 2003/02/10 22:12:41 mgjv Exp $
+# $Id: Data.pm,v 1.19 2003/05/29 06:56:20 mgjv Exp $
 #
 #==========================================================================
 
 package GD::Graph::Data;
 
-($GD::Graph::Data::VERSION) = '$Revision: 1.18 $' =~ /\s([\d.]+)/;
+($GD::Graph::Data::VERSION) = '$Revision: 1.19 $' =~ /\s([\d.]+)/;
 
 use strict;
 use GD::Graph::Error;
@@ -613,9 +613,12 @@ literal tabs with <tab> for clarity
 
 Valid arguments are:
 
-I<file>, mandatory. The file name of the file to read from.
+I<file>, mandatory. The file name of the file to read from, or a
+reference to a file handle or glob.
 
   $data->read(file => '/data/foo.dat') or die $data->error;
+  $data->read(file => \*DATA) or die $data->error;
+  $data->read(file => $file_handle) or die $data->error;
 
 I<no_comment>, optional. Give this a true value if you don't want lines
 with an initial # to be skipped.
@@ -649,8 +652,16 @@ sub read
 
     $self->reset;
 
-    open(DATA, $args{file}) or 
-        return $self->_set_error("open ($args{file}): $!");
+    if (ref $args{file})
+    {
+	*DATA = $args{file};
+    }
+    else
+    {
+	open(DATA, $args{file}) or 
+	    return $self->_set_error("open ($args{file}): $!");
+    }
+
     while (<DATA>)
     {
         chomp;

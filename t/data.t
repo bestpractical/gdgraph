@@ -1,4 +1,4 @@
-# $Id: data.t,v 1.15 2003/06/17 01:24:36 mgjv Exp $
+# $Id: data.t,v 1.16 2003/06/17 02:18:37 mgjv Exp $
 use Test;
 use strict;
 
@@ -137,8 +137,15 @@ $rc = $data->read(file => \*DATA, delimiter => qr/,/);
 # open file handle in read().
 ok(ref $rc, "GD::Graph::Data", "Couldn't read from DATA file handle");
 
-ok($data->num_sets(), 3);
-ok(scalar $data->num_points(), 2);
+if (!defined $rc)
+{
+    skip(1, "DATA not read") for 1..2;
+}
+else
+{
+    ok($data->num_sets(), 3);
+    ok(scalar $data->num_points(), 2);
+}
 
 __DATA__
 We will skip this line

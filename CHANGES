@@ -2,6 +2,8 @@
 
 - Fixed skip() calls in tests to work with ancient versions of
   Test.pm.
+- Made GD::Graph::Data::read() work with file handles under Perl
+  5.005.
 
 16 June 2003
 

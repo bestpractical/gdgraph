@@ -18,7 +18,7 @@
 #		GD::Graph::pie
 #		GD::Graph::mixed
 #
-# $Id: Graph.pm,v 1.21 2000/02/27 11:08:21 mgjv Exp $
+# $Id: Graph.pm,v 1.22 2000/02/27 11:53:32 mgjv Exp $
 #
 #==========================================================================
 
@@ -31,7 +31,7 @@
 package GD::Graph;
 
 $GD::Graph::prog_version = 
-	(q($Revision: 1.21 $) =~ /\s([\d.]+)/ ? $1 : "0.0");
+	(q($Revision: 1.22 $) =~ /\s([\d.]+)/ ? $1 : "0.0");
 
 $GD::Graph::VERSION = '1.30';
 
@@ -191,14 +191,6 @@ sub set_title_font # (fontname, size)
 {
 	my $self = shift;
 	$self->_set_font('gdta_title', @_);
-}
-
-sub set_title_TTF 
-{
-	my $self = shift;
-	my $hash_ref = shift;
-
-	$self->set_title_font($hash_ref->{fontname}, $hash_ref->{size});
 }
 
 sub set_text_clr # (colour name)

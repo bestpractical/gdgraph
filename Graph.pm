@@ -18,7 +18,7 @@
 #		GD::Graph::pie
 #		GD::Graph::mixed
 #
-# $Id: Graph.pm,v 1.28 2000/05/03 11:51:41 mgjv Exp $
+# $Id: Graph.pm,v 1.29 2000/05/06 09:34:41 mgjv Exp $
 #
 #==========================================================================
 
@@ -30,7 +30,7 @@
 
 package GD::Graph;
 
-$GD::Graph::prog_version = '$Revision: 1.28 $' =~ /\s([\d.]+)/;
+$GD::Graph::prog_version = '$Revision: 1.29 $' =~ /\s([\d.]+)/;
 $GD::Graph::VERSION = '1.31';
 
 use strict;
@@ -513,7 +513,7 @@ I<GD::Graph> will complain and refuse to compile the graph.
 
   @data = ( 
     ["1st","2nd","3rd","4th","5th","6th","7th", "8th", "9th"],
-    [    1,    2,    5,    6,    3,  1.5,    1,     3,     4]
+    [    1,    2,    5,    6,    3,  1.5,    1,     3,     4],
     [ sort { $a <=> $b } (1, 2, 5, 6, 3, 1.5, 1, 3, 4) ]
   );
 

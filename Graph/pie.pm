@@ -5,13 +5,13 @@
 #	Name:
 #		GD::Graph::pie.pm
 #
-# $Id: pie.pm,v 1.15 2000/04/30 08:32:38 mgjv Exp $
+# $Id: pie.pm,v 1.16 2000/05/06 10:03:19 mgjv Exp $
 #
 #==========================================================================
 
 package GD::Graph::pie;
 
-$GD::Graph::pie::VERSION = '$Revision: 1.15 $' =~ /\s([\d.]+)/;
+$GD::Graph::pie::VERSION = '$Revision: 1.16 $' =~ /\s([\d.]+)/;
 
 use strict;
 
@@ -227,7 +227,10 @@ sub draw_data
 
 	my $total = 0;
 	my @values = $self->{_data}->y_values(1);	# for now, only one pie..
-	$total += $_ for (@values);
+	for (@values)
+	{	
+		$total += $_ 
+	}
 
 	return $self->_set_error("Pie data total is <= 0") 
 		unless $total > 0;

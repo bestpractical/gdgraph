@@ -5,13 +5,13 @@
 #	Name:
 #		GD::Graph::Data.pm
 #
-# $Id: Data.pm,v 1.13 2000/04/30 08:32:38 mgjv Exp $
+# $Id: Data.pm,v 1.14 2000/05/06 10:03:19 mgjv Exp $
 #
 #==========================================================================
 
 package GD::Graph::Data;
 
-$GD::Graph::Data::VERSION = '$Revision: 1.13 $' =~ /\s([\d.]+)/;
+$GD::Graph::Data::VERSION = '$Revision: 1.14 $' =~ /\s([\d.]+)/;
 
 use strict;
 use GD::Graph::Error;
@@ -641,7 +641,7 @@ sub read
 	return $self->_set_error('Missing required argument: file') 
 		unless $args{file};
 
-	my $delim = $args{delimiter} || qr/\t/;
+	my $delim = $args{delimiter} || "\t";
 
 	# The following will die if these modules are not present, as
 	# documented.

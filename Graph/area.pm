@@ -5,7 +5,7 @@
 #	Name:
 #		GD::Graph::area.pm
 #
-# $Id: area.pm,v 1.4 2000/01/27 11:12:11 mgjv Exp $
+# $Id: area.pm,v 1.5 2000/01/27 11:13:32 mgjv Exp $
 #
 #==========================================================================
 
@@ -59,8 +59,6 @@ sub draw_data_set  # GD::Image, \@data, $ds
 	$g->polygon($poly, $brci);
 
 	# Draw the accent lines
-	my $foo = ($s->{right} - $s->{left})/($s->{numpoints} + 1);
-	print "$foo > $s->{accent_treshold}\n";
 	if (($s->{right} - $s->{left})/($s->{numpoints} + 1)>
 			$s->{accent_treshold})
 	{

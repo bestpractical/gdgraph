@@ -5,7 +5,7 @@ The latest release is available from CPAN: http://www.cpan.org/.
 
 INSTALLATION
 
-needed to install (also see TESTED PLATFORMS):
+Requirements:
 
 	perl 5.005
 	GD >= 1.19 (recommended >= 1.23)

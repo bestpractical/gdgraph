@@ -18,7 +18,7 @@
 #		GD::Graph::pie
 #		GD::Graph::mixed
 #
-# $Id: Graph.pm,v 1.16 2000/02/13 12:35:49 mgjv Exp $
+# $Id: Graph.pm,v 1.17 2000/02/15 05:30:34 mgjv Exp $
 #
 #==========================================================================
 
@@ -37,7 +37,7 @@ use GD::Text::Align;
 use GD::Graph::Data;
 use Carp;
 
-$GD::Graph::prog_rcs_rev = q{$Revision: 1.16 $};
+$GD::Graph::prog_rcs_rev = q{$Revision: 1.17 $};
 $GD::Graph::prog_version = 
 	($GD::Graph::prog_rcs_rev =~ /\s+(\d*\.\d*)/) ? $1 : "0.0";
 
@@ -436,6 +436,7 @@ sub gd
 
 sub export_format
 {
+	my $proto = shift;
 	GD::Image->can('png') and return 'png';
 	GD::Image->can('gif') and return 'gif';
 	return;
@@ -443,10 +444,8 @@ sub export_format
 
 sub can_do_ttf
 {
-	my $self = shift;
-
-	# Title font is the only one guaranteed to be always available
-	return $self->{gdta_title}->can_do_ttf;
+	my $proto = shift;
+	return GD::Text->can_do_ttf;
 }
 
 $GD::Graph::VERSION;

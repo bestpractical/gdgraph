@@ -1,3 +1,8 @@
+15 Feb 2000
+
+- Fixed bug in can_do_ttf. Can now _really_ be called as static or
+  class method.
+
 14 Feb 2000
 
 - Fixed bug in bar width. Removed some roundings, and always add 1

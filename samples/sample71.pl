@@ -57,6 +57,8 @@ $my_graph->set_legend_font('../Dustismo_Sans.ttf', 9);
 
 $my_graph->set_legend( qw( one two three four five six ) );
 
+# Put some background text in, but only if we have TTF support
+
 if ($my_graph->can_do_ttf)
 {
     my $gd = $my_graph->gd;
@@ -89,7 +91,7 @@ if (1) {
 
     $gdta = GD::Text::Align->new($gd,
 	text => 'maximum',
-	font => '../Dustismo_Sans.ttf',
+	font => ['../Dustismo_Sans.ttf', GD::Font->Small],
 	ptsize => 12,
 	colour => $red,
 	valign => 'bottom',

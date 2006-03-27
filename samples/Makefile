@@ -41,7 +41,7 @@ SAMPLES :=  \
     sample31 \
     sample41 sample42\
     sample51 sample52 sample53 sample54 sample55 sample56 \
-    sample57 \
+    sample57 sample58 \
     sample61 sample62 sample63 \
     sample71 sample72 \
     sample91 sample92 sample93 sample94

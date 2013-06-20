@@ -5,17 +5,18 @@
 #   Name:
 #       GD::Graph::area.pm
 #
-# $Id: area.pm,v 1.17 2007/04/26 03:16:09 ben Exp $
+# $Id: area.pm,v 1.19 2007/06/05 04:49:27 ben Exp $
 #
 #==========================================================================
 
 package GD::Graph::area;
  
-($GD::Graph::area::VERSION) = '$Revision: 1.17 $' =~ /\s([\d.]+)/;
+($GD::Graph::area::VERSION) = '$Revision: 1.19 $' =~ /\s([\d.]+)/;
 
 use strict;
 
 use GD::Graph::axestype;
+use GD;
 
 @GD::Graph::area::ISA = qw( GD::Graph::axestype );
 
@@ -30,8 +31,14 @@ sub draw_data_set
             $self->{_data}->error);
 
     # Select a data colour
-    my $dsci = $self->set_clr($self->pick_data_clr($ds));
-    my $brci = $self->set_clr($self->pick_border_clr($ds));
+    my $dsci = $self->set_clr($self->pick_data_clr($ds),$self->{alpha});
+    my $brci;
+    my @rgb = $self->pick_border_clr($ds);
+    if (@rgb > 0){
+        $brci = $self->set_clr(@rgb,$self->{alpha});
+    } else {
+        $brci = undef;
+    }
 
     # Create a new polygon
     my $poly = GD::Polygon->new();
@@ -84,10 +91,19 @@ sub draw_data_set
     }
 
     # Draw a filled and a line polygon
-    $self->{graph}->filledPolygon($poly, $dsci)
-        if defined $dsci;
-    $self->{graph}->polygon($poly, $brci)
-        if defined $brci;
+    if ($self->{aa}){
+        $self->{graph}->setAntiAliased($dsci);
+        $self->{graph}->filledPolygon($poly, GD->gdAntiAliased)
+            if defined $dsci;
+        $self->{graph}->setAntiAliased($brci);
+        $self->{graph}->polygon($poly, GD->gdAntiAliased)
+            if defined $brci;
+    } else {
+        $self->{graph}->filledPolygon($poly, $dsci)
+            if defined $dsci;
+        $self->{graph}->polygon($poly, $brci)
+            if defined $brci;
+    }
 
     # Draw the accent lines
     if (defined $brci &&

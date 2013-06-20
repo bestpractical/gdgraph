@@ -9,7 +9,7 @@ print STDERR "Processing sample31\n";
     [    1,    2,    5,    6,    3,  1.5,    undef,     3,     4],
 );
 
-$my_graph = new GD::Graph::points();
+$my_graph = new GD::Graph::points(400,300,1);
 
 $my_graph->set( 
 	x_label => 'X Label',
@@ -24,6 +24,8 @@ $my_graph->set(
 	markers => [ 9, 10, 1, 7, 5 ],
 
 	transparent => 0,
+	aa=>1,
+	alpha=>100,
 );
 
 $my_graph->set_legend( qw( one two ) );

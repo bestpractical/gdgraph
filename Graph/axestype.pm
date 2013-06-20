@@ -5,13 +5,13 @@
 #   Name:
 #       GD::Graph::axestype.pm
 #
-# $Id: axestype.pm,v 1.45 2007/04/26 03:16:09 ben Exp $
+# $Id: axestype.pm,v 1.46 2007/04/27 05:26:47 ben Exp $
 #
 #==========================================================================
 
 package GD::Graph::axestype;
 
-($GD::Graph::axestype::VERSION) = '$Revision: 1.45 $' =~ /\s([\d.]+)/;
+($GD::Graph::axestype::VERSION) = '$Revision: 1.46 $' =~ /\s([\d.]+)/;
 
 use strict;
  
@@ -146,6 +146,9 @@ my %Defaults = (
     y2_min_range     => undef,
 
     borderclrs      => undef,
+
+    aa              => 0,
+    alpha           => 0,
 
     # XXX
     # Multiple inheritance (linespoints and mixed) finally bit me. The
@@ -2098,7 +2101,7 @@ sub draw_legend_marker # data_set_number, x, y
 
     my $g = $s->{graph};
 
-    my $ci = $s->set_clr($s->pick_data_clr($n));
+    my $ci = $s->set_clr($s->pick_data_clr($n),$s->{alpha});
     return unless defined $ci;
 
     $y += int($s->{lg_el_height}/2 - $s->{legend_marker_height}/2);

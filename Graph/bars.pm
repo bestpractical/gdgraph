@@ -5,13 +5,13 @@
 #   Name:
 #       GD::Graph::bars.pm
 #
-# $Id: bars.pm,v 1.26 2007/04/26 03:16:09 ben Exp $
+# $Id: bars.pm,v 1.27 2007/04/27 05:26:47 ben Exp $
 #
 #==========================================================================
  
 package GD::Graph::bars;
 
-($GD::Graph::bars::VERSION) = '$Revision: 1.26 $' =~ /\s([\d.]+)/;
+($GD::Graph::bars::VERSION) = '$Revision: 1.27 $' =~ /\s([\d.]+)/;
 
 use strict;
 
@@ -83,7 +83,7 @@ sub _draw_shadow
     my $self = shift;
     my ($ds, $i, $value, $topvalues, $l, $t, $r, $b) = @_;
     my $bsd = $self->{shadow_depth} or return;
-    my $bsci = $self->set_clr(_rgb($self->{shadowclr}));
+    my $bsci = $self->set_clr(_rgb($self->{shadowclr}),$self->{alpha});
 
     if ($self->{cumulate})
     {
@@ -136,9 +136,15 @@ sub draw_data_set_h
     my $bar_s = $self->{bar_spacing}/2;
 
     # Pick a data colour
-    my $dsci = $self->set_clr($self->pick_data_clr($ds));
+    my $dsci = $self->set_clr($self->pick_data_clr($ds),$self->{alpha});
     # contrib "Bremford, Mike" <mike.bremford@gs.com>
-    my $brci = $self->set_clr($self->pick_border_clr($ds));
+    my $brci;
+    my @rgb = $self->pick_border_clr($ds);
+    if (@rgb > 0){
+        $brci = $self->set_clr(@rgb,$self->{alpha});
+    } else {
+        $brci = undef;
+    }
 
     my @values = $self->{_data}->y_values($ds) or
         return $self->_set_error("Impossible illegal data set: $ds",
@@ -159,9 +165,9 @@ sub draw_data_set_h
         #
         # cycle_clrs option sets the color based on the point, 
         # not the dataset.
-        $dsci = $self->set_clr($self->pick_data_clr($i + 1))
+        $dsci = $self->set_clr($self->pick_data_clr($i + 1),$self->{alpha})
             if $self->{cycle_clrs};
-        $brci = $self->set_clr($self->pick_data_clr($i + 1))
+        $brci = $self->set_clr($self->pick_data_clr($i + 1),$self->{alpha})
             if $self->{cycle_clrs} > 1;
 
         # get coordinates of right and center of bar
@@ -212,9 +218,16 @@ sub draw_data_set_v
     my $bar_s = $self->{bar_spacing}/2;
 
     # Pick a data colour
-    my $dsci = $self->set_clr($self->pick_data_clr($ds));
+    my $dsci = $self->set_clr($self->pick_data_clr($ds),$self->{alpha});
     # contrib "Bremford, Mike" <mike.bremford@gs.com>
-    my $brci = $self->set_clr($self->pick_border_clr($ds));
+    my $brci;
+    my @rgb = $self->pick_border_clr($ds);
+    if (@rgb > 0){
+        $brci = $self->set_clr(@rgb,$self->{alpha});
+    } else {
+        $brci = undef;
+    }
+
 
     my @values = $self->{_data}->y_values($ds) or
         return $self->_set_error("Impossible illegal data set: $ds",
@@ -242,9 +255,9 @@ sub draw_data_set_v
         #
         # cycle_clrs option sets the color based on the point, 
         # not the dataset.
-        $dsci = $self->set_clr($self->pick_data_clr($i + 1))
+        $dsci = $self->set_clr($self->pick_data_clr($i + 1),$self->{alpha})
             if $self->{cycle_clrs};
-        $brci = $self->set_clr($self->pick_data_clr($i + 1))
+        $brci = $self->set_clr($self->pick_data_clr($i + 1),$self->{alpha})
             if $self->{cycle_clrs} > 1;
 
         # get coordinates of top and center of bar

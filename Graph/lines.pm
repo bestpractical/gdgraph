@@ -5,13 +5,13 @@
 #   Name:
 #       GD::Graph::lines.pm
 #
-# $Id: lines.pm,v 1.15 2005/12/14 04:13:00 ben Exp $
+# $Id: lines.pm,v 1.17 2007/06/05 04:49:27 ben Exp $
 #
 #==========================================================================
 
 package GD::Graph::lines;
 
-($GD::Graph::lines::VERSION) = '$Revision: 1.15 $' =~ /\s([\d.]+)/;
+($GD::Graph::lines::VERSION) = '$Revision: 1.17 $' =~ /\s([\d.]+)/;
 
 use strict;
  
@@ -31,7 +31,7 @@ sub draw_data_set
         return $self->_set_error("Impossible illegal data set: $ds",
             $self->{_data}->error);
 
-    my $dsci = $self->set_clr($self->pick_data_clr($ds) );
+    my $dsci = $self->set_clr($self->pick_data_clr($ds), $self->{alpha} );
     my $type = $self->pick_line_type($ds);
 
     my ($xb, $yb);
@@ -154,7 +154,12 @@ sub draw_line # ($xs, $ys, $xe, $ye, $type, $colour_index)
 
         # Need the setstyle to reset 
         $self->{graph}->setStyle(@pattern) if (@pattern);
-        $self->{graph}->line( $xs, $yslw, $xe, $yelw, $style );
+        if ($self->{aa}){
+            $self->{graph}->setAntiAliased($style);
+            $self->{graph}->line( $xs, $yslw, $xe, $yelw, GD->gdAntiAliased);
+        } else {
+            $self->{graph}->line( $xs, $yslw, $xe, $yelw, $style );
+        }
     }
 }
 
@@ -163,7 +168,7 @@ sub draw_legend_marker # (data_set_number, x, y)
     my $self = shift;
     my ($n, $x, $y) = @_;
 
-    my $ci = $self->set_clr($self->pick_data_clr($n));
+    my $ci = $self->set_clr($self->pick_data_clr($n),$self->{alpha});
     return unless defined $ci;
     my $type = $self->pick_line_type($n);
 

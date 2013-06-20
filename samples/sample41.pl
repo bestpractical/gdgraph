@@ -10,7 +10,7 @@ print STDERR "Processing sample41\n";
     [70,  undef,  71,  undef,  78,  undef,  75,  71, undef],
 );
 
-$my_graph = new GD::Graph::linespoints( );
+$my_graph = new GD::Graph::linespoints(400,300,1 );
 
 $my_graph->set( 
 	x_label => 'X Label',
@@ -26,6 +26,8 @@ $my_graph->set(
 	skip_undef => 1,
 
 	transparent => 0,
+	aa=>1,
+	#alpha=>40, #interestingly, this causes a segfault!
 
 ) or warn $my_graph->error;
 

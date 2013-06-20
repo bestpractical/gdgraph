@@ -56,12 +56,15 @@ info:
 	$(PERL) $(OPTIONS) $<
 
 # EXPERIMENTAL, for internal use only. Don't try to run this
-html: make_index.pl Makefile
-	$(PERL) $(OPTIONS) make_index.pl $(EXT)
+html: Makefile
+	$(PERL) $(OPTIONS) -MCGI=:standard \
+	-e'print start_html(-bgcolor=>"lightgray",-title=>"GD::Graph Samples");' \
+	-e'print map { h3($$_),img({-src=>$$_}) } @ARGV;' \
+	-e'print end_html();' sample*$(EXT) > samples.html
 
-# Requires ImageMagick to be installed
+# Remind me why I would want to depend on ImageMagick, again?
 logo.gif: logo.png
-	convert logo.png logo.gif
+	perl -MGD -e'print GD::Image->newFromPng(\*STDIN)->gif' < logo.png > logo.gif
 
 clean:
 	rm -f $(IMAGES) logo.gif

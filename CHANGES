@@ -1,3 +1,11 @@
+29 Aug 2007
+
+- Applied patch from bug 24189, modified to not break older perl/GD
+  combinations
+- Modified samples 21, 31 and 41 to illustrate the patch a little
+- Made changes to the samples Makefile to avoid depending on Image::Magick
+- Release 1.44_01 (definitely a developer release)
+
 25 Apr 2007
 
 - Patched bugs 21610, 20792, 20802, 23755 and 22932

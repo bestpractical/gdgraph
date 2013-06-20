@@ -5,13 +5,13 @@
 #   Name:
 #       GD::Graph::points.pm
 #
-# $Id: points.pm,v 1.13 2005/12/14 04:13:32 ben Exp $
+# $Id: points.pm,v 1.14 2007/04/27 05:26:47 ben Exp $
 #
 #==========================================================================
 
 package GD::Graph::points;
 
-($GD::Graph::points::VERSION) = '$Revision: 1.13 $' =~ /\s([\d.]+)/;
+($GD::Graph::points::VERSION) = '$Revision: 1.14 $' =~ /\s([\d.]+)/;
 
 use strict;
  
@@ -31,7 +31,7 @@ sub draw_data_set
             $self->{_data}->error);
 
     # Pick a colour
-    my $dsci = $self->set_clr($self->pick_data_clr($ds));
+    my $dsci = $self->set_clr($self->pick_data_clr($ds),$self->{alpha});
     my $type = $self->pick_marker($ds);
 
     for (my $i = 0; $i < @values; $i++)
@@ -163,7 +163,7 @@ sub draw_legend_marker
     my $x = shift;
     my $y = shift;
 
-    my $ci = $self->set_clr($self->pick_data_clr($n));
+    my $ci = $self->set_clr($self->pick_data_clr($n),$self->{alpha});
 
     my $old_ms = $self->{marker_size};
     my $ms = _min($self->{legend_marker_height}, $self->{legend_marker_width});

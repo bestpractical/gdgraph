@@ -5,13 +5,13 @@
 #   Name:
 #       GD::Graph::mixed.pm
 #
-# $Id: mixed.pm,v 1.12 2003/02/10 22:12:41 mgjv Exp $
+# $Id: mixed.pm,v 1.12.2.1 2005/12/19 06:03:59 ben Exp $
 #
 #==========================================================================
 
 package GD::Graph::mixed;
  
-($GD::Graph::mixed::VERSION) = '$Revision: 1.12 $' =~ /\s([\d.]+)/;
+($GD::Graph::mixed::VERSION) = '$Revision: 1.12.2.1 $' =~ /\s([\d.]+)/;
 
 use strict;
  
@@ -60,7 +60,7 @@ sub draw_data_set
 
     my $rc;
 
-    my $type = $self->{types}->[$ds-1] || $self->{default_type};
+    my $type = $self->types($ds);
 
     # Try to execute the draw_data_set function in the package
     # specified by type
@@ -88,12 +88,31 @@ sub draw_legend_marker
     my $self = shift;
     my $ds = $_[0];
 
-    my $type = $self->{types}->[$ds-1] || $self->{default_type};
+    my $type = $self->types($ds);
 
     eval '$self->GD::Graph::'.$type.'::draw_legend_marker(@_)';
 
     eval '$self->GD::Graph::'.
         $self->{default_type}.'::draw_legend_marker(@_)' if $@;
+}
+
+# undocumented as can be: returns the type-list (with the default
+# inserted as appropriate), or the type associated with a particular
+# (1-indexed) dataset number (undef if there is no such dataset).  The
+# range check means that this cannot be called when there is no
+# GD::Graph::Data object in $self->{_data}.
+
+sub types
+{
+    my $self = shift;
+    if ( defined $_[0] ) {
+        $_[0] > 0 && $_[0] <= $self->{_data}->num_sets
+          ? $self->{types}->[$_[0] - 1] || $self->{default_type}
+          : undef
+    } else {
+        map { $self->{types}->[$_ - 1] || $self->{default_type} }
+          1 .. $self->{_data}->num_sets;
+    }
 }
 
 "Just another true value";

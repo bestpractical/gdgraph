@@ -1,3 +1,15 @@
+19 Dec 2005
+
+- Resolved the following bug reports/feature requests from RT:
+	1363, 2944, 3346, 3850, 4104, 4380, 4384, 
+	4469, 5275, 5282, 6751, 6786, 7287, 7819
+- Straightened out $my_graph/$graph confusion in docs
+- Added five new sample scripts
+- Individual module versions now reflect a branch from original CVS
+  versioning, in case things need to be merged at some later date.
+- Uploading to CPAN as 1.4305 under ~BWARFIELD because I can't seem
+  to get in touch with Martien Verbruggen.
+
 1 July 2003
 
 - Fixed yet another division by 0 problem, for two_axes. 

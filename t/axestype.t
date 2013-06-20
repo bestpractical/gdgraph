@@ -1,4 +1,4 @@
-# $Id: axestype.t,v 1.2 2003/07/01 05:00:45 mgjv Exp $
+# $Id: axestype.t,v 1.1 2005/12/14 04:22:16 ben Exp $
 #
 # Test stuff related to axestype charts
 #

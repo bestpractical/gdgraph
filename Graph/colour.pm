@@ -9,7 +9,7 @@
 #       Package of colour manipulation routines, to be used 
 #       with GD::Graph.
 #
-# $Id: colour.pm,v 1.10 2003/02/11 05:38:46 mgjv Exp $
+# $Id: colour.pm,v 1.10 2005/12/14 04:09:40 ben Exp $
 #
 #==========================================================================
 

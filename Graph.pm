@@ -19,7 +19,7 @@
 #       GD::Graph::pie
 #       GD::Graph::mixed
 #
-# $Id: Graph.pm,v 1.53 2003/07/01 04:56:57 mgjv Exp $
+# $Id: Graph.pm,v 1.53.2.5 2005/12/22 07:56:05 ben Exp $
 #
 #==========================================================================
 
@@ -31,8 +31,8 @@
 
 package GD::Graph;
 
-($GD::Graph::prog_version) = '$Revision: 1.53 $' =~ /\s([\d.]+)/;
-$GD::Graph::VERSION = '1.43';
+($GD::Graph::prog_version) = '$Revision: 1.53.2.5 $' =~ /\s([\d.]+)/;
+$GD::Graph::VERSION = '1.4305';
 
 use strict;
 use GD;
@@ -546,9 +546,9 @@ Create a graph, representing the data as areas under a line.
 
 Create a mixed type graph, any combination of the above. At the moment
 this is fairly limited. Some of the options that can be used with some
-of the individual graph types won't work very well. Multiple bar
-graphs in a mixed graph won't display very nicely, i.e. they cannot be
-put next to each other.
+of the individual graph types won't work very well. Bar graphs drawn 
+after lines or points graphs may obscure the earlier data, and 
+specifying bar_width will not produce the results you probably expected.
 
 =back
 
@@ -597,11 +597,11 @@ Set the graph options.
       y_max_value       => 8,
       y_tick_number     => 8,
       y_label_skip      => 2 
-  ) or die $my_graph->error;
+  ) or die $graph->error;
 
 and plot the graph.
 
-  my $gd = $my_graph->plot(\@data) or die $my_graph->error;
+  my $gd = $graph->plot(\@data) or die $graph->error;
 
 Then do whatever your current version of GD allows you to do to save the
 file. For versions of GD older than 1.19, you'd do something like:
@@ -626,10 +626,10 @@ or
 Then there's also of course the possibility of using a shorter
 version (for each of the export functions that GD supports):
 
-  print IMG $my_graph->plot(\@data)->gif;
-  print IMG $my_graph->plot(\@data)->png;
-  print IMG $my_graph->plot(\@data)->gd;
-  print IMG $my_graph->plot(\@data)->gd2;
+  print IMG $graph->plot(\@data)->gif;
+  print IMG $graph->plot(\@data)->png;
+  print IMG $graph->plot(\@data)->gd;
+  print IMG $graph->plot(\@data)->gd2;
 
 If you want to write something that doesn't require your code to 'know'
 whether to use gif or png, you could do something like:
@@ -638,20 +638,20 @@ whether to use gif or png, you could do something like:
 
 or you can use the convenience method C<export_format>:
 
-  my $format = $my_graph->export_format;
+  my $format = $graph->export_format;
   open(IMG, ">file.$format") or die $!;
   binmode IMG;
-  print IMG $my_graph->plot(\@data)->$format();
+  print IMG $graph->plot(\@data)->$format();
   close IMG;
 
 or for CGI programs:
 
   use CGI qw(:standard);
   #...
-  my $format = $my_graph->export_format;
+  my $format = $graph->export_format;
   print header("image/$format");
   binmode STDOUT;
-  print $my_graph->plot(\@data)->$format();
+  print $graph->plot(\@data)->$format();
 
 (the parentheses after $format are necessary, to help the compiler
 decide that you mean a method name there)
@@ -931,7 +931,7 @@ Default: 5.
 =item y_number_format
 
 This can be either a string, or a reference to a subroutine. If it is
-a string, it will be taken to be the first argument to an sprintf,
+a string, it will be taken to be the first argument to a sprintf,
 with the value as the second argument:
 
     $label = sprintf( $s->{y_number_format}, $value );
@@ -961,11 +961,22 @@ in currency, with the - sign in the right spot. Something like:
         return $ret;
     }
 
-    $my_graph->set( 'y_number_format' => \&y_format );
+    $graph->set( 'y_number_format' => \&y_format );
 
 (Yes, I know this can be much shorter and more concise)
 
 Default: undef.
+
+=item y1_number_format, y2_number_format
+
+As with I<y_number_format>, these can be either a string, or a reference
+to a subroutine. These are used as formats for graphs with
+two y-axis scales so that independent formats can be used.
+
+For compatibility purposes, each of these will fall back on 
+I<y_number_format> if not specified.
+
+Default: undef for both.
 
 =item x_label_skip, y_label_skip
 
@@ -1040,8 +1051,8 @@ Default: undef.
 
 Use two separate axes for the first and second data set. The first
 data set will be set against the left axis, the second against the
-right axis. If this is set to a true value, trying to use anything
-else than 2 datasets will generate an error.  
+right axis.  If more than two data sets are being plotted, the use_axis
+option should be used to specify which data sets use which axis.
 
 Note that if you use this option, that you need to use y1_label and
 y2_label, instead of just y_label, if you want the two axes to have
@@ -1049,6 +1060,16 @@ different labels. The same goes for some other options starting with the
 letter 'y' and an underscore.
 
 Default: 0.
+
+=item use_axis
+
+If two y-axes are in use and more than two datasets are specified, set
+this option to an array reference containing a value of 1 or 2 (for
+the left and right scales respectively) for each dataset being plotted.
+That is, to plot three datasets with the second on a different scale than
+the first and third, set this to C<[1,2,1]>.
+
+Default: [1,2].
 
 =item zero_axis
 
@@ -1239,6 +1260,13 @@ Use C<bar_spacing> to get a fixed amount of space between bars, with
 variable bar widths, depending on the width of the chart.  Note that if
 C<bar_width> is also set, this setting will be ignored, and
 automatically calculated.  Default: 0
+
+=item bargroup_spacing
+
+Number of pixels (in addition to whatever is specified in C<bar_spacing>)
+to leave between groups of bars when multiple datasets are being displayed.
+Unlike C<bar_spacing>, however, this parameter will hold its value if
+C<bar_width> is set.
 
 =back
 
@@ -1453,9 +1481,9 @@ things, since all font handling in GD::Graph is delegated to there.
 
 Examples:
 
-    $my_graph->set_title_font('/fonts/arial.ttf', 18);
-    $my_graph->set_legend_font(gdTinyFont);
-    $my_graph->set_legend_font(
+    $graph->set_title_font('/fonts/arial.ttf', 18);
+    $graph->set_legend_font(gdTinyFont);
+    $graph->set_legend_font(
         ['verdana', 'arial', gdMediumBoldFont], 12)
 
 (The above discussion is based on GD::Text 0.65. Older versions have

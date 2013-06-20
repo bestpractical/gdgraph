@@ -5,7 +5,7 @@
 #   Name:
 #       GD::Graph::linespoints.pm
 #
-# $Id: linespoints.pm,v 1.8 2003/02/10 22:12:41 mgjv Exp $
+# $Id: linespoints.pm,v 1.8 2005/12/14 04:13:08 ben Exp $
 #
 #==========================================================================
 

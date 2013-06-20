@@ -1,4 +1,4 @@
-# $Id: error.t,v 1.3 2003/07/01 05:00:45 mgjv Exp $
+# $Id: error.t,v 1.1 2005/12/14 04:22:16 ben Exp $
 use Test;
 use strict;
 

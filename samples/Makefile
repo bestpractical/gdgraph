@@ -6,7 +6,7 @@
 # Run the examples by hand, one by one, or do something like
 #
 # tcsh> foreach s (*.pl)
-# foreach> perl -I. -I../lib -Tw $s
+# foreach> perl -I. -Mblib -Tw $s
 # foreach> end
 #
 # If you use an old version of GD that exports GIF, you will need to
@@ -17,24 +17,24 @@
 
 PERL = perl
 EXTRA_OPTS = 
-OPTIONS = -I. -I../blib/lib $(EXTRA_OPTS) -w
+OPTIONS = -I. -Mblib $(EXTRA_OPTS) -w
 
 EXT := $(shell perl $(OPTIONS) -MGD::Graph \
 		-e 'print scalar GD::Graph::export_format')
 
 SAMPLES :=  \
     sample11 sample12 sample13 sample14 sample15 \
-    sample16 sample17 sample18 \
+    sample16 sample17 sample18 sample19 sample1A sample1B \
     sample11-h sample12-h sample13-h sample14-h sample15-h \
-    sample16-h sample17-h sample18-h \
+    sample16-h sample17-h sample18-h sample19-h sample1A-h \
     sample21 sample22 sample23 \
     sample31 \
     sample41 sample42\
     sample51 sample52 sample53 sample54 sample55 sample56 \
     sample57 \
-    sample61 sample62 sample63 \
+    sample61 sample62 sample63 sample64  \
     sample71 \
-    sample91 sample92 sample93 sample94
+    sample91 sample92 sample93 sample94 sample95
 
 IMAGES := $(SAMPLES:%=%.$(EXT))
 

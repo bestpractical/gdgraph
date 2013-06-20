@@ -5,13 +5,13 @@
 #   Name:
 #       GD::Graph::bars.pm
 #
-# $Id: bars.pm,v 1.25 2003/06/11 00:43:49 mgjv Exp $
+# $Id: bars.pm,v 1.25.2.4 2005/12/19 04:53:09 ben Exp $
 #
 #==========================================================================
  
 package GD::Graph::bars;
 
-($GD::Graph::bars::VERSION) = '$Revision: 1.25 $' =~ /\s([\d.]+)/;
+($GD::Graph::bars::VERSION) = '$Revision: 1.25.2.4 $' =~ /\s([\d.]+)/;
 
 use strict;
 
@@ -169,21 +169,22 @@ sub draw_data_set_h
 
         # calculate top and bottom of bar
         my ($t, $b);
+        my $window = $self->{x_step} - $self->{bargroup_spacing};
 
         if (ref $self eq 'GD::Graph::mixed' || $self->{overwrite})
         {
-            $t = $xp - $self->{x_step}/2 + $bar_s + 1;
-            $b = $xp + $self->{x_step}/2 - $bar_s;
+            $t = $xp - $window/2 + $bar_s + 1;
+            $b = $xp + $window/2 - $bar_s;
         }
         else
         {
             $t = $xp 
-                - $self->{x_step}/2
-                + ($ds - 1) * $self->{x_step}/$self->{_data}->num_sets
-                + $bar_s + 1;
+                - $window/2
+                + ($ds - 1) * $window/$self->{_data}->num_sets
+                + $bar_s + 1; # GRANTM thinks this +1 should be conditional on bargroup_spacing being absent
             $b = $xp 
-                - $self->{x_step}/2
-                + $ds * $self->{x_step}/$self->{_data}->num_sets
+                - $window/2
+                + $ds * $window/$self->{_data}->num_sets
                 - $bar_s;
         }
 
@@ -232,6 +233,13 @@ sub draw_data_set_v
 
     my $topvalues = $self->_top_values;
 
+    my ($bar_sets,$ds_adj) = ( $self->{_data}->num_sets , $ds );
+    if ( $self->isa( 'GD::Graph::mixed' ) ) {
+        my @types =  $self->types;
+        $bar_sets =  grep { $_  eq 'bars' } @types;
+        $ds_adj   =  grep { $_  eq 'bars' } @types[0..$ds-1];
+    }
+
     for (my $i = 0; $i < @values; $i++) 
     {
         my $value = $values[$i];
@@ -255,21 +263,22 @@ sub draw_data_set_v
 
         # calculate left and right of bar
         my ($l, $r);
+        my $window = $self->{x_step} - $self->{bargroup_spacing};
 
-        if (ref $self eq 'GD::Graph::mixed' || $self->{overwrite})
+        if ($self->{overwrite})
         {
-            $l = $xp - $self->{x_step}/2 + $bar_s + 1;
-            $r = $xp + $self->{x_step}/2 - $bar_s;
+            $l = $xp - $window/2 + $bar_s + 1;
+            $r = $xp + $window/2 - $bar_s;
         }
         else
         {
             $l = $xp 
-                - $self->{x_step}/2
-                + ($ds - 1) * $self->{x_step}/$self->{_data}->num_sets
-                + $bar_s + 1;
+                - $window/2
+                + ($ds_adj - 1) * $window/$bar_sets
+                + $bar_s + 1; # GRANTM thinks this +1 should be conditional on bargroup_spacing being absent
             $r = $xp 
-                - $self->{x_step}/2
-                + $ds * $self->{x_step}/$self->{_data}->num_sets
+                - $window/2
+                + $ds_adj * $window/$bar_sets
                 - $bar_s;
         }
 
@@ -312,12 +321,18 @@ sub draw_values
     return $self unless $self->{show_values};
     
     my $text_angle = $self->{values_vertical} ? PI/2 : 0;
-
+    my @numPoints = $self->{_data}->num_points();
     for (my $dsn = 1; $dsn <= $self->{_data}->num_sets; $dsn++)
     {
-        my @values = $self->{_data}->y_values($dsn) or
+        my @values = ();
+        if (!$self->get("cumulate")) {
+          @values = $self->{_data}->y_values($dsn) or
             return $self->_set_error("Impossible illegal data set: $dsn",
                 $self->{_data}->error);
+        } else {
+          my $nPoints = $numPoints[$dsn] || 0;
+          @values = map {$self->{_data}->get_y_cumulative($dsn, $_)} (0..$nPoints - 1) ;
+        }
         my @display = $self->{show_values}->y_values($dsn) or next;
 
         for (my $i = 0; $i < @values; $i++)

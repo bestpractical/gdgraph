@@ -3,6 +3,13 @@ GD.pm. See the documentation for some history and more information.
 
 The latest release is available from CPAN: http://www.cpan.org/.
 
+PLEASE NOTE: The release which includes this file is a set of bug-fixes and
+feature additions on top of version 1.43, provided by various Perl users,
+and assembled and and packaged up in the hope that they will be useful.
+It should probably be considered a developer release, though there are no 
+known regressions in it: a more official release may be forthcoming,
+especially if that statement holds up.
+
 INSTALLATION
 
 Requirements:

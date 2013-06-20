@@ -5,13 +5,13 @@
 #   Name:
 #       GD::Graph::axestype.pm
 #
-# $Id: axestype.pm,v 1.44 2003/07/01 05:04:10 mgjv Exp $
+# $Id: axestype.pm,v 1.44.2.6 2005/12/19 06:09:21 ben Exp $
 #
 #==========================================================================
 
 package GD::Graph::axestype;
 
-($GD::Graph::axestype::VERSION) = '$Revision: 1.44 $' =~ /\s([\d.]+)/;
+($GD::Graph::axestype::VERSION) = '$Revision: 1.44.2.6 $' =~ /\s([\d.]+)/;
 
 use strict;
  
@@ -124,6 +124,8 @@ my %Defaults = (
 
     # Format of the numbers on the x and y axis
     y_number_format         => undef,
+    y1_number_format        => undef,       # CONTRIB Andrew OBrien
+    y2_number_format        => undef,       # CONTRIB Andrew OBrien
     x_number_format         => undef,       # CONTRIB Scott Prahl
 
     # and some attributes without default values
@@ -174,9 +176,10 @@ my %Defaults = (
     skip_undef      => 0,
 
     # XXX bars
-    # Spacing between the bars
+    # Spacing between the bars and groups of bars
     bar_width       => undef,
     bar_spacing     => 0,
+    bargroup_spacing=> 0,                   # CONTRIB Grant McLean
 
     # cycle through colours per data point, not set
     cycle_clrs      => 0,
@@ -658,7 +661,7 @@ sub setup_coords
     my $s = shift;
 
     # Do some sanity checks
-    $s->{two_axes} = 0 if $s->{_data}->num_sets != 2 || $s->{two_axes} < 0;
+    $s->{two_axes} = 0 if $s->{_data}->num_sets < 2 || $s->{two_axes} < 0;
     $s->{two_axes} = 1 if $s->{two_axes} > 1;
 
     delete $s->{y_label2} unless $s->{two_axes};
@@ -728,11 +731,11 @@ sub create_y_labels
             
             $self->{y_values}[$axis][$t] = $label;
 
-            if (defined $self->{y_number_format})
+            if (my ($fmt) = grep defined, map($self->{"y${_}_number_format"},$axis,'') )
             {
-                $label = ref $self->{y_number_format} eq 'CODE' ?
-                    &{$self->{y_number_format}}($label) :
-                    sprintf($self->{y_number_format}, $label);
+                $label = ref $fmt eq 'CODE' ?
+                    $fmt->($label) :
+                    sprintf($fmt, $label);
             }
             
             $self->{gdta_y_axis}->set_text($label);
@@ -1136,19 +1139,27 @@ sub draw_x_ticks_h
             ($i - $self->{x_tick_offset}) % ($self->{x_label_skip}) and 
             $i != $self->{_data}->num_points - 1;
 
-        $self->{gdta_x_axis}->set_text($self->{_data}->get_x($i));
+        my $text = $self->{_data}->get_x($i);
+        if (defined $text)
+        {
+            $self->{gdta_x_axis}->set_text($text);
 
-        my $angle = 0;
-        if ($self->{x_labels_vertical})
+            my $angle = 0;
+            if ($self->{x_labels_vertical})
+            {
+                $self->{gdta_x_axis}->set_align('bottom', 'center');
+                $angle = PI/2;
+            }
+            else
+            {
+                $self->{gdta_x_axis}->set_align('center', 'right');
+            }
+            $self->{gdta_x_axis}->draw($x - $self->{axis_space}, $y, $angle);
+        } 
+        elsif ($INC{'warnings.pm'} && warnings::enabled('uninitialized') || $^W ) 
         {
-            $self->{gdta_x_axis}->set_align('bottom', 'center');
-            $angle = PI/2;
+            carp("Uninitialized label value at index $i");
         }
-        else
-        {
-            $self->{gdta_x_axis}->set_align('center', 'right');
-        }
-        $self->{gdta_x_axis}->draw($x - $self->{axis_space}, $y, $angle);
     }
 
     return $self;
@@ -1189,19 +1200,27 @@ sub draw_x_ticks_v
             ($i - $self->{x_tick_offset}) % ($self->{x_label_skip}) and 
             $i != $self->{_data}->num_points - 1;
 
-        $self->{gdta_x_axis}->set_text($self->{_data}->get_x($i));
+        my $text = $self->{_data}->get_x($i);
+        if (defined $text)
+        {
+            $self->{gdta_x_axis}->set_text($text);
 
-        my $angle = 0;
-        if ($self->{x_labels_vertical})
+            my $angle = 0;
+            if ($self->{x_labels_vertical})
+            {
+                $self->{gdta_x_axis}->set_align('center', 'right');
+                $angle = PI/2;
+            }
+            else
+            {
+                $self->{gdta_x_axis}->set_align('top', 'center');
+            }
+            $self->{gdta_x_axis}->draw($x, $y + $self->{axis_space}, $angle);
+        } 
+        elsif ($INC{'warnings.pm'} && warnings::enabled('uninitialized') || $^W ) 
         {
-            $self->{gdta_x_axis}->set_align('center', 'right');
-            $angle = PI/2;
+            carp("Uninitialized label value at index $i");
         }
-        else
-        {
-            $self->{gdta_x_axis}->set_align('top', 'center');
-        }
-        $self->{gdta_x_axis}->draw($x, $y + $self->{axis_space}, $angle);
     }
 
     return $self;
@@ -1347,7 +1366,7 @@ sub draw_data
     # Calculate bar_spacing from bar_width
     if ($self->{bar_width})
     {
-        my $chart_width = $self->{rotate_chart} ? 
+        my $chart_width = !$self->{rotate_chart} ? 
             $self->{right} - $self->{left} :
             $self->{bottom} - $self->{top};
         my $n_bars = $self->{_data}->num_points;
@@ -1487,14 +1506,30 @@ sub set_max_min
         my $min_range_2 = defined($self->{min_range_2})
                 ? $self->{min_range_2}
                 : $self->{min_range};
+
+	my(@y_min, @y_max);
+	for my $nd (1 .. $self->{_data}->num_sets)
+	{
+	    my $axis = $self->{use_axis}->[$nd - 1];
+	    my($y_min, $y_max) = $self->{_data}->get_min_max_y($nd);
+	    if (!defined $y_min[$axis] || $y_min[$axis] > $y_min)
+	    {
+		$y_min[$axis] = $y_min;
+	    }
+	    if (!defined $y_max[$axis] || $y_max[$axis] < $y_max)
+	    {
+		$y_max[$axis] = $y_max;
+	    }
+	}
+
         (
 	    $self->{y_min}[1], $self->{y_max}[1],
 	    $self->{y_min}[2], $self->{y_max}[2],
 	    $self->{y_tick_number}
         ) = _best_dual_ends(
-                $self->_correct_y_min_max($self->{_data}->get_min_max_y(1)), 
+                $self->_correct_y_min_max($y_min[1], $y_max[1]),
 		    $min_range_1,
-                $self->_correct_y_min_max($self->{_data}->get_min_max_y(2)), 
+                $self->_correct_y_min_max($y_min[2], $y_max[2]),
 		    $min_range_2,
                 $self->{y_tick_number}
         );
@@ -1622,15 +1657,15 @@ sub _best_ends
 
     my ($best_min, $best_max, $best_num) = ($min, $max, 1);
 
+    # Check that min and max are not the same, and not 0
+    ($min, $max) = ($min) ? ($min * 0.5, $min * 1.5) : (-1,1)
+        if ($max == $min);
+    
     # mgjv - Sometimes, for odd values, and only one data set, this will be
     # necessary _after_ the previous step, not before. Data sets of one
     # long with negative values were causing infinite loops later on.
     ($min, $max) = ($max, $min) if ($min > $max);
 
-    # Check that min and max are not the same, and not 0
-    ($min, $max) = ($min) ? ($min * 0.5, $min * 1.5) : (-1,1)
-        if ($max == $min);
-    
     my @n = ref($n_ref) ? @$n_ref : $n_ref;
 
     if (@n <= 0)
@@ -1797,7 +1832,7 @@ sub _fit_vals_range
                 : $max;
         ($min, $max) = ($nice_min, $nice_max);
     }
-    return ($min, $max);
+    return (0+$min, 0+$max);
 }
 
 # Takes $bmin, $min, $max, $bmax and returns a fit statistic for how well
@@ -1844,11 +1879,13 @@ sub val_to_pixel    # ($x, $y, $i) in real coords ($Dataspace),
     my ($x, $y, $i) = @_;
 
     # XXX use_axis
-    my $y_min = ($self->{two_axes} && $i == 2) ? 
-        $self->{y_min}[2] : $self->{y_min}[1];
+    my $y_min = $self->{two_axes}
+		? $self->{y_min}[$self->{use_axis}[$i-1]]
+		: $self->{y_min}[1];
 
-    my $y_max = ($self->{two_axes} && $i == 2) ? 
-        $self->{y_max}[2] : $self->{y_max}[1];
+    my $y_max = $self->{two_axes}
+		? $self->{y_max}[$self->{use_axis}[$i-1]]
+		: $self->{y_max}[1];
 
     my $y_step = $self->{rotate_chart} ?
         abs(($self->{right} - $self->{left})/($y_max - $y_min)) :

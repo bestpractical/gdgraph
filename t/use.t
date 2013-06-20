@@ -1,4 +1,4 @@
-# $Id: use.t,v 1.2 2003/02/10 02:09:46 mgjv Exp $
+# $Id: use.t,v 1.1 2005/12/14 04:22:16 ben Exp $
 use Test;
 use strict;
 

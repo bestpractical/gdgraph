@@ -5,13 +5,13 @@
 #   Name:
 #       GD::Graph::pie.pm
 #
-# $Id: pie.pm,v 1.20.2.3 2006/02/15 07:10:03 ben Exp $
+# $Id: pie.pm,v 1.20.2.4 2006/05/15 05:08:40 ben Exp $
 #
 #==========================================================================
 
 package GD::Graph::pie;
 
-($GD::Graph::pie::VERSION) = '$Revision: 1.20.2.3 $' =~ /\s([\d.]+)/;
+($GD::Graph::pie::VERSION) = '$Revision: 1.20.2.4 $' =~ /\s([\d.]+)/;
 
 use strict;
 
@@ -122,10 +122,10 @@ sub setup_coords()
     my $lfh = $self->{label} ? $self->{gdta_label}->get('height') : 0;
 
     # Calculate the bounding box for the pie, and
-    # some width, height, and centre parameters
+    # some width, height, and centre parameters (don't forget fenceposts!)
     $self->{bottom} = 
         $self->{height} - $self->{pie_height} - $self->{b_margin} -
-        ( $lfh ? $lfh + $self->{text_space} : 0 );
+        ( $lfh ? $lfh + $self->{text_space} : 0 ) - 1;
     $self->{top} = 
         $self->{t_margin} + ( $tfh ? $tfh + $self->{text_space} : 0 );
 
@@ -133,13 +133,17 @@ sub setup_coords()
         if $self->{bottom} - $self->{top} <= 0;
 
     $self->{left} = $self->{l_margin};
-    $self->{right} = $self->{width} - $self->{r_margin};
+    $self->{right} = $self->{width} - $self->{r_margin} - 1;
+
+    # ensure that the center is a single pixel, not a half-pixel position
+    $self->{right}--  if ($self->{right} - $self->{left}) % 2;
+    $self->{bottom}-- if ($self->{bottom} - $self->{top}) % 2;
 
     return $self->_set_error('Horizontal size too small')
         if $self->{right} - $self->{left} <= 0;
 
-    $self->{w} = $self->{right}  - $self->{left};
-    $self->{h} = $self->{bottom} - $self->{top};
+    $self->{w} = $self->{right}  - $self->{left} + 1;
+    $self->{h} = $self->{bottom} - $self->{top} + 1;
 
     $self->{xc} = ($self->{right}  + $self->{left})/2; 
     $self->{yc} = ($self->{bottom} + $self->{top})/2;

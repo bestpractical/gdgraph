@@ -5,13 +5,13 @@
 #   Name:
 #       GD::Graph::Data.pm
 #
-# $Id: Data.pm,v 1.21 2005/12/14 04:08:45 ben Exp $
+# $Id: Data.pm,v 1.21.2.2 2006/03/12 20:49:53 ben Exp $
 #
 #==========================================================================
 
 package GD::Graph::Data;
 
-($GD::Graph::Data::VERSION) = '$Revision: 1.21 $' =~ /\s([\d.]+)/;
+($GD::Graph::Data::VERSION) = '$Revision: 1.21.2.2 $' =~ /\s([\d.]+)/;
 
 use strict;
 use GD::Graph::Error;
@@ -204,14 +204,15 @@ I<$np> in the data sets 1 to I<$nd>.
 sub get_y_cumulative
 {
     my $self = shift;
-    my ($nd, $np) = @_;
+    my ($nd, $np, $incl_vec) = @_;
     return $self->_set_error(ERR_ILL_DATASET)
         unless defined $nd && $nd >= 1 && $nd <= $self->num_sets;
     return $self->_set_error(ERR_ILL_POINT)
         unless defined $np && $np >= 0;
     
     my $value;
-    for (my $i = 1; $i <= $nd; $i++)
+    my @indices = $incl_vec ? grep($_ <= $nd, @$incl_vec) : 1 .. $nd;
+    for my $i ( @indices )
     {
         $value += $self->[$i][$np] || 0;
     }

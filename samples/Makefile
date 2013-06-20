@@ -26,7 +26,7 @@ SAMPLES :=  \
     sample11 sample12 sample13 sample14 sample15 \
     sample16 sample17 sample18 sample19 sample1A sample1B \
     sample11-h sample12-h sample13-h sample14-h sample15-h \
-    sample16-h sample17-h sample18-h sample19-h sample1A-h \
+    sample16-h sample17-h sample18-h sample19-h sample1A-h sample1B-h\
     sample21 sample22 sample23 \
     sample31 \
     sample41 sample42\
@@ -34,7 +34,7 @@ SAMPLES :=  \
     sample57 \
     sample61 sample62 sample63 sample64  \
     sample71 \
-    sample91 sample92 sample93 sample94 sample95
+    sample91 sample92 sample93 sample94 sample95 sample95-h
 
 IMAGES := $(SAMPLES:%=%.$(EXT))
 

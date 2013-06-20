@@ -5,13 +5,13 @@
 #   Name:
 #       GD::Graph::area.pm
 #
-# $Id: area.pm,v 1.16 2005/12/14 04:09:06 ben Exp $
+# $Id: area.pm,v 1.16.2.3 2006/03/13 07:03:30 ben Exp $
 #
 #==========================================================================
 
 package GD::Graph::area;
  
-($GD::Graph::area::VERSION) = '$Revision: 1.16 $' =~ /\s([\d.]+)/;
+($GD::Graph::area::VERSION) = '$Revision: 1.16.2.3 $' =~ /\s([\d.]+)/;
 
 use strict;
 
@@ -36,7 +36,7 @@ sub draw_data_set
     # Create a new polygon
     my $poly = GD::Polygon->new();
 
-    my @bottom;
+    my (@top,@bottom);
 
     # Add the data points
     for (my $i = 0; $i < @values; $i++)
@@ -46,18 +46,18 @@ sub draw_data_set
 
         my $bottom = $self->_get_bottom($ds, $i);
         $value = $self->{_data}->get_y_cumulative($ds, $i)
-            if ($self->{overwrite} == 2);
+            if $self->{cumulate};
 
         my ($x, $y) = $self->val_to_pixel($i + 1, $value, $ds);
-        $poly->addPt($x, $y);
-	# Need to keep track of this stuff for hotspots, and because
-	# it's the only reliable way of closing the polygon, without
-	# making odd assumptions.
+        push @top, [$x, $y];
+        # Need to keep track of this stuff for hotspots, and because
+        # it's the only reliable way of closing the polygon, without
+        # making odd assumptions.
         push @bottom, [$x, $bottom];
 
         # Hotspot stuff
         # XXX needs fixing. Not used at the moment.
-	next unless defined $self->{_hotspots}->[$ds]->[$i];
+        next unless defined $self->{_hotspots}->[$ds]->[$i];
         if ($i == 0)
         {
             $self->{_hotspots}->[$ds]->[$i] = ["poly", 
@@ -78,9 +78,9 @@ sub draw_data_set
         }
     }
 
-    foreach my $bottom (reverse @bottom)
+    foreach my $pair (@top, reverse @bottom)
     {
-        $poly->addPt($bottom->[0], $bottom->[1]);
+        $poly->addPt( @$pair );
     }
 
     # Draw a filled and a line polygon
@@ -93,15 +93,10 @@ sub draw_data_set
     if (defined $brci &&
        ($self->{right} - $self->{left})/@values > $self->{accent_treshold})
     {
-        for (my $i = 1; $i < @values - 1; $i++)
+        for my $i ( 0 .. $#top )
         {
-            my $value = $values[$i];
-	    ## XXX Why don't I need this line?
-            ##next unless defined $value;
-
-            my ($x, $y) = $poly->getPt($i);
+            my ($x, $y) = @{$top[$i]};
             my $bottom = $bottom[$i]->[1];
-
             $self->{graph}->dashedLine($x, $y, $x, $bottom, $brci);
         }
     }

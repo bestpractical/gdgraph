@@ -23,7 +23,6 @@ MANIFEST
 META.yml			Module meta-data (added by MakeMaker)
 README
 samples/Makefile
-samples/logo.gif
 samples/logo.png
 samples/rgb.txt
 samples/sample11.pl

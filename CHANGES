@@ -1,3 +1,16 @@
+17 May 2006
+
+- Patched bugs 7307, 2944 (extended the fix to mixed graphs), 4177, and 16863.
+- Fixed a fencepost error in pie.pm that caused an occasional segfault
+	(reported by John Westlund and Hank Leininger)
+- Fixed a bug that broke bar charts with no visible 0-axis 
+	(reported by Steve Foster)
+
+19 Feb 2006
+
+- Patched bugs 2218, 4632 (which had two duplicates), 7881, and 15374
+- Failed to update CHANGES file before releasing 1.4307 to CPAN (oops)
+
 4 Feb 2006
 
 - Patched bugs 16880 and 16791

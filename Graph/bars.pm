@@ -5,13 +5,13 @@
 #   Name:
 #       GD::Graph::bars.pm
 #
-# $Id: bars.pm,v 1.25.2.4 2005/12/19 04:53:09 ben Exp $
+# $Id: bars.pm,v 1.25.2.9 2006/03/12 22:23:30 ben Exp $
 #
 #==========================================================================
  
 package GD::Graph::bars;
 
-($GD::Graph::bars::VERSION) = '$Revision: 1.25.2.4 $' =~ /\s([\d.]+)/;
+($GD::Graph::bars::VERSION) = '$Revision: 1.25.2.9 $' =~ /\s([\d.]+)/;
 
 use strict;
 
@@ -65,11 +65,11 @@ sub _top_values
 
     if ($self->{cumulate})
     {
-	my $data = $self->{_data};
-	for my $i (0 .. $data->num_points - 1)
-	{
-	    push @topvalues, $data->get_y_cumulative($data->num_sets, $i);
-	}
+        my $data = $self->{_data};
+        for my $i (0 .. $data->num_points - 1)
+        {
+            push @topvalues, $data->get_y_cumulative($data->num_sets, $i);
+        }
     }
 
     return \@topvalues;
@@ -87,44 +87,44 @@ sub _draw_shadow
 
     if ($self->{cumulate})
     {
-	return if $ds > 1;
-	$value = $topvalues->[$i];
-	if ($self->{rotate_chart})
-	{
-	    $r = ($self->val_to_pixel($i + 1, $value, $ds))[0];
-	}
-	else
-	{
-	    $t = ($self->val_to_pixel($i + 1, $value, $ds))[1];
-	}
+        return if $ds > 1;
+        $value = $topvalues->[$i];
+        if ($self->{rotate_chart})
+        {
+            $r = ($self->val_to_pixel($i + 1, $value, $ds))[0];
+        }
+        else
+        {
+            $t = ($self->val_to_pixel($i + 1, $value, $ds))[1];
+        }
     }
 
     # XXX Clean this up
     if ($value >= 0)
     {
-	if ($self->{rotate_chart})
-	{
-	    $self->{graph}->filledRectangle(
-		$l, $t + $bsd, $r - $bsd, $b + $bsd, $bsci);
-	}
-	else
-	{
+        if ($self->{rotate_chart})
+        {
+            $self->{graph}->filledRectangle(
+                $l, $t + $bsd, $r - $bsd, $b + $bsd, $bsci);
+        }
+        else
+        {
             $self->{graph}->filledRectangle(
                 $l + $bsd, $t + $bsd, $r + $bsd, $b, $bsci);
-	}
+        }
     }
     else
     {
-	if ($self->{rotate_chart})
-	{
-	    $self->{graph}->filledRectangle(
-		$l + $bsd, $t, $r + $bsd, $b, $bsci);
-	}
-	else
-	{
+        if ($self->{rotate_chart})
+        {
+            $self->{graph}->filledRectangle(
+                $l + $bsd, $t, $r + $bsd, $b, $bsci);
+        }
+        else
+        {
             $self->{graph}->filledRectangle(
                 $l + $bsd, $b, $r + $bsd, $t + $bsd, $bsci);
-	}
+        }
     }
 }
 
@@ -189,27 +189,16 @@ sub draw_data_set_h
         }
 
         # draw the bar
-	$self->_draw_shadow($ds, $i, $value, $topvalues, $l, $t, $r, $b);
-        if ($value >= 0)
-        {
-            # positive value
-            $self->{graph}->filledRectangle($l, $t, $r, $b, $dsci)
-                if defined $dsci;
-            $self->{graph}->rectangle($l, $t, $r, $b, $brci) 
-                if defined $brci && $b - $t > $self->{accent_treshold};
+        $self->_draw_shadow($ds, $i, $value, $topvalues, $l, $t, $r, $b);
 
-            $self->{_hotspots}->[$ds]->[$i] = ['rect', $t, $l, $r, $b]
-        }
-        else
-        {
-            # negative value
-            $self->{graph}->filledRectangle($r, $t, $l, $b, $dsci)
-                if defined $dsci;
-            $self->{graph}->rectangle($l, $t, $r, $b, $brci) 
-                if defined $brci && $b - $t > $self->{accent_treshold};
+        if ($value < 0) { ($r,$l) = ($l,$r) } 
 
-            $self->{_hotspots}->[$ds]->[$i] = ['rect', $t, $l, $b, $r]
-        }
+        $self->{graph}->filledRectangle($l, $t, $r, $b, $dsci)
+            if defined $dsci;
+        $self->{graph}->rectangle($l, $t, $r, $b, $brci) 
+               if defined $brci && $b - $t > $self->{accent_treshold};
+
+        $self->{_hotspots}->[$ds]->[$i] = ['rect', $l, $t, $r, $b];
     }
 
     return $ds;
@@ -283,27 +272,14 @@ sub draw_data_set_v
         }
 
         # draw the bar
-	$self->_draw_shadow($ds, $i, $value, $topvalues, $l, $t, $r, $bottom);
-        if ($value >= 0)
-        {
-            # positive value
-            $self->{graph}->filledRectangle($l, $t, $r, $bottom, $dsci)
-                if defined $dsci;
-            $self->{graph}->rectangle($l, $t, $r, $bottom, $brci) 
-                if defined $brci && $r - $l > $self->{accent_treshold};
+        $self->_draw_shadow($ds, $i, $value, $topvalues, $l, $t, $r, $bottom);
 
-            $self->{_hotspots}->[$ds]->[$i] = ['rect', $l, $t, $r, $bottom]
-        }
-        else
-        {
-            # negative value
-            $self->{graph}->filledRectangle($l, $bottom, $r, $t, $dsci)
-                if defined $dsci;
-            $self->{graph}->rectangle($l, $bottom, $r, $t, $brci) 
-                if defined $brci && $r - $l > $self->{accent_treshold};
-
-            $self->{_hotspots}->[$ds]->[$i] = ['rect', $l, $bottom, $r, $t]
-        }
+        if ($value < 0) { ($bottom,$t) = ($t,$bottom) } 
+        $self->{graph}->filledRectangle($l, $t, $r, $bottom, $dsci)
+            if defined $dsci;
+        $self->{graph}->rectangle($l, $t, $r, $bottom, $brci) 
+            if defined $brci && $r - $l > $self->{accent_treshold};
+        $self->{_hotspots}->[$ds]->[$i] = ['rect', $l, $t, $r, $bottom]
     }
 
     return $ds;
@@ -319,11 +295,14 @@ sub draw_values
     my $self = shift;
 
     return $self unless $self->{show_values};
+    my $has_args = @_;
     
     my $text_angle = $self->{values_vertical} ? PI/2 : 0;
     my @numPoints = $self->{_data}->num_points();
-    for (my $dsn = 1; $dsn <= $self->{_data}->num_sets; $dsn++)
-    {
+    my @datasets = $has_args ? @_ : 1 .. $self->{_data}->num_sets;
+
+    for my $dsn ( @datasets )
+    {   # CONTRIB Romeo Juncu
         my @values = ();
         if (!$self->get("cumulate")) {
           @values = $self->{_data}->y_values($dsn) or
@@ -331,7 +310,9 @@ sub draw_values
                 $self->{_data}->error);
         } else {
           my $nPoints = $numPoints[$dsn] || 0;
-          @values = map {$self->{_data}->get_y_cumulative($dsn, $_)} (0..$nPoints - 1) ;
+          my $vec = $has_args ? \@datasets : undef;
+          @values = map { $self->{_data}->get_y_cumulative($dsn, $_, $vec) }
+            (0..$nPoints - 1) ;
         }
         my @display = $self->{show_values}->y_values($dsn) or next;
 
@@ -357,24 +338,24 @@ sub draw_values
             {
                 ($xp, $yp) = $self->val_to_pixel($i+1, $values[$i], $dsn);
             }
-	    if ($self->{rotate_chart})
-	    {
-		$xp += $self->{values_space};
-		unless ($self->{overwrite})
-		{
-		    $yp -= $self->{x_step}/2 - ($dsn - 0.5) 
-			* $self->{x_step}/$self->{_data}->num_sets;
-		}
-	    }
-	    else
-	    {
-		$yp -= $self->{values_space};
-		unless ($self->{overwrite})
-		{
-		    $xp -= $self->{x_step}/2 - ($dsn - 0.5) 
-			* $self->{x_step}/$self->{_data}->num_sets;
-		}
-	    }
+            if ($self->{rotate_chart})
+            {
+                $xp += $self->{values_space};
+                unless ($self->{overwrite})
+                {
+                    $yp -= $self->{x_step}/2 - ($dsn - 0.5) 
+                        * $self->{x_step}/@datasets;
+                }
+            }
+            else
+            {
+                $yp -= $self->{values_space};
+                unless ($self->{overwrite})
+                {
+                    $xp -= $self->{x_step}/2 - ($dsn - 0.5) 
+                        * $self->{x_step}/@datasets;
+                }
+            }
 
             $self->{gdta_values}->set_text($value);
             $self->{gdta_values}->draw($xp, $yp, $text_angle);

@@ -5,13 +5,13 @@
 #   Name:
 #       GD::Graph::axestype.pm
 #
-# $Id: axestype.pm,v 1.44.2.8 2006/02/02 05:14:53 ben Exp $
+# $Id: axestype.pm,v 1.44.2.14 2006/05/16 04:53:40 ben Exp $
 #
 #==========================================================================
 
 package GD::Graph::axestype;
 
-($GD::Graph::axestype::VERSION) = '$Revision: 1.44.2.8 $' =~ /\s([\d.]+)/;
+($GD::Graph::axestype::VERSION) = '$Revision: 1.44.2.14 $' =~ /\s([\d.]+)/;
 
 use strict;
  
@@ -702,7 +702,11 @@ sub setup_coords
 
     # get the zero axis level
     my ($zl, $zb) = $s->val_to_pixel(0, 0, 1);
-    $s->{zeropoint} = $s->{rotate_chart} ? $zl : $zb;
+    my ($min,$val,$max) = $s->{rotate_chart} 
+        ? ( $s->{left}, $zl, $s->{right} )
+        : ( $s->{top}, $zb, $s->{bottom} );
+    
+    $s->{zeropoint} = $min > $val ? $min : $max < $val ? $max : $val;
 
     # More sanity checks
     $s->{x_label_skip} = 1      if $s->{x_label_skip}  < 1;
@@ -1000,7 +1004,7 @@ sub draw_y_ticks_h
             my $value = $self->{y_values}[$axis][$t];
             my $label = $self->{y_labels}[$axis][$t];
             
-            my ($x, $y) = $self->val_to_pixel(0, $value, $axis);
+            my ($x, $y) = $self->val_to_pixel(0, $value, -$axis);
             $y = ($axis == 1) ? $self->{bottom} : $self->{top};
             
             if ($self->{y_long_ticks}) 
@@ -1053,7 +1057,7 @@ sub draw_y_ticks_v
             my $value = $self->{y_values}[$axis][$t];
             my $label = $self->{y_labels}[$axis][$t];
             
-            my ($x, $y) = $self->val_to_pixel(0, $value, $axis);
+            my ($x, $y) = $self->val_to_pixel(0, $value, -$axis);
             $x = ($axis == 1) ? $self->{left} : $self->{right};
 
             if ($self->{y_long_ticks}) 
@@ -1399,12 +1403,22 @@ sub draw_values
     return $self unless $self->{show_values};
     
     my $text_angle = $self->{values_vertical} ? PI/2 : 0;
+    my (@bars,@others);
 
-    for (my $dsn = 1; $dsn <= $self->{_data}->num_sets; $dsn++)
+    if ($self->isa('GD::Graph::mixed') ) {
+        # 1-indexed, like data-sets themselves
+        my @types = $self->types;
+        push @{'bars' eq $types[$_ - 1] ? \@bars : \@others}, $_ for 1 .. @types;
+        $self->GD::Graph::bars::draw_values(@bars) if @bars;
+    } else { 
+        @others = 1 .. $self->{_data}->num_sets;
+    }   
+
+    foreach my $dsn ( @others )
     {
         my @values = $self->{_data}->y_values($dsn) or
-            return $self->_set_error("Impossible illegal data set: $dsn",
-                $self->{_data}->error);
+                return $self->_set_error("Impossible illegal data set: $dsn",
+                    $self->{_data}->error);
         my @display = $self->{show_values}->y_values($dsn) or next;
 
         for (my $i = 0; $i < @values; $i++)
@@ -1874,19 +1888,19 @@ sub _get_bottom
 # Convert value coordinates to pixel coordinates on the canvas.
 # TODO Clean up all the rotate_chart stuff
 #
-sub val_to_pixel    # ($x, $y, $i) in real coords ($Dataspace), 
+sub val_to_pixel    # ($x, $y, $dataset) or ($x, $y, -$axis) in real coords
 {                   # return [x, y] in pixel coords
     my $self = shift;
     my ($x, $y, $i) = @_;
 
     # XXX use_axis
-    my $y_min = $self->{two_axes}
-		? $self->{y_min}[$self->{use_axis}[$i-1]]
-		: $self->{y_min}[1];
-
-    my $y_max = $self->{two_axes}
-		? $self->{y_max}[$self->{use_axis}[$i-1]]
-		: $self->{y_max}[1];
+    my $axis = 1;
+    if ( $self->{two_axes} ) {
+        $axis = $i < 0 ? -$i : $self->{use_axis}[$i - 1];
+    }
+    
+    my $y_min = $self->{y_min}[$axis];
+    my $y_max = $self->{y_max}[$axis];
 
     my $y_step = $self->{rotate_chart} ?
         abs(($self->{right} - $self->{left})/($y_max - $y_min)) :

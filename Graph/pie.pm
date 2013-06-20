@@ -5,13 +5,13 @@
 #   Name:
 #       GD::Graph::pie.pm
 #
-# $Id: pie.pm,v 1.20 2005/12/14 04:13:28 ben Exp $
+# $Id: pie.pm,v 1.20.2.3 2006/02/15 07:10:03 ben Exp $
 #
 #==========================================================================
 
 package GD::Graph::pie;
 
-($GD::Graph::pie::VERSION) = '$Revision: 1.20 $' =~ /\s([\d.]+)/;
+($GD::Graph::pie::VERSION) = '$Revision: 1.20.2.3 $' =~ /\s([\d.]+)/;
 
 use strict;
 
@@ -290,9 +290,16 @@ sub draw_data
         {
             foreach my $fill ($self->_get_pie_front_coords($pa, $pb)) 
             {
-                $self->{graph}->fillToBorder(
-                    $fill->[0], $fill->[1] + $self->{pie_height}/2, 
-                    $ac, $dc);
+                my ($fx,$fy) = @$fill;
+                my $new_y = $fy + $self->{pie_height}/2;
+                # Edge case (literally): if lines have converged, back up 
+                # looking for a gap to fill
+                while ( $new_y > $fy ) {
+                    if ($self->{graph}->getPixel($fx,$new_y) != $ac) {
+                        $self->{graph}->fillToBorder($fx, $new_y, $ac, $dc);
+                        last;
+                    }
+                } continue { $new_y-- }
             }
         }
     }
@@ -378,9 +385,18 @@ sub _get_pie_front_coords # (angle 1, angle 2)
             # start in back, end in front
             $pa = $ANGLE_OFFSET - 180;
         }
+        elsif ( # both in back, but wrapping around the front
+                # CONTRIB kedlubnowski, Dan Rosendorf 
+            $pa > 90 && $pb > 90 && $pa >= $pb
+            or $pa < -90 && $pb < -90 && $pa >= $pb
+            or $pa < -90 && $pb > 90
+        ) 
+        {   
+            $pa=$ANGLE_OFFSET - 180;
+            $pb=$ANGLE_OFFSET;
+        }
         else
         {
-            # both in back
             return;
         }
     }
@@ -437,7 +453,7 @@ sub cartesian
 {
     my ($r, $phi, $xi, $yi, $cr) = @_; 
 
-    return (
+    return map _round($_), (
         $xi + $r * cos(PI * ($phi + $ANGLE_OFFSET)/180), 
         $yi + $cr * $r * sin(PI * ($phi + $ANGLE_OFFSET)/180)
     )

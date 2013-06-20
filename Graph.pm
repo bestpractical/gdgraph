@@ -19,7 +19,7 @@
 #       GD::Graph::pie
 #       GD::Graph::mixed
 #
-# $Id: Graph.pm,v 1.53.2.5 2005/12/22 07:56:05 ben Exp $
+# $Id: Graph.pm,v 1.53.2.10 2006/02/19 20:39:59 ben Exp $
 #
 #==========================================================================
 
@@ -31,8 +31,8 @@
 
 package GD::Graph;
 
-($GD::Graph::prog_version) = '$Revision: 1.53.2.5 $' =~ /\s([\d.]+)/;
-$GD::Graph::VERSION = '1.4306';
+($GD::Graph::prog_version) = '$Revision: 1.53.2.10 $' =~ /\s([\d.]+)/;
+$GD::Graph::VERSION = '1.4307';
 
 use strict;
 use GD;
@@ -283,7 +283,10 @@ sub open_graph
 {
     my $self = shift;
     return $self->{graph} if exists $self->{graph};
-    $self->{graph} = GD::Image->new($self->{width}, $self->{height});
+    $self->{graph} = 2.0 <= $GD::VERSION 
+        ?   GD::Image->newPalette($self->{width}, $self->{height})
+        :   GD::Image->new($self->{width}, $self->{height});
+
 }
 
 # Initialise the graph output canvas, setting colours (and getting back
@@ -306,7 +309,7 @@ sub init_graph
         if $self->{boxclr};
 
     $self->{graph}->transparent($self->{bgci}) if $self->{transparent};
-    $self->{graph}->interlaced($self->{interlaced});
+    $self->{graph}->interlaced( $self->{interlaced} || undef ); # required by GD.pm
 
     # XXX yuck. This doesn't belong here.. or does it?
     $self->put_logo();
@@ -604,7 +607,8 @@ and plot the graph.
   my $gd = $graph->plot(\@data) or die $graph->error;
 
 Then do whatever your current version of GD allows you to do to save the
-file. For versions of GD older than 1.19, you'd do something like:
+file. For versions of GD older than 1.19 (or more recent than 2.15),
+you'd do something like:
 
   open(IMG, '>file.gif') or die $!;
   binmode IMG;
@@ -702,8 +706,12 @@ Get the GD::Image object that is going to be used to draw on. You can do
 this either before or after calling the plot method, to do your own
 drawing.
 
-Note that if you draw on the GD::Image object before calling the plot
-method that you are responsible for making sure that the background
+B<Note:> as of the current version, this GD::Image object will always 
+be palette-based, even if the installed version of GD supports
+true-color images.
+
+Note also that if you draw on the GD::Image object before calling the plot
+method, you are responsible for making sure that the background
 colour is correct and for setting transparency.
 
 =item $graph-E<gt>export_format()
@@ -821,6 +829,11 @@ colour marked as transparent (see also option I<bgclr>).  Default: 1.
 
 If set to a true value, the produced image will be interlaced.
 Default: 1.
+
+B<Note>: versions of GD higher than 2.0 (that is, since GIF support
+was restored after being removed owing to patent issues) do not support
+interlacing of GIF images.  Support for interlaced PNG and progressive
+JPEG images remains available using this option.
 
 =back
 

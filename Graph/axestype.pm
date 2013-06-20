@@ -5,13 +5,13 @@
 #   Name:
 #       GD::Graph::axestype.pm
 #
-# $Id: axestype.pm,v 1.44.2.6 2005/12/19 06:09:21 ben Exp $
+# $Id: axestype.pm,v 1.44.2.8 2006/02/02 05:14:53 ben Exp $
 #
 #==========================================================================
 
 package GD::Graph::axestype;
 
-($GD::Graph::axestype::VERSION) = '$Revision: 1.44.2.6 $' =~ /\s([\d.]+)/;
+($GD::Graph::axestype::VERSION) = '$Revision: 1.44.2.8 $' =~ /\s([\d.]+)/;
 
 use strict;
  
@@ -1617,13 +1617,13 @@ sub set_max_min
     # Check to see if we have sensible values
     if ($self->{two_axes}) 
     {
-        for my $i (1 .. 2)
+        for my $i (1 .. $self->{_data}->num_sets)
         {
             my ($min, $max) = $self->{_data}->get_min_max_y($i);
             return $self->_set_error("Minimum for y" . $i . " too large")
-                if $self->{y_min}[$i] > $min;
+                if $self->{y_min}[$self->{use_axis}[$i-1]] > $min;
             return $self->_set_error("Maximum for y" . $i . " too small")
-                if $self->{y_max}[$i] < $max;
+                if $self->{y_max}[$self->{use_axis}[$i-1]] < $max;
         }
     } 
 
@@ -1693,7 +1693,8 @@ sub _best_ends
 
         for my $step (@step) 
         {
-            next if ($n != 1) && ($step < $range/$n); # $step too small
+            next if ($n != 1) and ($step < $range/$n) || ($step <= 0); 
+            	# $step too small
 
             my ($nice_min, $nice_max, $fit)
                     = _fit_interval($min, $max, $n, $step);

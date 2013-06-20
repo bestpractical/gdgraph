@@ -3,13 +3,6 @@ GD.pm. See the documentation for some history and more information.
 
 The latest release is available from CPAN: http://www.cpan.org/.
 
-PLEASE NOTE: The release which includes this file is a set of bug-fixes and
-feature additions on top of version 1.43, provided by various Perl users,
-and assembled and and packaged up in the hope that they will be useful.
-It should probably be considered a developer release, though there are no 
-known regressions in it: a more official release may be forthcoming,
-especially if that statement holds up.
-
 INSTALLATION
 
 Requirements:
@@ -58,7 +51,7 @@ I have discontinued this list, because it is too hard to maintain.
 There is hardly any code in the module that could provide problems
 with inter-platform portability, but you never know. I will always
 test the modules against the latest stable perl (5.8.0 right now) and
-at least one older version (5.6.1). I will not explicitly test against
+at least one older version (5.6.2). I will not explicitly test against
 older versions of Perl. I normally test against the newest version of
 GD, the last pre-2.0 version (1.41), and one version of the pre-PNG
 days (1.19). All of this happens on Linux.
@@ -67,6 +60,9 @@ AUTHOR
 
 Martien Verbruggen
 mgjv@tradingpost.com.au
+
+Currently maintained by Benjamin Warfield
+bwarfield@cpan.org
 
 FIRST PNG PORT as Chart::PNGgraph
 

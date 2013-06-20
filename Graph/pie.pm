@@ -5,13 +5,13 @@
 #   Name:
 #       GD::Graph::pie.pm
 #
-# $Id: pie.pm,v 1.20.2.4 2006/05/15 05:08:40 ben Exp $
+# $Id: pie.pm,v 1.21 2007/04/26 03:16:09 ben Exp $
 #
 #==========================================================================
 
 package GD::Graph::pie;
 
-($GD::Graph::pie::VERSION) = '$Revision: 1.20.2.4 $' =~ /\s([\d.]+)/;
+($GD::Graph::pie::VERSION) = '$Revision: 1.21 $' =~ /\s([\d.]+)/;
 
 use strict;
 

@@ -1,3 +1,10 @@
+25 Apr 2007
+
+- Patched bugs 21610, 20792, 20802, 23755 and 22932
+- Updated POD to clarify current maintenance status, and encourage 
+	bug reporting via RT (and to point out some external help resources)
+- Release 1.44
+
 17 May 2006
 
 - Patched bugs 7307, 2944 (extended the fix to mixed graphs), 4177, and 16863.

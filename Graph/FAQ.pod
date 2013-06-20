@@ -19,7 +19,7 @@ some mixed charts). This is necessary, because rounding errors cause
 irregular gaps between or overlaps of bars if the bar is not an exact
 integer number of pixels wide.  
 
-If you want the old behaviour back, set the correct_with attribute to a
+If you want the old behaviour back, set the correct_width attribute to a
 false value.
 
 
@@ -61,7 +61,8 @@ or some local mirror).
 If you send me a patch that (in a decent manner) adds the functionality
 to the latest version, I may very well add it for the next release. If
 you don't send me a patch, but just a question, you will have to be
-patient.
+patient.  (Please also see the section on bugs in the main body 
+of L<GD::Graph>.)
 
 =head2 Why does export_format give me a weird string, instead of just 'png' or 'gif'?
 
@@ -119,9 +120,33 @@ higher data sets.
 This is described in the entry for the C<dclrs> attribute in the
 L<GD::Graph> documentation.
 
+=head2 Can you tell me how to do X?
+
+Not necessarily (X might be kind of complicated, after all).
+Did you look in the samples for something similar?
+If not, you're probably best off seeing if you can get 
+help from a group of people, rather than one or the other 
+of the overworked individuals whose e-mail addresses are shown below.
+
+If you're more comfortable with asking a newsgroup for help, the
+canonical resource is E<lt>comp.lang.perl.miscE<gt>; if you prefer
+web forums, there is a good one at E<lt>http://www.perlmonks.orgE<gt>.
+
+In either case, if you are not familiar with the forum and its denizens, 
+you might wish to read the following helpful guide before posting your
+question: http://www.perlmonks.org/?node_id=172086
+
+=head2 Can you fix this bug I've found?
+
+Well, I hope so.  Please see the "BUGS" section in the main body of 
+L<GD::Graph> for the best way to report it.
+
 =head1 AUTHOR
 
 Martien Verbruggen E<lt>mgjv@tradingpost.com.auE<gt>
+
+Current maintenance (including this release) by
+Benjamin Warfield E<lt>bwarfield@cpan.orgE<gt>
 
 (c) Martien Verbruggen.
 

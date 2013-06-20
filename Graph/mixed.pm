@@ -5,13 +5,13 @@
 #   Name:
 #       GD::Graph::mixed.pm
 #
-# $Id: mixed.pm,v 1.12.2.1 2005/12/19 06:03:59 ben Exp $
+# $Id: mixed.pm,v 1.13 2007/04/26 03:16:09 ben Exp $
 #
 #==========================================================================
 
 package GD::Graph::mixed;
  
-($GD::Graph::mixed::VERSION) = '$Revision: 1.12.2.1 $' =~ /\s([\d.]+)/;
+($GD::Graph::mixed::VERSION) = '$Revision: 1.13 $' =~ /\s([\d.]+)/;
 
 use strict;
  
@@ -71,7 +71,7 @@ sub draw_data_set
     if ($@)
     {
         carp "Set $ds, unknown type $type, assuming $self->{default_type}";
-	#carp "Error message: $@";
+        #carp "Error message: $@";
 
         $rc = eval '$self->GD::Graph::'.
             $self->{default_type}.'::draw_data_set(@_)';

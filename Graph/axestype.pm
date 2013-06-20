@@ -5,13 +5,13 @@
 #   Name:
 #       GD::Graph::axestype.pm
 #
-# $Id: axestype.pm,v 1.44.2.14 2006/05/16 04:53:40 ben Exp $
+# $Id: axestype.pm,v 1.45 2007/04/26 03:16:09 ben Exp $
 #
 #==========================================================================
 
 package GD::Graph::axestype;
 
-($GD::Graph::axestype::VERSION) = '$Revision: 1.44.2.14 $' =~ /\s([\d.]+)/;
+($GD::Graph::axestype::VERSION) = '$Revision: 1.45 $' =~ /\s([\d.]+)/;
 
 use strict;
  
@@ -526,26 +526,26 @@ sub setup_right_boundary
     }
     else
     {
-	# Adjust right margin to allow last label of y axes. Only do
-	# this when the right margin doesn't have enough space
-	# already.
-	#
-	# TODO Don't assume rightmost label is the same as the
-	# longest label (stored in y_label_len) The worst that can
-	# happen now is that we reserve too much space.
-
-	my $max_len = $self->{y_label_len}[1];
-	if ($self->{two_axes})
-	{
-	    $max_len = $self->{y_label_len}[2] if 
-		$self->{y_label_len}[2] > $max_len;
-	}
-	$max_len = int ($max_len/2);
-
-	if ($self->{right} + $max_len >= $self->{width} - $self->{r_margin})
-	{
-	    $self->{right} -= $max_len;
-	}
+        # Adjust right margin to allow last label of y axes. Only do
+        # this when the right margin doesn't have enough space
+        # already.
+        #
+        # TODO Don't assume rightmost label is the same as the
+        # longest label (stored in y_label_len) The worst that can
+        # happen now is that we reserve too much space.
+    
+        my $max_len = $self->{y_label_len}[1];
+        if ($self->{two_axes})
+        {
+            $max_len = $self->{y_label_len}[2] if 
+            $self->{y_label_len}[2] > $max_len;
+        }
+        $max_len = int ($max_len/2);
+    
+        if ($self->{right} + $max_len >= $self->{width} - $self->{r_margin})
+        {
+            $self->{right} -= $max_len;
+        }
     }
 }
 
@@ -1479,7 +1479,7 @@ sub _correct_y_min_max
     # Make sure bars and area always have a zero offset
     # Only bars and areas need 
     return ($min, $max)
-	unless $self->isa("GD::Graph::bars") or $self->isa("GD::Graph::area");
+        unless $self->isa("GD::Graph::bars") or $self->isa("GD::Graph::area");
 
     # If either $min or $max are 0, we can return
     return ($min, $max) if $max == 0 or $min == 0;
@@ -1489,11 +1489,11 @@ sub _correct_y_min_max
 
     if ($min > 0)
     {
-	$min = 0;
+        $min = 0;
     }
     else
     {
-	$max = 0;
+        $max = 0;
     }
 
     return ($min, $max);
@@ -1513,7 +1513,7 @@ sub set_max_min
 
     # First, calculate some decent values
     if ( $self->{two_axes} ) 
-    {
+    {   # XXX this is almost certainly a bug: this key is not set anywhere
         my $min_range_1 = defined($self->{min_range_1})
                 ? $self->{min_range_1}
                 : $self->{min_range};
@@ -1521,31 +1521,31 @@ sub set_max_min
                 ? $self->{min_range_2}
                 : $self->{min_range};
 
-	my(@y_min, @y_max);
-	for my $nd (1 .. $self->{_data}->num_sets)
-	{
-	    my $axis = $self->{use_axis}->[$nd - 1];
-	    my($y_min, $y_max) = $self->{_data}->get_min_max_y($nd);
-	    if (!defined $y_min[$axis] || $y_min[$axis] > $y_min)
-	    {
-		$y_min[$axis] = $y_min;
-	    }
-	    if (!defined $y_max[$axis] || $y_max[$axis] < $y_max)
-	    {
-		$y_max[$axis] = $y_max;
-	    }
-	}
+        my(@y_min, @y_max);
+        for my $nd (1 .. $self->{_data}->num_sets)
+        {
+            my $axis = $self->{use_axis}->[$nd - 1];
+            my($y_min, $y_max) = $self->{_data}->get_min_max_y($nd);
+            if (!defined $y_min[$axis] || $y_min[$axis] > $y_min)
+            {
+                $y_min[$axis] = $y_min;
+            }
+            if (!defined $y_max[$axis] || $y_max[$axis] < $y_max)
+            {
+                $y_max[$axis] = $y_max;
+            }
+        }
 
         (
-	    $self->{y_min}[1], $self->{y_max}[1],
-	    $self->{y_min}[2], $self->{y_max}[2],
-	    $self->{y_tick_number}
+            $self->{y_min}[1], $self->{y_max}[1],
+            $self->{y_min}[2], $self->{y_max}[2],
+            $self->{y_tick_number}
         ) = _best_dual_ends(
-                $self->_correct_y_min_max($y_min[1], $y_max[1]),
-		    $min_range_1,
-                $self->_correct_y_min_max($y_min[2], $y_max[2]),
-		    $min_range_2,
-                $self->{y_tick_number}
+            $self->_correct_y_min_max($y_min[1], $y_max[1]),
+              $min_range_1,
+            $self->_correct_y_min_max($y_min[2], $y_max[2]),
+              $min_range_2,
+            $self->{y_tick_number}
         );
     } 
     else 
@@ -1561,7 +1561,7 @@ sub set_max_min
         {
             ($y_min, $y_max) = $self->{_data}->get_min_max_y_all;
         }
-	($y_min, $y_max) = $self->_correct_y_min_max($y_min, $y_max);
+        ($y_min, $y_max) = $self->_correct_y_min_max($y_min, $y_max);
         ($self->{y_min}[1], $self->{y_max}[1], $self->{y_tick_number}) =
             _best_ends($y_min, $y_max, @$self{'y_tick_number','y_min_range'});
     }
@@ -1579,7 +1579,7 @@ sub set_max_min
                 $self->{_data}->get_min_max_x;
             ($self->{x_min}, $self->{x_max}, $self->{x_tick_number}) =
                 _best_ends($self->{true_x_min}, $self->{true_x_max},
-                        @$self{'y_tick_number','y_min_range'});
+                        @$self{'x_tick_number','x_min_range'});
  
         }
     }
@@ -1708,7 +1708,7 @@ sub _best_ends
         for my $step (@step) 
         {
             next if ($n != 1) and ($step < $range/$n) || ($step <= 0); 
-            	# $step too small
+            # $step too small
 
             my ($nice_min, $nice_max, $fit)
                     = _fit_interval($min, $max, $n, $step);
@@ -1901,10 +1901,12 @@ sub val_to_pixel    # ($x, $y, $dataset) or ($x, $y, -$axis) in real coords
     
     my $y_min = $self->{y_min}[$axis];
     my $y_max = $self->{y_max}[$axis];
+    my $y_range = ($y_max - $y_min) || 1; 
+    # XXX the above might be an appropriate place for a conditional warning
 
     my $y_step = $self->{rotate_chart} ?
-        abs(($self->{right} - $self->{left})/($y_max - $y_min)) :
-        abs(($self->{bottom} - $self->{top})/($y_max - $y_min));
+        abs(($self->{right} - $self->{left}) / $y_range) :
+        abs(($self->{bottom} - $self->{top}) / $y_range);
 
     my $ret_x;
     my $origin = $self->{rotate_chart} ? $self->{top} : $self->{left};
@@ -1955,7 +1957,8 @@ sub setup_legend
         last if $num >= $self->{_data}->num_sets;
     }
 
-    $self->{lg_num} = $num;
+    $self->{lg_num} = $num or return; 
+    # not actually bug 20792 (unsure that this will ever get hit, but if it does..!)
 
     # calculate the height and width of each element
     my $legend_height = _max($self->{lgfh}, $self->{legend_marker_height});
@@ -2007,7 +2010,7 @@ sub setup_legend
         my $width = $self->{width} - $self->{l_margin} - $self->{r_margin};
 
         (!defined($self->{lg_cols})) and 
-            $self->{lg_cols} = int($width/$self->{lg_el_width});
+            $self->{lg_cols} = int($width/$self->{lg_el_width}) || 1; # bug 20792
         
         $self->{lg_cols} = _min($self->{lg_cols}, $num);
 

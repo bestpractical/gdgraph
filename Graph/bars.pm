@@ -5,13 +5,13 @@
 #   Name:
 #       GD::Graph::bars.pm
 #
-# $Id: bars.pm,v 1.25.2.9 2006/03/12 22:23:30 ben Exp $
+# $Id: bars.pm,v 1.26 2007/04/26 03:16:09 ben Exp $
 #
 #==========================================================================
  
 package GD::Graph::bars;
 
-($GD::Graph::bars::VERSION) = '$Revision: 1.25.2.9 $' =~ /\s([\d.]+)/;
+($GD::Graph::bars::VERSION) = '$Revision: 1.26 $' =~ /\s([\d.]+)/;
 
 use strict;
 

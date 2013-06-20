@@ -19,7 +19,7 @@
 #       GD::Graph::pie
 #       GD::Graph::mixed
 #
-# $Id: Graph.pm,v 1.53.2.11 2006/03/12 20:37:53 ben Exp $
+# $Id: Graph.pm,v 1.55 2007/04/26 04:12:47 ben Exp $
 #
 #==========================================================================
 
@@ -31,8 +31,8 @@
 
 package GD::Graph;
 
-($GD::Graph::prog_version) = '$Revision: 1.53.2.11 $' =~ /\s([\d.]+)/;
-$GD::Graph::VERSION = '1.4308';
+($GD::Graph::prog_version) = '$Revision: 1.55 $' =~ /\s([\d.]+)/;
+$GD::Graph::VERSION = '1.44';
 
 use strict;
 use GD;
@@ -320,18 +320,57 @@ sub init_graph
 sub _read_logo_file
 {
     my $self = shift;
-    my $gdimport = 'newFrom' . ucfirst($self->export_format);
     my $glogo;
     local (*LOGO);
-
-    open(LOGO, $self->{logo}) or return;
+    my $logo_path = $self->{logo};
+    open(LOGO, $logo_path) 
+        or do { carp "Unable to open logo file '$logo_path': $!";return};
     binmode(LOGO);
-    unless ( $glogo = GD::Image->$gdimport(\*LOGO) ) 
-    {
-        carp "Problems reading $self->{logo}"; 
-        return;
+    # if the file has an extension, use that importer
+    my $gdimport;
+    my @tried;
+    # possibly forward-compatible: just try whatever file extension
+    if ( $logo_path =~ /\.(\w+)$/i) {
+        my $fmt = lc $1;
+        $fmt = "jpeg" if 'jpg' eq $fmt;
+        push @tried, uc $fmt;
+        if ($gdimport = GD::Image->can("newFrom\u$fmt")) {
+            if ('xpm' ne $fmt) { $glogo = GD::Image->$gdimport(\*LOGO) }
+            else { $glogo = GD::Image->$gdimport($logo_path) } # quirky special case
+        }
+    } 
+    # if that didn't work, try using magic numbers
+    if (!$glogo) {
+        my $logodata;
+        read LOGO,$logodata, -s LOGO;
+        my %magic = (
+            pack("H8",'ffd8ffe0') => "jpeg",
+            'GIF8' => "gif",
+            '.PNG' => "png",
+            '/* X'=> "xpm", # technically '/* XPM */', but I'm hashing, here
+        );
+        if (my $match = $magic{ substr $logodata, 0, 4 }) {
+            push @tried, $match;
+            my $matchmethod = "newFrom\u$match";
+            if ($gdimport = GD::Image->can($matchmethod . "Data")) {
+                $glogo = GD::Image->$gdimport($logodata);
+            } elsif ($gdimport = GD::Image->can($matchmethod)) {
+                if ('xpm' eq $match) { 
+                    $glogo = GD::Image->$gdimport($logo_path);
+                } else {
+                    seek LOGO,0,0;
+                    $glogo = GD::Image->$gdimport(\*LOGO);
+                }
+            }
+        # should this actually be "if (!$glogo), rather than an else?            
+        } else { # Hail Mary, full of Grace!  Blessed art thou among women...
+            push @tried, 'libgd best-guess';
+            $glogo = GD::Image->new($logodata);
+        }
     }
-
+    close LOGO or croak "Unable to close logo file '$logo_path': $!";
+    # XXX change to use warnings::enabled when we break 5.005 compatibility
+    carp "Problems reading $logo_path (tried: @tried)" unless $glogo;
     return $glogo;
 }
 
@@ -402,8 +441,8 @@ sub set_clr # GD::Image, r, g, b
     # TODO Deal with antialiasing here?
     if (0 && $self->can("setAntiAliased"))
     {
-	$self->setAntiAliased($i);
-	eval "$i = gdAntiAliased";
+        $self->setAntiAliased($i);
+        eval "$i = gdAntiAliased";
     }
 
     return $i;
@@ -467,11 +506,11 @@ sub export_format
     my $proto = shift;
     my @f = grep { GD::Image->can($_) && 
                    do { 
-		    my $g = GD::Image->new(5,5);
-		    $g->colorAllocate(0,0,0);
-		    $g->$_() 
-		   };
-	    } qw(gif png jpeg xbm xpm gd gd2);
+                    my $g = GD::Image->new(5,5);
+                    $g->colorAllocate(0,0,0);
+                    $g->$_() 
+                   };
+            } qw(gif png jpeg xbm xpm gd gd2);
     wantarray ? @f : $f[0];
 }
 
@@ -480,8 +519,9 @@ sub export_format
 sub import_format
 {
     my $proto = shift;
-    # For now, exclude xpm, as it's buggy
-    my @f = grep { GD::Image->can("newFrom\u$_") } qw(gif png jpeg xbm gd gd2);
+    # xpm now included despite bugginess--should document the problem, though
+    my @f = grep { GD::Image->can("newFrom\u$_") }
+        qw(gif png jpeg xbm xpm gd gd2);
     wantarray ? @f : $f[0];
 }
 
@@ -809,8 +849,10 @@ Default: 0 for all.
 =item logo
 
 Name of a logo file. Generally, this should be the same format as your
-version of GD exports images in. At the moment there is no support for
-reading gd format files or xpm files.
+version of GD exports images in.  Currently, this file may be in any 
+format that GD can import, but please see L<GD> if you use an
+XPM file and get unexpected results.
+
 Default: no logo.
 
 =item logo_resize, logo_position
@@ -1565,9 +1607,9 @@ some information about what went wrong. The GD::Graph methods all
 return undef if something went wrong, so you should be able to write
 safe programs like this:
 
-  my $graph = GD::Graph->new()	    or die GD::Graph->error;
-  $graph->set( %attributes )	    or die $graph->error;
-  $graph->plot($gdg_data)	    or die $graph->error;
+  my $graph = GD::Graph->new()    or die GD::Graph->error;
+  $graph->set( %attributes )      or die $graph->error;
+  $graph->plot($gdg_data)         or die $graph->error;
 
 More advanced usage is possible, and there are some caveats with this
 error handling, which are all explained in L<GD::Graph::Error>.
@@ -1584,7 +1626,7 @@ you could do something like:
       my $data    = shift;
       my %attribs = @_;
       my $graph   = GD::Graph::bars->new()
-  	                        or die GD::Graph->error;
+         or die GD::Graph->error;
       $graph->set(%attribs)     or die $graph->error;
       $graph->plot($data)       or die $graph->error;
   }
@@ -1615,15 +1657,54 @@ Rotated charts (ones with the X axis on the left) can currently only be
 created for bars. With a little work, this will work for all others as
 well. Please, be patient :)
 
+Other outstanding bugs can (alas) probably be found in the RT queue for this
+distribution, at http://rt.cpan.org/Public/Dist/Display.html?Name=GDGraph
+
+If you think you have found a bug, please check first to see if it 
+has already been reported.  If it has not, please do (you can use the 
+web interface above or send e-mail to E<lt>bug-GDGraph@rt.cpan.orgE<gt>).  
+Bug reports should contain as many as possible of the following:
+
+=over 4
+
+=item *
+
+a concise description of the buggy behavior and how it differs from what you expected,
+
+=item *
+
+the versions of Perl, GD::Graph and GD that you are using,
+
+=item *
+
+a short demonstration script that shows the bug in action,
+
+=item *
+
+a patch that fixes it. :-)
+
+=back
+
+Of all of these, the third is probably the single most important, 
+since producing a test case generally makes the explanation much more
+concise and understandable, as well as making it much simpler to show 
+that the bug has been fixed.  As an incidental benefit, if the bug is in
+fact caused by some code outside of GD::Graph, it will become apparent
+while you are writing the test case, thereby saving time and confusion
+for all concerned.
+
 =head1 AUTHOR
 
 Martien Verbruggen E<lt>mgjv@tradingpost.com.auE<gt>
 
+Current maintenance (including this release) by
+Benjamin Warfield E<lt>bwarfield@cpan.orgE<gt>
+
 =head2 Copyright
 
-GIFgraph: Copyright (c) 1995-1999 Martien Verbruggen.
-Chart::PNGgraph: Copyright (c) 1999 Steve Bonds.
-GD::Graph: Copyright (c) 1999 Martien Verbruggen.
+ GIFgraph: Copyright (c) 1995-1999 Martien Verbruggen.
+ Chart::PNGgraph: Copyright (c) 1999 Steve Bonds.
+ GD::Graph: Copyright (c) 1999 Martien Verbruggen.
 
 All rights reserved. This package is free software; you can redistribute
 it and/or modify it under the same terms as Perl itself.

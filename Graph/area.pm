@@ -5,13 +5,13 @@
 #   Name:
 #       GD::Graph::area.pm
 #
-# $Id: area.pm,v 1.16.2.3 2006/03/13 07:03:30 ben Exp $
+# $Id: area.pm,v 1.17 2007/04/26 03:16:09 ben Exp $
 #
 #==========================================================================
 
 package GD::Graph::area;
  
-($GD::Graph::area::VERSION) = '$Revision: 1.16.2.3 $' =~ /\s([\d.]+)/;
+($GD::Graph::area::VERSION) = '$Revision: 1.17 $' =~ /\s([\d.]+)/;
 
 use strict;
 

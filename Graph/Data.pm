@@ -5,13 +5,13 @@
 #   Name:
 #       GD::Graph::Data.pm
 #
-# $Id: Data.pm,v 1.21.2.2 2006/03/12 20:49:53 ben Exp $
+# $Id: Data.pm,v 1.22 2007/04/26 03:16:09 ben Exp $
 #
 #==========================================================================
 
 package GD::Graph::Data;
 
-($GD::Graph::Data::VERSION) = '$Revision: 1.21.2.2 $' =~ /\s([\d.]+)/;
+($GD::Graph::Data::VERSION) = '$Revision: 1.22 $' =~ /\s([\d.]+)/;
 
 use strict;
 use GD::Graph::Error;
@@ -657,14 +657,14 @@ sub read
 
     if (UNIVERSAL::isa($args{file}, "GLOB"))
     {
-	$fh = $args{file};
+        $fh = $args{file};
     }
     else
     {
-	# $fh = \do{ local *FH }; # Odd... This dumps core, sometimes in 5.005
-	$fh = \*FH; # XXX Need this for perl 5.005
-	open($fh, $args{file}) or 
-	    return $self->_set_error("open ($args{file}): $!");
+        # $fh = \do{ local *FH }; # Odd... This dumps core, sometimes in 5.005
+        $fh = \*FH; # XXX Need this for perl 5.005
+        open($fh, $args{file}) or 
+            return $self->_set_error("open ($args{file}): $!");
     }
 
     while (my $line = <$fh>)

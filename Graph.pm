@@ -605,6 +605,35 @@ Create a pie chart.
 
 =back
 
+=head1 DISTRIBUTION STATUS
+
+Distribution has no releases since 2007. It has new maintainer starting
+of 1.45 and my plan is to keep modules backwards compatible as much as
+possible, fix bugs with test cases, apply patches and release new versions
+to the CPAN.
+
+I got repository from Martien without Benjamin's work, Benjamin couldn't
+find his repository, so everything else is imported from CPAN and BackPAN.
+Now it's all on github L<https://github.com/ruz/GDGraph>. May be at some
+point Benjamin will find his VCS backup and we can restore full history.
+
+Release 1.44_01 (development release) was released in 2007 by Benjamin,
+but never made into production version. This dev version contains very
+nice changes (truecolor, anti-aliasing and alpha support), but due to
+nature of how GD and GD::Graph works authors had to add third optional
+argument (truecolor) to all constructors in GD::Graph modules. I think
+that this should be and can be adjusted to recieve named arguments in
+constructor and still be backwards compatible. If you were using that
+dev release and want to fast forward inclusion of this work into production
+release then contact ruz@cpan.org
+
+Martien also has changes in his repository that were never published
+to CPAN. These are smaller and well isolated, so I can merge them faster.
+
+My goal at this moment is to merge existing versions together, get rid
+of CVS reminders, do some repo cleanup, review existing tickets on
+rt.cpan.org. Join if you want to help.
+
 =head1 EXAMPLES
 
 See the samples directory in the distribution, and read the Makefile

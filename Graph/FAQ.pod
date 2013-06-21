@@ -2,6 +2,10 @@
 
 GD::Graph::FAQ - Frequently asked questions
 
+=head1 IMPORTANT
+
+Take a look at L<GD::Graph/DISTRIBUTION STATUS> first.
+
 =head1 DESCRIPTION
 
 =head2 I get errors like "Can't call method METHOD on an undefined value". What gives?

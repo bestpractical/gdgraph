@@ -9,3 +9,5 @@ CVS/
 # sample output
 samples/sample..\.png$
 samples/sample..-h\.png$
+
+.git/

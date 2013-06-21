@@ -1,3 +1,8 @@
+1.45 21 Jun 2013
+
+- read DISTRIBUTION STATUS in perldoc GD::Graph
+- no code changes since 1.44
+
 25 Apr 2007
 
 - Patched bugs 21610, 20792, 20802, 23755 and 22932

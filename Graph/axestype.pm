@@ -43,6 +43,9 @@ my %Defaults = (
     x_label_skip        => 1,
     y_label_skip        => 1,
 
+    # When skipping labels, also skip the last one.
+    x_last_label_skip	=> 0,
+
     # Do we want ticks on the x axis?
     x_ticks             => 1,
     x_all_ticks         => 0,
@@ -1118,12 +1121,13 @@ sub draw_x_ticks_h
 
         $x = $self->{left} unless $self->{zero_axis_only};
 
-        # CONTRIB  Damon Brodie for x_tick_offset
-        next if (!$self->{x_all_ticks} and 
-                ($i - $self->{x_tick_offset}) % $self->{x_label_skip} and 
-                $i != $self->{_data}->num_points - 1 
-            );
+	# Skip unwanted axis ticks
+        next unless 
+	    $self->{x_all_ticks} or 
+	    ($i - $self->{x_tick_offset}) % $self->{x_label_skip} == 0 or
+	    $i == $self->{_data}->num_points - 1 && !$self->{x_last_label_skip};
 
+	# Draw the tick on the X axis
         if ($self->{x_ticks})
         {
             if ($self->{x_long_ticks})
@@ -1138,16 +1142,17 @@ sub draw_x_ticks_h
             }
         }
 
-        # CONTRIB Damon Brodie for x_tick_offset
-        next if 
-            ($i - $self->{x_tick_offset}) % ($self->{x_label_skip}) and 
-            $i != $self->{_data}->num_points - 1;
+	# Skip unwanted axis tick labels.
+        next unless 
+	    ($i - $self->{x_tick_offset}) % $self->{x_label_skip} == 0 or
+	    $i == $self->{_data}->num_points - 1 && !$self->{x_last_label_skip};
 
         my $text = $self->{_data}->get_x($i);
         if (defined $text)
         {
             $self->{gdta_x_axis}->set_text($text);
 
+	# Draw the tick label
             my $angle = 0;
             if ($self->{x_labels_vertical})
             {
@@ -1179,11 +1184,11 @@ sub draw_x_ticks_v
 
         $y = $self->{bottom} unless $self->{zero_axis_only};
 
-        # CONTRIB  Damon Brodie for x_tick_offset
-        next if (!$self->{x_all_ticks} and 
-                ($i - $self->{x_tick_offset}) % $self->{x_label_skip} and 
-                $i != $self->{_data}->num_points - 1 
-            );
+	# Skip unwanted axis ticks
+        next unless 
+	    $self->{x_all_ticks} or 
+	    ($i - $self->{x_tick_offset}) % $self->{x_label_skip} == 0 or
+	    $i == $self->{_data}->num_points - 1 && !$self->{x_last_label_skip};
 
         if ($self->{x_ticks})
         {
@@ -1199,10 +1204,10 @@ sub draw_x_ticks_v
             }
         }
 
-        # CONTRIB Damon Brodie for x_tick_offset
-        next if 
-            ($i - $self->{x_tick_offset}) % ($self->{x_label_skip}) and 
-            $i != $self->{_data}->num_points - 1;
+	# Skip unwanted axis tick labels.
+        next unless 
+	    ($i - $self->{x_tick_offset}) % $self->{x_label_skip} == 0 or
+	    $i == $self->{_data}->num_points - 1 && !$self->{x_last_label_skip};
 
         my $text = $self->{_data}->get_x($i);
         if (defined $text)
@@ -1321,7 +1326,8 @@ sub draw_x_ticks_number
 
         # If we have to skip labels, we'll do it here.
         # Make sure to always draw the last one.
-        next if $i % $self->{x_label_skip} && $i != $self->{x_tick_number};
+        next if $i % $self->{x_label_skip} and
+		    $i != $self->{_data}->num_points - 1;
 
         $self->{gdta_x_axis}->set_text($self->{x_labels}[$i]);
 

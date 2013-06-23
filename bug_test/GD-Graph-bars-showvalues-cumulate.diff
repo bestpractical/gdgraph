@@ -1,0 +1,50 @@
+--- Graph/bars.pm.orig	2003-03-22 22:58:15.000000000 +0100
++++ Graph/bars.pm	2003-03-22 23:46:05.000000000 +0100
+@@ -310,8 +310,13 @@
+     
+     my $text_angle = $self->{values_vertical} ? PI/2 : 0;
+ 
+-    for (my $dsn = 1; $dsn <= $self->{_data}->num_sets; $dsn++)
++    for (my $dsn = ($self->{cumulate} ? $self->{_data}->num_sets : 1); 
++      $dsn <= $self->{_data}->num_sets; $dsn++)
+     {
++	# show values in cumulative graph 
++	# courtesy of Jörg Prante <joerg@infolinux.de> 
++
++        my @topvalues = @{$self->_top_values};
+         my @values = $self->{_data}->y_values($dsn) or
+             return $self->_set_error("Impossible illegal data set: $dsn",
+                 $self->{_data}->error);
+@@ -319,9 +324,13 @@
+ 
+         for (my $i = 0; $i < @values; $i++)
+         {
+-            next unless defined $display[$i];
++            my $value = $self->{cumulate} ? 
++                   $self->{_data}->get_y_cumulative($dsn, $i) : $display[$i];
++
++            next unless defined $value;
++	    
++	    next if $value eq 0 and $self->{cumulate};
+ 
+-            my $value = $display[$i];
+             if (defined $self->{values_format})
+             {
+                 $value = ref $self->{values_format} eq 'CODE' ?
+@@ -332,12 +341,13 @@
+             my ($xp, $yp);
+             if (defined($self->{x_min_value}) && defined($self->{x_max_value}))
+             {
+-                ($xp, $yp) = $self->val_to_pixel(
+-                    $self->{_data}->get_x($i), $values[$i], $dsn);
++                ($xp, $yp) = $self->val_to_pixel( $self->{_data}->get_x($i), 
++                      $self->{cumulate} ? $topvalues[$i] : $values[$i], $dsn);
+             }
+             else    
+             {
+-                ($xp, $yp) = $self->val_to_pixel($i+1, $values[$i], $dsn);
++                ($xp, $yp) = $self->val_to_pixel($i+1, $self->{cumulate} ?  
++                      $topvalues[$i] : $values[$i], $dsn);
+             }
+ 	    if ($self->{rotate_chart})
+ 	    {

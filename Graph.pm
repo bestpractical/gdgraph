@@ -1068,23 +1068,42 @@ Print every I<x_label_skip>th number under the tick on the x axis, and
 every I<y_label_skip>th number next to the tick on the y axis.
 Default: 1 for both.
 
+=item x_last_label_skip
+
+By default, when I<x_label_skip> is set to something higher than 1, the last
+label on the axis will be printed, even when it doesn't belong to the
+normal series that should be printed. Setting this to a true value
+prevents that.
+
+For example, when your X values are the months of the year (i.e. Jan -
+Dec), and you set I<x_label_skip> to 3, the months printed on the axis
+will be Jan, Apr, Jul, Oct and Dec; even though Dec does not really
+belonmg to that sequence. If you do not like the last month to be
+printed, set I<x_last_label_skip> to a true value.
+
+This option has no effect in other circumstances. Also see
+I<x_tick_offset> for another method to make this look better.
+Default: 0 for both
+
 =item x_tick_offset
 
-When x_label_skip is used, this will skip the first x_tick_offset values
-in the labels before starting to print. Let me give an example. If you
-have a series of X labels like
+When I<x_label_skip> is used, this will skip the first I<x_tick_offset>
+values in the labels before starting to print. Let me give an example.
+If you have a series of X labels like
 
   qw(Jan Feb Mar Apr May Jun Jul Aug Sep Oct Nov Dec)
 
-and you set x_label_skip to 3, you will see ticks on the X axis for Jan,
+and you set I<x_label_skip> to 3, you will see ticks on the X axis for Jan,
 Apr, Jul, Oct and Dec. This is not always what is wanted. If you set
-x_tick_offset to 1, you get Feb, May, Aug, Nov and Dec, and if you set
+I<x_tick_offset> to 1, you get Feb, May, Aug, Nov and Dec, and if you set
 it to 2, you get Mar, Jun Sep and Dec, and this last one definitely
 looks better. A combination of 6 and 5 also works nice for months. 
 
-Note that the value for x_tick_offset is periodical. This means that it
-will have the same effect for each nteger n in x_tick_offset + n *
-x_label_skip.
+Note that the value for I<x_tick_offset> is periodical. This means that it
+will have the same effect for each integer n in I<x_tick_offset> + n *
+I<x_label_skip>.
+
+Also see I<x_last_label_skip> for another method to influence this.
 
 =item x_all_ticks
 
@@ -1578,6 +1597,10 @@ more restrictive behaviour).
 I<Note that this is an experimental feature, and its interface may, and
 likely will, change in the future. It currently does not work for area
 charts or pie charts.>
+
+I<A known problem with hotspots for GD::Graph::hbars is that the x and y
+coordinate come out transposed. This probably won't be fixed until the
+redesign of this section>
 
 GD::Graph keeps an internal set of coordinates for each data point and
 for certain features of a chart, like the title and axis labels. This

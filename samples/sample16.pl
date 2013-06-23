@@ -14,16 +14,12 @@ my $refit = 4;
 sub y_format
 {
     my $value = shift;
-    my $ret;
 
-    if ($value >= 0)
+    if ($value < 0)
     {
-	$ret = sprintf("\$%3d", $value * $refit);
+	return sprintf('-$%3d', abs($value) * $refit);
     }
-    else
-    {
-	$ret = sprintf("-\$%3d", abs($value) * $refit);
-    }
+    return sprintf('$%3d', $value * $refit);
 }
 
 my @names = qw/sample16 sample16-h/;

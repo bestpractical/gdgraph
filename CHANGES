@@ -1,3 +1,10 @@
+1.46 26 Jun 2013
+
+- This release is based on old work by Martien that was sitting
+  in his repo
+- x_last_label_skip option
+- new samples and tweaks to old
+
 1.45 21 Jun 2013
 
 - read DISTRIBUTION STATUS in perldoc GD::Graph

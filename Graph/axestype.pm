@@ -113,6 +113,7 @@ my %Defaults = (
 
     # Display the y values above the bar or point in the graph.
     show_values             => undef,
+    hide_overlapping_values => 0,
     values_vertical         => undef,   # vertical?
     values_space            => 4,       # extra spacing
     values_format           => undef,   # how to format the value

@@ -1305,6 +1305,14 @@ How to format the values for display. See y_number_format for more
 information.
 Default: undef.
 
+=item hide_overlapping_values
+
+If set to a true value, the values that goes out of graph space are hidden.
+Option is B<EXPERIMENTAL>, works only for bars, text still can overlap with
+other bars and labels, most useful only with text in the same direction as
+bars.
+Default: undef
+
 =back
 
 =head2 Options for graphs with a numerical X axis

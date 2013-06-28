@@ -301,6 +301,8 @@ sub draw_values
     my @numPoints = $self->{_data}->num_points();
     my @datasets = $has_args ? @_ : 1 .. $self->{_data}->num_sets;
 
+    my ($l, $r, $b, $t) = ($self->{left}, $self->{right}, $self->{bottom}, $self->{top});
+
     for my $dsn ( @datasets )
     {   # CONTRIB Romeo Juncu
         my @values = ();
@@ -358,6 +360,11 @@ sub draw_values
             }
 
             $self->{gdta_values}->set_text($value);
+            if ( $self->{'hide_overlapping_values'} ) {
+                my @bbox = $self->{gdta_values}->bounding_box($xp, $yp, $text_angle);
+                next if grep $_ < $l || $_ > $r, @bbox[0, 2];
+                next if grep $_ < $t || $_ > $b, @bbox[1, 5];
+            }
             $self->{gdta_values}->draw($xp, $yp, $text_angle);
         }
     }

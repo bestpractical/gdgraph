@@ -18,7 +18,6 @@ Graph/points.pm
 Graph/utils.pm
 Makefile.PL
 MANIFEST
-META.yml			Module meta-data (added by MakeMaker)
 README
 samples/error.pl
 samples/logo.gif

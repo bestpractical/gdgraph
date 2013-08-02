@@ -1,3 +1,14 @@
+1.48 02 Aug 2013
+
+- no code changes, just release enginering cleanup
+- adjust MANIFEST.SKIP file so MANIFEST can be generated
+  once again
+- ship sample58.pl file, so `make samples` stop failing
+- mention the current and past maintainers in META files
+  as authors
+- use newer CPAN::Meta and ExtUtils::MakeMaker, older
+  versions generated META files without runtime prerequisites
+
 1.47 28 Jun 2013
 
 - experimental hide_overlapping_values option for bar graphs

@@ -19,7 +19,11 @@ WriteMakefile(
 
         ($] >= 5.005 ?
             ('ABSTRACT'	    => 'Produces charts with GD',
-             'AUTHOR'	    => 'Martien Verbruggen <mgjv@tradingpost.com.au>',
+             'AUTHOR'       => [
+                 'Martien Verbruggen <mgjv@tradingpost.com.au>',
+                 'Benjamin Warfield <bwarfield@cpan.org>',
+                 'Ruslan Zakirov <Ruslan.Zakirov@gmail.com>',
+            ]
             ):()
         ),
 

@@ -45,7 +45,7 @@ WriteMakefile(
                 },
                 repository => {
                     type => 'git',
-                    url  => 'git://git@github.com:ruz/GDGraph.git',
+                    url  => 'git://github.com/ruz/GDGraph.git',
                     web  => 'https://github.com/ruz/GDGraph',
                 },
             },

@@ -20,8 +20,11 @@ Makefile.PL
 MANIFEST
 META.yml			Module meta-data (added by MakeMaker)
 README
-samples/Makefile
+samples/error.pl
+samples/logo.gif
 samples/logo.png
+samples/make_index.pl
+samples/Makefile
 samples/rgb.txt
 samples/sample11.pl
 samples/sample12.pl
@@ -37,6 +40,7 @@ samples/sample1B.pl
 samples/sample21.pl
 samples/sample22.pl
 samples/sample23.pl
+samples/sample29.pl
 samples/sample31.pl
 samples/sample41.pl
 samples/sample42.dat
@@ -49,6 +53,7 @@ samples/sample54.pl
 samples/sample55.pl
 samples/sample56.pl
 samples/sample57.pl
+samples/sample58.pl
 samples/sample61.pl
 samples/sample62.pl
 samples/sample63.pl

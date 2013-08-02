@@ -1,25 +1,33 @@
 # vim swap files
 \..+.swp$
+\.bak$
+\.rej$
+\.orig$
 
 # Version control
 CVS/
 \.#.+\d$
-.cvsignore
-.git
-.gitignore
+\.cvsignore
+\.git
+\.gitignore
 
 # sample output
 samples/sample..\.png$
 samples/sample..-h\.png$
 
-.git/
 # local files
 bug_test/*
+doc/
+questions/
+
+# skip Canvas thing that was never released to CPAN
+Graph/Canvas
 
 BUGS
 TODO
 
 # Perl stuff
 blib
-MANIFEST.SKIP
-Makefile
+MANIFEST\.SKIP
+^Makefile$
+MYMETA\.

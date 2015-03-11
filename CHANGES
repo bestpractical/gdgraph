@@ -1,3 +1,7 @@
+1.49
+
+- fix to Z-axis color filling in 3D pie charts (Debian Bug #489184)
+
 1.48 02 Aug 2013
 
 - no code changes, just release enginering cleanup

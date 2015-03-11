@@ -3,7 +3,7 @@
  
 #--- Distribution section ---
  
-use ExtUtils::MakeMaker 6.57_02;
+use ExtUtils::MakeMaker 6.58;
 use Config;
  
 #use ExtUtils::Manifest;
@@ -28,10 +28,10 @@ WriteMakefile(
         ),
 
         BUILD_REQUIRES   => {
-            'ExtUtils::MakeMaker' => 6.57_02,
+            'ExtUtils::MakeMaker' => '6.58',
         },
         CONFIGURE_REQUIRES   => {
-            'ExtUtils::MakeMaker' => 6.57_02,
+            'ExtUtils::MakeMaker' => '6.58',
         },
         'PREREQ_PM'     => { 
             'GD'	    => '1.18', 

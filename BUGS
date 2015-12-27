@@ -1,47 +1,5 @@
 UNRESOLVED BUGS
 
-- From rt.cpan.org
-
-Subject: Bug in shadow handling with cumulative bar charts  
-  
-  
-Using GDGraph 1.33 installed via PPM with ActivePerl build 630 (perl v5.6.1) on
-Windows 2000. When drawing cumulative bar charts (GD::Graph::bars with the cumulate => 1 option)
-and using shadows (shadow_depth => -4), shadows are misplaced. Running the attached script generates a PNG file where the shadow covers part of the
-lower (red) bars, but the upper (green) bars are on top of the shadow.  Thus, the
-green bars seem to stick out above the red bars.  Using the attached code, look at
-the border between the red and green sections for ASP and CFML at the right of the
-bar.  Without shadows, the red and green bars are the same width.  With shadows, the
-green bar is wider. I hope this information is helpful. Tom Hukins <tom@eborcom.com> Download (untitled) 746b
-  
-#!/usr/bin/perl 
-use strict;
-use warnings; 
-use GD::Graph::bars (); 
-
-my @data = (
-    [qw(ASP Perl Ruby CFML Java)],
-    [qw(4 9 7 2 5)],
-    [qw(2 6 7 2 5)]
-); my
-$graph = GD::Graph::bars->new(400, 300);
-$graph->set(
-    x_label => 'Language',
-    y_label => 'Coolness',
-    y_max_value=> 20,
-    title=> 'How cool is your language?',
-    bar_spacing=> 1,
-    transparent=> 0,
-    shadow_depth=> -4,
-    cumulate => 1
-); 
-my $gd = $graph->plot(\@data);
-my $png = $gd->png;
-
-open FOO, ">cumbug.png" or die $!;
-binmode FOO;
-print FOO $png;
-
 - from rt.cpan.org
 
 Subject: two_axis graphs ranges poorly chosen  

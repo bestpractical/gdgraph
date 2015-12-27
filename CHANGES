@@ -1,4 +1,4 @@
-1.49
+1.49 11 Mar 2015
 
 - fix to Z-axis color filling in 3D pie charts (Debian Bug #489184)
 - bump ExtUtils::MakeMaker dependency

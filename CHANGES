@@ -1,3 +1,9 @@
+1.52 28 Jan 2016
+
+- y1_min_range and y2_min_range instead of min_range_1 and min_range_2,
+  niether were documented before.
+- Update documentation in regards to all *_min_range options available.
+
 1.51 27 Dec 2015
 
 - fix shadows rendering on cumulative bar charts

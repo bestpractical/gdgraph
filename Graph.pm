@@ -1205,6 +1205,19 @@ to draw the graph.
 
 Default: Computed from data sets.
 
+=item y_min_range, y1_min_range, y2_min_range
+
+Minimal range between min and max values on y axis that is used to adjust
+computed y_min_value and y_max_value.
+
+B<NOTE> that author of the feature implemented this for two_axes case only,
+patches are wellcome to expand over one y axis.
+
+If two_axes is a true value, then y1_min_range and y2_min_range take
+precedence over y_min_range value.
+
+Default: undef
+
 =item axis_space
 
 This space will be left blank between the axes and the tick value text.
@@ -1340,6 +1353,12 @@ Default: undef.
 
 The minimum and maximum value to use for the X axis.
 Default: computed.
+
+=item x_min_range
+
+Minimal range of x axis.
+
+Default: undef
 
 =item x_number_format
 

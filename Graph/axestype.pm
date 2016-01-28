@@ -1520,7 +1520,7 @@ sub set_max_min
 
     # First, calculate some decent values
     if ( $self->{two_axes} ) 
-    {   # XXX this is almost certainly a bug: this key is not set anywhere
+    {
         my $min_range_1 = defined($self->{y1_min_range})
                 ? $self->{y1_min_range}
                 : $self->{y_min_range};

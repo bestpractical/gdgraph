@@ -26,16 +26,24 @@ foreach my $sgroup (sort keys %titles)
     print HTML start_html($titles{$sgroup}),
 		h1($titles{$sgroup}), start_table();
 
-    foreach my $num (1..9)
+    my @samples = map  { $_->[0] }
+		  sort { $a->[1] <=> $b->[1] } 
+		  map  { s/\.pl$//; [$_, /${sgroup}(\d+)/] } glob "${sgroup}[1-9].pl";
+
+    foreach my $sample (@samples)
     {
-	foreach my $img ("$sgroup$num.$EXT", "$sgroup$num-h.$EXT")
+	my @images = reverse sort  glob "${sample}*.$EXT";
+	warn ("No $EXT sample images found for $sample.pl") unless @images;
+	foreach my $img (@images)
 	{
 	    if (-f $img)
 	    {
 		print HTML Tr(
-		    td(a({href => "$sgroup$num.pl"},"$sgroup$num.pl")),
+		    td(a({href => "$sample.pl"},"$sample.pl")),
 		    td(img({src => "$img", border => 0}))
 		    );
+	    } else {
+		    warn("$img error: $!");
 	    }
 	}
     }

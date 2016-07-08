@@ -85,4 +85,5 @@ t/images/logo_ping_noext
 t/images/logo_xbm_noext
 t/images/logo_xpm_noext
 t/samples.t
+t/tickets/73185-div-by-zero.t
 t/use.t

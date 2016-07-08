@@ -1,3 +1,9 @@
+1.53 08 Jul 2016
+
+- Fix 'Illegal division by zero' when x_min_value and x_max_value
+  are defined and x_tick_number set to 'auto' RT#73185
+  Thanks to Bob Rogers, https://github.com/ruz/GDGraph/pull/12
+
 1.52 28 Jan 2016
 
 - y1_min_range and y2_min_range instead of min_range_1 and min_range_2,

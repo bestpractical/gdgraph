@@ -3,7 +3,7 @@
  
 #--- Distribution section ---
  
-use ExtUtils::MakeMaker 6.58;
+use ExtUtils::MakeMaker 6.76;
 use Config;
  
 #use ExtUtils::Manifest;
@@ -28,10 +28,10 @@ WriteMakefile(
         ),
 
         BUILD_REQUIRES   => {
-            'ExtUtils::MakeMaker' => '6.64',
+            'ExtUtils::MakeMaker' => '6.76',
         },
         CONFIGURE_REQUIRES   => {
-            'ExtUtils::MakeMaker' => '6.64',
+            'ExtUtils::MakeMaker' => '6.76',
         },
         TEST_REQUIRES => {
             'Capture::Tiny'       => '0.30',
@@ -39,6 +39,10 @@ WriteMakefile(
             'FindBin'             => '0',
             'Test::More'          => '0.88',
         },
+        test => {
+            RECURSIVE_TEST_FILES => 1,
+        },
+
         'PREREQ_PM'     => { 
             'GD'	    => '1.18', 
             'GD::Text'      => '0.80',

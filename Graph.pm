@@ -32,7 +32,7 @@
 package GD::Graph;
 
 ($GD::Graph::prog_version) = '$Revision: 1.55 $' =~ /\s([\d.]+)/;
-$GD::Graph::VERSION = '1.52';
+$GD::Graph::VERSION = '1.53';
 
 use strict;
 use GD;

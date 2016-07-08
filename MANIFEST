@@ -84,4 +84,5 @@ t/images/logo_jpeg_noext
 t/images/logo_ping_noext
 t/images/logo_xbm_noext
 t/images/logo_xpm_noext
+t/samples.t
 t/use.t

@@ -1,4 +1,4 @@
-1.54
+1.54 21 Nov 2016
 
 - Disable two Y axes alignment when any y[12]_{min,max}_value is defined
   RT#62665

@@ -1606,7 +1606,10 @@ sub set_max_min
     $self->{x_min}    = $self->{x_min_value}  if defined $self->{x_min_value};
     $self->{x_max}    = $self->{x_max_value}  if defined $self->{x_max_value};
 
-    if ($self->{two_axes})
+    if (
+        $self->{two_axes} && !defined $self->{y1_min_value} && !defined $self->{y2_min_value}
+        && !defined $self->{y1_max_value} && !defined $self->{y2_max_value}
+    )
     {
         # If we have two axes, we need to make sure that the zero is at
         # the same spot.

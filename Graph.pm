@@ -347,7 +347,8 @@ sub _read_logo_file
             pack("H8",'ffd8ffe0') => "jpeg",
             'GIF8' => "gif",
             '.PNG' => "png",
-            '/* X'=> "xpm", # technically '/* XPM */', but I'm hashing, here
+            '/* X' => "xpm", # technically '/* XPM */', but I'm hashing, here
+            '#def' => "xbm",
         );
         if (my $match = $magic{ substr $logodata, 0, 4 }) {
             push @tried, $match;

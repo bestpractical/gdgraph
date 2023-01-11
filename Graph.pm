@@ -32,7 +32,7 @@
 package GD::Graph;
 
 ($GD::Graph::prog_version) = '$Revision: 1.55 $' =~ /\s([\d.]+)/;
-$GD::Graph::VERSION = '1.54';
+$GD::Graph::VERSION = '1.55';
 
 use strict;
 use GD;
@@ -607,6 +607,18 @@ Create a pie chart.
 =back
 
 =head1 DISTRIBUTION STATUS
+
+=head2 2023 Update
+
+This new release fixes some tests that started to fail based on
+some changes in dependencies. We help this gets all tests passing
+again so users can install cleanly again.
+
+The new active repo is here: L<https://github.com/bestpractical/gdgraph>.
+
+You can continue to use L<https://rt.cpan.org> for bug reports.
+
+=head2 Status from 2013
 
 Distribution has no releases since 2007. It has new maintainer starting
 of 1.45 and my plan is to keep modules backwards compatible as much as
@@ -1784,9 +1796,9 @@ for all concerned.
 =head1 AUTHOR
 
 Martien Verbruggen E<lt>mgjv@tradingpost.com.auE<gt>
-
-Current maintenance (including this release) by
 Benjamin Warfield E<lt>bwarfield@cpan.orgE<gt>
+Ruslan Zakirov
+Best Practical Solutions E<lt>modules@bestpractical.comE<gt>
 
 =head2 Copyright
 

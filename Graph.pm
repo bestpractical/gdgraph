@@ -611,8 +611,8 @@ Create a pie chart.
 =head2 2023 Update
 
 This new release fixes some tests that started to fail based on
-some changes in dependencies. We help this gets all tests passing
-again so users can install cleanly again.
+changes in dependencies. We hope this gets all tests passing
+again so users can install cleanly.
 
 The new active repo is here: L<https://github.com/bestpractical/gdgraph>.
 

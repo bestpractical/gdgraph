@@ -111,9 +111,8 @@ UPDATE 1: Running the examples is part of the test procedure now. You
 are still encouraged to run check them out to learn from them and
 to see the ouput images.
 
-UPDATE 2: The samples fail if libgd is installed without image support
-enabled, which is the default starting with version 2.3.3. The samples
-should be automatically skipped if this is detected. To run the tests,
-install libgd with image support enabled.
+UPDATE 2 (2023-0-13): The samples fail if libgd is installed without
+image support enabled, which is the default starting with version 2.3.3.
+The samples should be automatically skipped if this is detected. To
+run the tests from samples, install libgd with image support enabled.
 END
-
